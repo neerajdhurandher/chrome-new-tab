@@ -22,8 +22,6 @@ export default async function get_motivation_quote() {
             console.log(response[0])
             console.log("response from api : \n \t Quote : " + response[0]["quote"] + " \n \t author : " + response[0]["author"]);
             quote_details = response[0];
-            console.log("go for store...")
-            // store_last_quote_deails(response[0])
         })
         .catch(err => console.error(err));
     
