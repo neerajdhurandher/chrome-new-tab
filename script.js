@@ -14,38 +14,44 @@ function set_time() {
     document.querySelector(".current_time").innerText = "Current time is : " + date_time.toLocaleTimeString("en-US", { hour12: false });
 }
 
-
 function set_quote() {
 
     console.log("Setting quote..........")
 
-    chrome.storage.local.get(["last_quote_details"]).then((result) => {
-        if (result == undefined) {
-            result.last_quote_details.quote = "Today is your opportunity to build the tomorrow you want."
-            result.last_quote_details.author = "Ken Poirot"
-        }
-        document.querySelector(".quote_p").innerHTML = result.last_quote_details.quote
-        document.querySelector(".quote_author_p").innerHTML = "-by " + result.last_quote_details.author
+    chrome.runtime.sendMessage({ action: "get_quote" }, (response) => {
+        console.log("got quote from background")
+        console.log(response)
+        document.querySelector(".quote_p").innerHTML = response.response_message.quote
+        document.querySelector(".quote_author_p").innerHTML = "-by " + response.response_message.author
+
     })
-
-
 }
 
-function refresh_quote() {
+async function refresh_quote() {
+
     console.log("this is refresh quote.....")
-    chrome.runtime.sendMessage({ action: "refresh_quote" }), (response) => {
-        console.log("quote refresh")
+    let curr_tab = await getCurrentTab();
+
+    if (curr_tab != undefined && curr_tab.url == "chrome://newtab/") {
+
+        chrome.runtime.sendMessage({ action: "refresh_quote" }), (response) => {
+            console.log("quote refresh")
+        }
+        setTimeout(() => {
+            console.log("this is timeout function")
+            set_quote()
+        }, 3000)
     }
-    setTimeout(() => {
-        console.log("this is timeout function")
-        set_quote()
-    }, 3000)
-
-    console.log("this is outside")
-
 }
+
+async function getCurrentTab() {
+    let queryOptions = { active: true, lastFocusedWindow: true };
+    let [tab] = await chrome.tabs.query(queryOptions);
+    return tab;
+}
+
 set_time()
-refresh_quote()
 setInterval(set_time, 1000)
+set_quote()
 setInterval(refresh_quote, 600000)
 

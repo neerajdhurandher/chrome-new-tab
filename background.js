@@ -10,12 +10,13 @@ function fun() {
 }
 
 chrome.runtime.onInstalled.addListener(({ reason }) => {
+  console.log("Install reason : " + reason);
   if (reason === 'install') {
     chrome.tabs.create({
       url: "wwww.google.com"
     });
   } else if (reason === 'update') {
-    console.log("updated..")
+    console.log("updated....")
   }
 
   manage_quote_deails();
@@ -23,25 +24,23 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
 });
 
 chrome.tabs.onCreated.addListener(function (tab) {
+  console.log("new tab created....")
   console.log(tab);
   manage_quote_deails();
 })
 
+// chrome.tabs.onActivated.addListener(function(tab) {
+//     console.log(tab)
+// })
 
-chrome.runtime.onInstalled.addListener(details => {
-  console.log.apply("Install reason : " + details.reason);
-  manage_quote_deails();
-})
-
-chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((param, sender, sendResponse) => {
 
   console.log("chrome onMessage listner");
   console.log("recived listner message : " + param.action);
 
-
-  if (param.action == "new_quote") {
-    console.log("getting new quote");
-    sendResponse({ response_messgae: await fetch_new_quote() })
+  if (param.action == "get_quote") {
+    console.log("getting stored quote");
+    sendResponse({ response_message: last_quote_details_from_cache })
 
   } else if (param.action == "refresh_quote") {
     manage_quote_deails();
@@ -55,60 +54,57 @@ var date_time = undefined;
 var current_hour = undefined;
 var current_min = undefined;
 
+var last_quote_details_from_cache = undefined;
+var last_quote_hour = undefined;
+var last_quote_minute = undefined;
+var last_quote_quote = undefined;
+var last_quote_author = undefined;
+
 function set_time() {
   date_time = new Date();
   current_hour = date_time.getHours();
   current_min = date_time.getMinutes();
-
   console.log("Background.js Current time is : " + current_hour + " : " + current_min);
-
 }
-
 
 async function manage_quote_deails() {
 
+  set_time();
   console.log("Fetching quote....")
 
-  chrome.storage.local.get(["last_quote_details"], (result) => {
-
-    let last_quote_details_from_cache = result.last_quote_details;
-
-    var fetched_quote = undefined;
-
-    if (last_quote_details_from_cache == undefined) {
-
-      console.log("Fetching new quote....")
-
-      fetched_quote = fetch_new_quote();
-
-    } else {
-      
-      console.log("got stored quote....")
-      
-      set_time();
-      let last_quote_hour = last_quote_details_from_cache.hours;
-      let last_quote_minute = last_quote_details_from_cache.minutes;
-      let last_quote_quote = last_quote_details_from_cache.quote;
-      let last_quote_author = last_quote_details_from_cache.author;
-
-      console.log("last quote time : " + last_quote_hour + " : " + last_quote_minute);
-      console.log("last quote : " + last_quote_quote + " \n by " + last_quote_author);
-
-      if (current_hour - last_quote_hour > 0 || current_min - last_quote_minute > 10) {
-        console.log("Previous code expire getting new quote....")
-        fetched_quote = fetch_new_quote();
+  if (last_quote_hour == undefined) {
+    
+    chrome.storage.local.get(["last_quote_details"], (result) => {
+      last_quote_details_from_cache = result.last_quote_details;
+      console.log(last_quote_details_from_cache)
+      if (last_quote_details_from_cache == undefined) {
+        console.log("Fetching new quote....")
+        fetch_new_quote();
+      } else {
+        set_quote_global_values(last_quote_details_from_cache)
+        console.log("got stored quote....")
+        console.log("last quote time : " + last_quote_hour + " : " + last_quote_minute);
+        console.log("last quote : " + last_quote_quote + " \n by " + last_quote_author);
       }
-    }
-  })
+    })
+
+  } else if (current_hour - last_quote_hour > 0 || current_min - last_quote_minute > 10) {
+    console.log("Previous code expire getting new quote....")
+    fetch_new_quote();
+  }
 
 }
 
 async function fetch_new_quote() {
 
   console.log("calling api function....")
-  var fetched_quote = await get_motivation_quote();
+  let fetched_quote = await get_motivation_quote();
   console.log("api call function return : " + fetched_quote)
-  store_last_quote_deails(fetched_quote)
+  if (fetched_quote == undefined)
+    set_default_quote()
+  else
+    store_last_quote_deails(fetched_quote)
+
   return fetched_quote;
 }
 
@@ -132,16 +128,33 @@ function store_last_quote_deails(recived_quote) {
   console.log("Recived quote : " + recived_quote["quote"]);
   console.log("Recived quote author : " + recived_quote["author"]);
 
-  let last_quote_details = { hours: current_hour, minutes: current_min, quote: recived_quote["quote"], author: recived_quote["author"] }
+  let last_quote_details_obj = { hours: current_hour, minutes: current_min, quote: recived_quote["quote"], author: recived_quote["author"] }
+  console.log("storing quote details : \n \t" + last_quote_details_obj)
 
-  console.log("storing quote details : \n \t" + last_quote_details)
-
-  chrome.storage.local.set({ "last_quote_details": last_quote_details }, () => {
+  chrome.storage.local.set({ "last_quote_details": last_quote_details_obj }, () => {
     if (chrome.runtime.lastError)
       console.log('Error setting');
-
-    console.log('Stored details: \n \t author: ' + last_quote_details.author);
+    else {
+      console.log('Stored details: \n \t author: ' + last_quote_details_obj.author);
+      set_quote_global_values(last_quote_details_obj);
+    }
   });
 }
 
+function set_default_quote() {
+  set_time();
+  last_quote_details_from_cache.quote = "Today is your opportunity to build the tomorrow you want.";
+  last_quote_details_from_cache.author = "Ken Poirot";
+  last_quote_details_from_cache.hours = current_hour;
+  last_quote_details_from_cache.minutes = current_min;
+
+  set_quote_global_values(last_quote_details_from_cache);
+}
+
+function set_quote_global_values(quote_obj) {
+  last_quote_hour = quote_obj.hours;
+  last_quote_minute = quote_obj.minutes;
+  last_quote_quote = quote_obj.quote;
+  last_quote_author = quote_obj.author;
+}
 
