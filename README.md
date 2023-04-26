@@ -1,0 +1,1 @@
+## This is New tab extention for Chrome
