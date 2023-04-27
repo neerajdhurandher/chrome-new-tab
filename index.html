@@ -13,21 +13,46 @@
 
 <body>
 
-    <h1>Hello world</h1>
-
-    <div class="current_time"></div>
-
-    <div class="quote_p"></div>
-    <div class="quote_author_p"></div>
-
-    <div class="youtube-search-div">
-        <input type="search" id="youtube-search-input" class="youtube-input-box" placeholder="youtube search">
-        <button id="youtube-search-btn" class="search-btn" type="submit">Search</button>
+    <div class="date-time-body">
+        <div class="current-day-date">
+            <span id="day">day</span>,
+            <span id="daynum">00</span>
+            <span id="month">month</span>
+            <span id="year">0000</span>
+        </div>
+        <div class="current_time"></div>
     </div>
 
-    <div class="google-search-div">
-        <input type="search" id="google-search-input" class="google-input-box" placeholder="google search">
-        <button id="google-search-btn" class="search-btn" type="submit">Search</button>
+    <div class="quote-container">
+        <span class="quote_p" style="font-size: 2rem;">This is quote</span>
+        <span class="quote_author_p">-by author</span>
+    </div>
+
+    <div class="greeting-div">
+        <h1>Good morning, Neeraj.</h1>
+    </div>
+
+
+    <div class="search-container">
+
+        <div class="google-search-div search-div">
+            <div class="search-box">
+                <img class="img-logo" src="./imgs/google-icon.svg" />
+                <input type="search" id="google-search-input" class="google-input-box input-box"
+                    placeholder="google search">
+            </div>
+            <!-- <button id="google-search-btn" class="search-btn" type="submit">Search</button> -->
+        </div>
+
+        <div class="youtube-search-div search-div">
+            <div class="search-box">
+                <img class="img-logo" src="./imgs/youtube-icon.svg" />
+                <input type="search" id="youtube-search-input" class="youtube-input-box input-box"
+                    placeholder="youtube search">
+            </div>
+            <!-- <button id="youtube-search-btn" class="search-btn" type="submit">Search</button> -->
+        </div>
+
     </div>
 
 </body>

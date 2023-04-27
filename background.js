@@ -44,26 +44,32 @@ chrome.runtime.onMessage.addListener((param, sender, sendResponse) => {
 
   } else if (param.action == "refresh_quote") {
     manage_quote_deails();
+
+  } else if (param.action == "get_day_date") {
+    sendResponse({ response_message: current_day_date_obj })
+
   }
 
   return true;
 
 })
 
-var date_time = undefined;
-var current_hour = undefined;
-var current_min = undefined;
+var date_time = undefined,
+  current_hour = undefined,
+  current_min = undefined,
+  current_day_date_obj = undefined;
 
-var last_quote_details_from_cache = undefined;
-var last_quote_hour = undefined;
-var last_quote_minute = undefined;
-var last_quote_quote = undefined;
-var last_quote_author = undefined;
+var last_quote_details_from_cache = undefined,
+  last_quote_hour = undefined,
+  last_quote_minute = undefined,
+  last_quote_quote = undefined,
+  last_quote_author = undefined;
 
 function set_time() {
   date_time = new Date();
   current_hour = date_time.getHours();
   current_min = date_time.getMinutes();
+  get_day_date();
   console.log("Background.js Current time is : " + current_hour + " : " + current_min);
 }
 
@@ -73,7 +79,7 @@ async function manage_quote_deails() {
   console.log("Fetching quote....")
 
   if (last_quote_hour == undefined) {
-    
+
     chrome.storage.local.get(["last_quote_details"], (result) => {
       last_quote_details_from_cache = result.last_quote_details;
       console.log(last_quote_details_from_cache)
@@ -156,5 +162,40 @@ function set_quote_global_values(quote_obj) {
   last_quote_minute = quote_obj.minutes;
   last_quote_quote = quote_obj.quote;
   last_quote_author = quote_obj.author;
+}
+
+function get_day_date() {
+
+  let dayName = date_time.getDay(),
+    dayNum = date_time.getDate(),
+    month = date_time.getMonth(),
+    year = date_time.getFullYear();
+
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const dayWeek = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+
+  current_day_date_obj = [dayWeek[dayName], dayNum, months[month], year];
+  return current_day_date_obj;
 }
 
