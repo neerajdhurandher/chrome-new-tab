@@ -1,25 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.api-ninjas.com ">
-        <title>Neeraj's new tab</title>
-        <link rel="stylesheet" href="style.css">    
-    </head>
-    <body>
 
-        <h1>Hello world</h1>
-        <input type = "button" onclick = "set_quote()" value = "Get Value">  
-        
-        <div class="current_time"></div>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.api-ninjas.com ">
+    <title>Neeraj's new tab</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 
-        <div class="quote_p"></div>
-        <div class="quote_author_p"></div>
+<body>
 
+    <h1>Hello world</h1>
 
-    </body>
-    <script type="module" src="script.js"></script>    
+    <div class="current_time"></div>
+
+    <div class="quote_p"></div>
+    <div class="quote_author_p"></div>
+
+    <div class="youtube-search-div">
+        <input type="search" id="youtube-search-input" class="youtube-input-box" placeholder="youtube search">
+        <button id="youtube-search-btn" class="search-btn" type="submit">Search</button>
+    </div>
+
+    <div class="google-search-div">
+        <input type="search" id="google-search-input" class="google-input-box" placeholder="google search">
+        <button id="google-search-btn" class="search-btn" type="submit">Search</button>
+    </div>
+
+</body>
+<script type="module" src="script.js"></script>
 
 </html>
