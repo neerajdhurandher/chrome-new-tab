@@ -196,6 +196,7 @@ input {
     text-align: center;
     margin-left: 2%;
     background-color: aliceblue;
+    display: none;
 }
 
 .search-btn:hover{
