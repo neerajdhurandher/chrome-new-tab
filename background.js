@@ -109,7 +109,8 @@ async function manage_quote_deails() {
 async function fetch_new_quote() {
 
   console.log("calling api function....")
-  let fetched_quote = await get_motivation_quote();
+  // let fetched_quote = await get_motivation_quote();
+  let fetched_quote = undefined;
   console.log("api call function return : " + fetched_quote)
   if (fetched_quote == undefined)
     set_default_quote()
