@@ -11,7 +11,16 @@ function set_time() {
 
     console.log("Current time is : " + current_hour + " : " + current_min);
 
-    document.querySelector(".current_time").innerText = "Current time is : " + date_time.toLocaleTimeString("en-US", { hour12: false });
+    document.querySelector(".current_time").innerText = date_time.toLocaleTimeString("en-US", { hour12: false });
+}
+
+function updateDate() {
+    const IDCollection = ["day", "daynum", "month", "year"];
+    chrome.runtime.sendMessage({ action: "get_day_date" }, (response) => {
+        for (let i = 0; i < IDCollection.length; i++) {
+            document.getElementById(IDCollection[i]).firstChild.nodeValue = response.response_message[i];
+        }
+    })
 }
 
 function set_quote() {
@@ -24,6 +33,14 @@ function set_quote() {
         document.querySelector(".quote_p").innerHTML = response.response_message.quote
         document.querySelector(".quote_author_p").innerHTML = "-by " + response.response_message.author
 
+    })
+}
+
+function set_greeting(){
+    chrome.runtime.sendMessage({ action: "get_greeting" }, (response) => {
+        console.log("got greeting from background")
+        console.log(response)
+        document.querySelector(".greeting-h1").innerHTML = "Good " + response.response_message + ",";
     })
 }
 
@@ -51,14 +68,12 @@ async function getCurrentTab() {
 }
 
 set_time()
+updateDate()
 setInterval(set_time, 1000)
 set_quote()
 setInterval(refresh_quote, 600000)
+set_greeting()
 
-// function youtube_search(){
-//     var yt_search_field = document.getElementById("youtube-search-input").value
-//     console.log(yt_search_field)
-// }
 
 document.getElementById("youtube-search-btn").addEventListener('click', () => {
     console.log("youtube search button clicked");
@@ -89,12 +104,12 @@ document.getElementById("google-search-input").addEventListener("keyup", functio
 const youtube_search_link = "https://www.youtube.com/results?search_query=";
 const google_search_link = "https://www.google.com/search?q=";
 
-function got_for_google_search(){
-    got_for_search("google-search-input",google_search_link)
+function got_for_google_search() {
+    got_for_search("google-search-input", google_search_link)
 }
 
-function got_for_youtube_search(){
-    got_for_search("youtube-search-input",youtube_search_link)
+function got_for_youtube_search() {
+    got_for_search("youtube-search-input", youtube_search_link)
 }
 
 function got_for_search(input_element_id, main_link) {
