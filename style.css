@@ -119,19 +119,24 @@ input:checked+.slider:before {
 
 .quote-container {
     position: absolute;
-    bottom: 5%;
-    right: 0;
-    left: 0;
     margin: auto;
+    bottom: 3%;
+    right: 5%;
+    left: 5%;
+    padding: 1%;
+    background-color: rgba(135, 135, 135, 0.133);
+    z-index: 2;
+    border-radius: 10px;
 }
 
 .quote-container>* {
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
 }
 
-.search-container{
+.search-container {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -199,11 +204,11 @@ input {
     display: none;
 }
 
-.search-btn:hover{
-    background-color:rgb(168, 224, 141);
+.search-btn:hover {
+    background-color: rgb(168, 224, 141);
 }
 
-.greeting-div{
+.greeting-div {
     display: flex;
     justify-content: center;
     margin-top: 4%;

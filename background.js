@@ -20,6 +20,7 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
   }
 
   manage_quote_deails();
+  get_greeting();
 
 });
 
@@ -27,6 +28,7 @@ chrome.tabs.onCreated.addListener(function (tab) {
   console.log("new tab created....")
   console.log(tab);
   manage_quote_deails();
+  get_greeting();
 })
 
 // chrome.tabs.onActivated.addListener(function(tab) {
@@ -47,6 +49,9 @@ chrome.runtime.onMessage.addListener((param, sender, sendResponse) => {
 
   } else if (param.action == "get_day_date") {
     sendResponse({ response_message: current_day_date_obj })
+
+  } else if (param.action == "get_greeting") {
+    sendResponse({ response_message: get_greeting() })
 
   }
 
@@ -197,5 +202,18 @@ function get_day_date() {
 
   current_day_date_obj = [dayWeek[dayName], dayNum, months[month], year];
   return current_day_date_obj;
+}
+
+function get_greeting() {
+  set_time()
+  let greeting = undefined;
+  if (current_hour < 12)
+    greeting = "morning";
+  else if (current_hour >= 12 && current_hour <= 16)
+    greeting = "afternoon";
+  else
+    greeting = "evening";
+
+  return greeting
 }
 

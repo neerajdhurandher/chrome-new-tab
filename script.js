@@ -36,6 +36,14 @@ function set_quote() {
     })
 }
 
+function set_greeting(){
+    chrome.runtime.sendMessage({ action: "get_greeting" }, (response) => {
+        console.log("got greeting from background")
+        console.log(response)
+        document.querySelector(".greeting-h1").innerHTML = "Good " + response.response_message + ",";
+    })
+}
+
 async function refresh_quote() {
 
     console.log("this is refresh quote.....")
@@ -64,6 +72,7 @@ updateDate()
 setInterval(set_time, 1000)
 set_quote()
 setInterval(refresh_quote, 600000)
+set_greeting()
 
 
 document.getElementById("youtube-search-btn").addEventListener('click', () => {
