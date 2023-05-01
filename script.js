@@ -36,7 +36,7 @@ function set_quote() {
     })
 }
 
-function set_greeting(){
+function set_greeting() {
     chrome.runtime.sendMessage({ action: "get_greeting" }, (response) => {
         console.log("got greeting from background")
         console.log(response)
@@ -126,3 +126,64 @@ function got_for_search(input_element_id, main_link) {
     }
 
 }
+
+var input_element = document.getElementById("city-input");
+var loading_msg_element = document.getElementById("loading_msg");
+
+document.getElementById("city-input").addEventListener("keyup", function (event) {
+    if (event.keyCode === 13) {
+        event.preventDefault();
+        console.log("city enter key pressed")
+        var city_value = input_element.value;
+        console.log("location val " + city_value)
+
+        input_element.style.display = "none";
+        loading_msg_element.innerHTML = "getting your location weather data.....";
+        loading_msg_element.style.display = "block";
+
+        chrome.runtime.sendMessage({ action: "set_location_weather", msg: city_value }, async (response) => {
+            console.log("got weather data response from background")
+            console.log(response)
+        })
+
+        setTimeout(() => {
+            console.log("this is timeout function for featching weather data")
+            get_city_weather_data();
+        }, 4000)
+    }
+});
+
+function get_city_weather_data() {
+    console.log("send runtime msg for get weather")
+    chrome.runtime.sendMessage({ action: "get_location_weather" }, (response) => {
+        console.log("got weather data from background")
+        // if (response.response_message != undefined)
+            set_city_weather_data(response)
+    })
+}
+
+function set_city_weather_data(response) {
+    console.log(response)
+    if (response.response_message != undefined) {
+        console.log("setting weather detail ")
+        loading_msg_element.style.display = "none";
+        document.querySelector(".weather-deatils-div").style.display = "grid";
+        document.querySelector(".location-name").innerHTML = response.response_message.location.name
+        document.querySelector(".weather-value").innerHTML = response.response_message.current.temp_c + "°C"
+        document.querySelector(".weather-type").innerHTML = response.response_message.current.condition.text
+        document.querySelector(".weather-icon").src = "https:" + response.response_message.current.condition.icon + ""
+    } else {
+        console.log("no weather data")
+        loading_msg_element.innerHTML = "Sorry, couldn't load weather data"
+        setTimeout(() => {
+            input_element.style.display = "block";
+            input_element.value = "";
+            loading_msg_element.style.display = "none";
+        }, 2000)
+    }
+}
+
+setTimeout(() => {
+    get_city_weather_data();
+}, 2000)
+
