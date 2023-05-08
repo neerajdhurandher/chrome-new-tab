@@ -101,6 +101,25 @@ document.getElementById("google-search-input").addEventListener("keyup", functio
     }
 });
 
+document.getElementById("google-search-input").addEventListener("click", () => {
+    hide_youtube_search_bar();
+})
+
+document.getElementById("youtube-search-input").addEventListener("click", () => {
+    hide_google_search_bar();
+})
+
+document.getElementById("google-search-box-id").addEventListener("click", () => {
+    reset_search_div();
+    hide_youtube_search_bar();
+})
+
+document.getElementById("youtube-search-box-id").addEventListener("click", () => {
+    reset_search_div();
+    hide_google_search_bar();
+})
+
+
 const youtube_search_link = "https://www.youtube.com/results?search_query=";
 const google_search_link = "https://www.google.com/search?q=";
 
@@ -158,7 +177,7 @@ function get_city_weather_data() {
     chrome.runtime.sendMessage({ action: "get_location_weather" }, (response) => {
         console.log("got weather data from background")
         // if (response.response_message != undefined)
-            set_city_weather_data(response)
+        set_city_weather_data(response)
     })
 }
 
@@ -187,3 +206,22 @@ setTimeout(() => {
     get_city_weather_data();
 }, 2000)
 
+function hide_youtube_search_bar() {
+    document.getElementById("youtube-search-input").classList.add('remove-element');
+    document.getElementById("google-search-div-id").style.width = "50%";
+    document.getElementById("google-search-box-id").style.width = "100%";
+}
+
+function hide_google_search_bar() {
+    document.getElementById("google-search-input").classList.add('remove-element');
+    document.getElementById("youtube-search-div-id").style.width = "50%";
+    document.getElementById("youtube-search-box-id").style.width = "100%";
+}
+
+function reset_search_div(){
+    document.getElementById("youtube-search-input").classList.remove('remove-element');
+    document.getElementById("google-search-div-id").style.width = "fit-content";
+    
+    document.getElementById("google-search-input").classList.remove('remove-element');
+    document.getElementById("youtube-search-div-id").style.width = "fit-content";
+}

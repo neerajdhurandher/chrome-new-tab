@@ -175,13 +175,14 @@ input:checked+.slider:before {
     height: 100;
     background-color: white;
     border-radius: 10px;
+    cursor: pointer;
 }
 
 .input-box {
     display: inline-flex;
     border: none;
     border-radius: 10px;
-    width: 80%;
+    width: 90%;
     font-size: 1.5rem;
     padding: 5px;
     padding-left: 10px;
@@ -193,19 +194,12 @@ input {
     outline: none;
 }
 
-.search-btn {
-    width: 30%;
-    font-size: 1.2rem;
-    border-radius: 10px;
-    display: inline;
-    text-align: center;
-    margin-left: 2%;
-    background-color: aliceblue;
+.remove-element{
     display: none;
 }
 
-.search-btn:hover {
-    background-color: rgb(168, 224, 141);
+.search-btn {
+    display: none;
 }
 
 .greeting-div {
