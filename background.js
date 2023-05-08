@@ -1,4 +1,4 @@
-import get_motivation_quote from "./api_call.js";
+import { get_motivation_quote, get_location_weather_form_api } from "./api_call.js";
 
 console.log("I am background js")
 
@@ -27,7 +27,9 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
 chrome.tabs.onCreated.addListener(function (tab) {
   console.log("new tab created....")
   console.log(tab);
-  manage_quote_deails();
+  if (tab.pendingUrl == "chrome://newtab/") {
+    manage_quote_deails();
+  }
   get_greeting();
 })
 
@@ -35,7 +37,7 @@ chrome.tabs.onCreated.addListener(function (tab) {
 //     console.log(tab)
 // })
 
-chrome.runtime.onMessage.addListener((param, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
 
   console.log("chrome onMessage listner");
   console.log("recived listner message : " + param.action);
@@ -53,7 +55,19 @@ chrome.runtime.onMessage.addListener((param, sender, sendResponse) => {
   } else if (param.action == "get_greeting") {
     sendResponse({ response_message: get_greeting() })
 
+  } else if (param.action == "set_location_weather") {
+    location = param.msg;
+    location_weather = await get_location_weather();
+    console.log("returning location weather data")
+    console.log(location_weather)
+    sendResponse({ response_message: location_weather })
+
+  } else if (param.action == "get_location_weather") {
+    console.log("returning weather data from in response of get")
+    console.log(location_weather)
+    sendResponse({ response_message: location_weather })
   }
+
 
   return true;
 
@@ -69,6 +83,9 @@ var last_quote_details_from_cache = undefined,
   last_quote_minute = undefined,
   last_quote_quote = undefined,
   last_quote_author = undefined;
+
+var location = undefined,
+  location_weather = undefined;
 
 function set_time() {
   date_time = new Date();
@@ -217,4 +234,12 @@ function get_greeting() {
 
   return greeting
 }
+
+async function get_location_weather() {
+  if (location != undefined) {
+    location_weather = await get_location_weather_form_api(location);
+    return location_weather;
+  }
+}
+
 

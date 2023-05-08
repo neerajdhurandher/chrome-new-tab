@@ -88,7 +88,7 @@ input:checked+.slider:before {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-top: 1%;
+    margin-top: -2%;
 }
 
 .current-day-date {
@@ -211,6 +211,66 @@ input {
 .greeting-div {
     display: flex;
     justify-content: center;
-    margin-top: 4%;
+    margin-top: 3%;
     font-size: 2rem;
+}
+
+.weather-div {
+    display: grid;
+    justify-content: end;
+    align-content: center;
+    margin-right: 2%;
+    margin-top: 2%;
+}
+
+#city-input {
+    border: none;
+    border-bottom: 2px solid white;
+    font-size: 1rem;
+    color: white;
+    cursor: text;
+    padding: 1%;
+    padding-left: 8%;
+    background-color: transparent;
+}
+
+#city-input::placeholder{
+    color: #c5c2c2;
+}
+
+.weather-deatils-div {
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid white;
+    border-radius: 10px;
+    text-align: center;
+    display: grid;
+    grid-template-areas:
+        'weather-type weather-value '
+        'weather-icon weather-value '
+        'weather-icon location-name ';
+}
+
+
+.weather-icon {
+    grid-area: weather-icon;
+    width: 70%;
+}
+
+.weather-value {
+    grid-area: weather-value;
+    font-size: 25px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    flex-direction: column-reverse;
+}
+
+.weather-type {
+    grid-area: weather-type;
+}
+
+.location-name {
+    grid-area: location-name;
+    font-weight: 600;
 }

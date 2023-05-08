@@ -1,5 +1,5 @@
 
-export default async function get_motivation_quote() {
+async function get_motivation_quote() {
 
     let quote_details = undefined;
     const category_list = ["amazing", "art", "attitude", "bueaty", "best", "business", "chnage", "communication", "computers", "ccol", "courage", "design", "dream", "education", "environmental", "equality", "experience", "failure", "faith", "family", "famous", "fear", "fitness", "food", "forgiveness", "freedom", "friendship", "funny", "future", "god", "good", "government", "graduation", "great", "happiness", "health", "history", "home", "hope", "humor", "imagination", "inspirational", "intelligence", "knowledge", "leadership", "learning", "legal", "life", "love", "marriage", "medical", "men", "mom", "money", "morning", "movies", "success"];
@@ -29,3 +29,28 @@ export default async function get_motivation_quote() {
     console.log("return api response.....")
     return quote_details
 }
+
+async function get_location_weather_form_api(city){
+    let weather_deatils = undefined;
+
+    const options = {
+        method: 'GET',
+        headers: {
+            'Key': '7bb4e61a74b248e8ba6121521232804',
+        },
+        contentType: 'application/json',
+    };
+
+    await fetch('http://api.weatherapi.com/v1/current.json?q='+city , options)
+    .then(response => response.json())
+    .then(response => {
+        console.log("weather api response")
+        console.log(response)
+        weather_deatils = response;
+    })
+    .catch(err => console.error(err));
+
+    return weather_deatils;
+}
+
+export {get_motivation_quote, get_location_weather_form_api}
