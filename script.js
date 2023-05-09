@@ -206,22 +206,36 @@ setTimeout(() => {
     get_city_weather_data();
 }, 2000)
 
+
+var google_search_div_id_ele = document.getElementById("google-search-div-id");
+var youtube_search_div_id_ele = document.getElementById("youtube-search-div-id");
+
 function hide_youtube_search_bar() {
-    document.getElementById("youtube-search-input").classList.add('remove-element');
-    document.getElementById("google-search-div-id").style.width = "50%";
+    google_search_div_id_ele.classList.add("expend-anim");
+    
+    google_search_div_id_ele.style.width = "50%";   
     document.getElementById("google-search-box-id").style.width = "100%";
+    
+    youtube_search_div_id_ele.classList.add("shrink-anim");
+    youtube_search_div_id_ele.style.width = "min-content";
 }
 
 function hide_google_search_bar() {
-    document.getElementById("google-search-input").classList.add('remove-element');
-    document.getElementById("youtube-search-div-id").style.width = "50%";
+    youtube_search_div_id_ele.classList.add("expend-anim");
+
+    youtube_search_div_id_ele.style.width = "50%";
     document.getElementById("youtube-search-box-id").style.width = "100%";
+
+    google_search_div_id_ele.classList.add("shrink-anim");
+    google_search_div_id_ele.style.width = "min-content";
 }
 
 function reset_search_div(){
-    document.getElementById("youtube-search-input").classList.remove('remove-element');
-    document.getElementById("google-search-div-id").style.width = "fit-content";
+    youtube_search_div_id_ele.classList.remove('shrink-anim');
+    youtube_search_div_id_ele.classList.remove('expend-anim');
+    google_search_div_id_ele.style.width = "fit-content";
     
-    document.getElementById("google-search-input").classList.remove('remove-element');
-    document.getElementById("youtube-search-div-id").style.width = "fit-content";
+    google_search_div_id_ele.classList.remove('shrink-anim');
+    google_search_div_id_ele.classList.remove('expend-anim');
+    youtube_search_div_id_ele.style.width = "fit-content";
 }
