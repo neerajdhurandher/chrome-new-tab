@@ -194,12 +194,37 @@ input {
     outline: none;
 }
 
-.remove-element{
+.search-btn {
     display: none;
 }
 
-.search-btn {
-    display: none;
+.shrink-anim {
+    animation: shrink-key-frame .6s;
+}
+
+.expend-anim {
+    animation: expend-key-frame .6s;
+}
+
+@keyframes shrink-key-frame {
+    0% {
+        width: 50%;
+    }
+    90% {
+        width: 8%;
+    }
+    100% {
+        width: min-content;
+    }
+}
+
+@keyframes expend-key-frame {
+    0% {
+        width: 20%;
+    }
+    100% {
+        width: 50%;
+    }
 }
 
 .greeting-div {
@@ -228,7 +253,7 @@ input {
     background-color: transparent;
 }
 
-#city-input::placeholder{
+#city-input::placeholder {
     color: #c5c2c2;
 }
 
