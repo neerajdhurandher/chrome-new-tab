@@ -13,7 +13,7 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
   console.log("Install reason : " + reason);
   if (reason === 'install') {
     chrome.tabs.create({
-      url: "wwww.google.com"
+      url: "welcome.html"
     });
   } else if (reason === 'update') {
     console.log("updated....")

@@ -210,9 +210,11 @@ input {
     0% {
         width: 50%;
     }
+
     90% {
         width: 8%;
     }
+
     100% {
         width: min-content;
     }
@@ -222,6 +224,7 @@ input {
     0% {
         width: 20%;
     }
+
     100% {
         width: 50%;
     }
@@ -292,4 +295,48 @@ input {
 .location-name {
     grid-area: location-name;
     font-weight: 600;
+}
+
+.container {
+    margin-top: 18%;
+    margin-left: 32%;
+    display: inline-block;
+}
+
+#welcome-div {
+    font-size: 6rem;
+}
+
+#welcome-heading {
+    margin-right: -5%;
+}
+
+.cursor {
+    animation: animate .8s linear infinite;
+}
+
+@keyframes animate {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+.name-input {
+    width: 2rm;
+    border: none;
+    border-bottom: 2px solid white;
+    font-size: 1rem;
+    color: white;
+    cursor: text;
+    padding: 1%;
+    margin-top: 3%;
+    background-color: transparent;
 }
