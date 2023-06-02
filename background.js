@@ -172,6 +172,7 @@ function store_last_quote_deails(recived_quote) {
 
 function set_default_quote() {
   set_time();
+  last_quote_details_from_cache = {quote :"", author:"", hours:"", minutes:""}
   last_quote_details_from_cache.quote = "Today is your opportunity to build the tomorrow you want.";
   last_quote_details_from_cache.author = "Ken Poirot";
   last_quote_details_from_cache.hours = current_hour;
