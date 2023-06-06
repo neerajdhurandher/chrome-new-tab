@@ -40,7 +40,7 @@ function set_greeting() {
     chrome.runtime.sendMessage({ action: "get_greeting" }, (response) => {
         console.log("got greeting from background")
         console.log(response)
-        document.querySelector(".greeting-h1").innerHTML = "Good " + response.response_message + ",";
+        document.querySelector(".greeting-h1").innerHTML = "Good " + response.response_message;
     })
 }
 

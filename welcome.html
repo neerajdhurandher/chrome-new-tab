@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.api-ninjas.com ">
+    <title>Welcome tab</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="heading-container">
+        <div class="log-title display-flex-content-center">
+            <img class="tab-logo" src="neeraj-logo.png" alt="tab-logo">
+            <span class="tab-title">Neeraj's tab extention</span>
+        </div>
+        <span style="margin-left: 60%;font-size: medium;">Thank you for download.</span>
+    </div>
+    <div class="welcome-container display-flex-content-center">
+        <div class="welcome-content-container">
+            <div id="welcome-div">
+                <span id="welcome-heading"></span>
+                <span id="thanks-heading"></span>
+                <span class="cursor">|</span>
+            </div>
+            <input id="name-input-id" class="name-input" style="font-size: 3rem;" maxlength="8"
+                placeholder="Enter your name" />
+            <div id="next_btn_id" class="next_btn">
+                <spans style="font-size: 1.4rem;">Next</span>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script ype="module" src="welcome.js"></script>
+
+</html>
