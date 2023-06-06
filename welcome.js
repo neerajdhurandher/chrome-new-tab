@@ -59,8 +59,9 @@ async function close_welcome_tab() {
     welcome_element.style.display = "none"
 
     type_writer(thanks_text, thanks_element, false)
-    await sleep(3000)
-
+    await sleep(2500)
+    chrome.tabs.create({});
+    await sleep(200)
     console.log(chrome.tabs.getCurrent().then((curr_tab) => {
         console.log(curr_tab)
         chrome.tabs.remove(
