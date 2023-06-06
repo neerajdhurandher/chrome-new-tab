@@ -71,11 +71,11 @@ chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
 
   } else if (param.action == "save_user_name") {
     console.log("saving user name " + param.msg)
-    user_name = param.msg  
+    user_name = param.msg
     sendResponse({ response_message: "True" })
 
   } else if (param.action == "get_user_name") {
-    sendResponse({ response_message: {"user_name":user_name} })
+    sendResponse({ response_message: { "user_name": user_name } })
   }
 
 
@@ -242,6 +242,9 @@ function get_greeting() {
     greeting = "afternoon";
   else
     greeting = "evening";
+
+  if (user_name != undefined)
+    greeting = greeting + ", " + user_name + "."
 
   return greeting
 }
