@@ -2,7 +2,6 @@ var welocome_text = "Hey, Welcome"
 var thanks_text = "Thanks!"
 const welcome_element = document.getElementById("welcome-heading");
 const thanks_element = document.getElementById("thanks-heading");
-let date = new Date();
 
 function add_character(alphabet, element) {
     const node = document.createTextNode(alphabet);
@@ -61,15 +60,15 @@ async function close_welcome_tab() {
     type_writer(thanks_text, thanks_element, false)
     await sleep(2500)
     chrome.tabs.create({});
-    await sleep(200)
-    console.log(chrome.tabs.getCurrent().then((curr_tab) => {
+    await sleep(200) 
+    chrome.tabs.getCurrent().then((curr_tab) => {
         console.log(curr_tab)
         chrome.tabs.remove(
             curr_tab.id
         ).then((res) => {
             console.log("Sucessflly closed welcome tab. " + res)
         })
-    }))
+    })
 }
 
 let name_input_element = document.getElementById("name-input-id")
