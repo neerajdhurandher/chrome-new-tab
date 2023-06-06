@@ -75,7 +75,7 @@ let name_input_element = document.getElementById("name-input-id")
 let next_btn_element = document.getElementById("next_btn_id")
 
 name_input_element.addEventListener("keyup", function (event) {
-    var name_input_value = name_input_element.value
+    var name_input_value = name_input_element.value.trim()
 
     if (name_input_value.length > 2) {
         next_btn_element.style.backgroundColor = "#0388f5"

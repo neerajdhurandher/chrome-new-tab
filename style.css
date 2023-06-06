@@ -297,9 +297,35 @@ input {
     font-weight: 600;
 }
 
-.container {
-    margin-top: 18%;
-    margin-left: 32%;
+.display-flex-content-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.heading-container {
+    margin-top: 5%;
+    flex-direction: column;
+
+}
+
+.log-title {
+    flex-direction: row;
+}
+
+.tab-logo {
+    width: 4%;
+}
+
+.tab-title {
+    font-size: 2.5rem;
+    font-style: italic;
+    margin-left: 2%;
+}
+
+.welcome-content-container {
+    margin-top: 10%;
+    margin-left: 12%;
     display: inline-block;
 }
 
@@ -341,7 +367,7 @@ input {
     background-color: transparent;
 }
 
-.next_btn{
+.next_btn {
     background-color: #706b6b;
     width: 10em;
     height: 3em;
@@ -351,7 +377,7 @@ input {
     padding-left: 5%;
 }
 
-.next_btn:hover{
+.next_btn:hover {
     cursor: pointer;
-    transform: scale(1.1) 
+    transform: scale(1.1)
 }
