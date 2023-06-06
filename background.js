@@ -37,6 +37,8 @@ chrome.tabs.onCreated.addListener(function (tab) {
 //     console.log(tab)
 // })
 
+var user_name = undefined;
+
 chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
 
   console.log("chrome onMessage listner");
@@ -66,6 +68,14 @@ chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
     console.log("returning weather data from in response of get")
     console.log(location_weather)
     sendResponse({ response_message: location_weather })
+
+  } else if (param.action == "save_user_name") {
+    console.log("saving user name " + param.msg)
+    user_name = param.msg  
+    sendResponse({ response_message: "True" })
+
+  } else if (param.action == "get_user_name") {
+    sendResponse({ response_message: {"user_name":user_name} })
   }
 
 
@@ -172,7 +182,7 @@ function store_last_quote_deails(recived_quote) {
 
 function set_default_quote() {
   set_time();
-  last_quote_details_from_cache = {quote :"", author:"", hours:"", minutes:""}
+  last_quote_details_from_cache = { quote: "", author: "", hours: "", minutes: "" }
   last_quote_details_from_cache.quote = "Today is your opportunity to build the tomorrow you want.";
   last_quote_details_from_cache.author = "Ken Poirot";
   last_quote_details_from_cache.hours = current_hour;

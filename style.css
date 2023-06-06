@@ -340,3 +340,18 @@ input {
     margin-top: 3%;
     background-color: transparent;
 }
+
+.next_btn{
+    background-color: #706b6b;
+    width: 10em;
+    height: 3em;
+    margin-top: 5%;
+    border-radius: 10px;
+    float: right;
+    padding-left: 5%;
+}
+
+.next_btn:hover{
+    cursor: pointer;
+    transform: scale(1.1) 
+}
