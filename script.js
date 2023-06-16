@@ -1,3 +1,5 @@
+import{GET_DAY_DATE,GET_QUOTE,GET_GREETING,REFRESH_QUOTE,REFRESH_QUOTE_INTERVAL,SET_LOCATION_WEATHER,GET_LOCATION_WEATHER} from "./constants.js"
+import{GOOGLE_SEARCH_LINK,YOUTUBE_SEARCH_LINK} from "./constants.js"
 console.log("I am script.js")
 
 var date_time = undefined;
@@ -11,12 +13,12 @@ function set_time() {
 
     console.log("Current time is : " + current_hour + " : " + current_min);
 
-    document.querySelector(".current_time").innerText = date_time.toLocaleTimeString("en-US", { hour12: false });
+    document.querySelector(".current_time").innerText = date_time.toLocaleTimeString("en-US", { hour12: true });
 }
 
 function updateDate() {
     const IDCollection = ["day", "daynum", "month", "year"];
-    chrome.runtime.sendMessage({ action: "get_day_date" }, (response) => {
+    chrome.runtime.sendMessage({ action: GET_DAY_DATE }, (response) => {
         for (let i = 0; i < IDCollection.length; i++) {
             document.getElementById(IDCollection[i]).firstChild.nodeValue = response.response_message[i];
         }
@@ -27,7 +29,7 @@ function set_quote() {
 
     console.log("Setting quote..........")
 
-    chrome.runtime.sendMessage({ action: "get_quote" }, (response) => {
+    chrome.runtime.sendMessage({ action: GET_QUOTE }, (response) => {
         console.log("got quote from background")
         console.log(response)
         document.querySelector(".quote_p").innerHTML = response.response_message.quote
@@ -37,7 +39,7 @@ function set_quote() {
 }
 
 function set_greeting() {
-    chrome.runtime.sendMessage({ action: "get_greeting" }, (response) => {
+    chrome.runtime.sendMessage({ action: GET_GREETING }, (response) => {
         console.log("got greeting from background")
         console.log(response)
         document.querySelector(".greeting-h1").innerHTML = "Good " + response.response_message;
@@ -51,7 +53,7 @@ async function refresh_quote() {
 
     if (curr_tab != undefined && curr_tab.url == "chrome://newtab/") {
 
-        chrome.runtime.sendMessage({ action: "refresh_quote" }), (response) => {
+        chrome.runtime.sendMessage({ action: REFRESH_QUOTE }), (response) => {
             console.log("quote refresh")
         }
         setTimeout(() => {
@@ -71,7 +73,7 @@ set_time()
 updateDate()
 setInterval(set_time, 1000)
 set_quote()
-setInterval(refresh_quote, 600000)
+setInterval(refresh_quote, REFRESH_QUOTE_INTERVAL)
 set_greeting()
 
 
@@ -119,16 +121,12 @@ document.getElementById("youtube-search-box-id").addEventListener("click", () =>
     hide_google_search_bar();
 })
 
-
-const youtube_search_link = "https://www.youtube.com/results?search_query=";
-const google_search_link = "https://www.google.com/search?q=";
-
 function got_for_google_search() {
-    got_for_search("google-search-input", google_search_link)
+    got_for_search("google-search-input", GOOGLE_SEARCH_LINK)
 }
 
 function got_for_youtube_search() {
-    got_for_search("youtube-search-input", youtube_search_link)
+    got_for_search("youtube-search-input", YOUTUBE_SEARCH_LINK)
 }
 
 function got_for_search(input_element_id, main_link) {
@@ -160,7 +158,7 @@ document.getElementById("city-input").addEventListener("keyup", function (event)
         loading_msg_element.innerHTML = "getting your location weather data.....";
         loading_msg_element.style.display = "block";
 
-        chrome.runtime.sendMessage({ action: "set_location_weather", msg: city_value }, async (response) => {
+        chrome.runtime.sendMessage({ action: SET_LOCATION_WEATHER, msg: city_value }, async (response) => {
             console.log("got weather data response from background")
             console.log(response)
         })
@@ -174,7 +172,7 @@ document.getElementById("city-input").addEventListener("keyup", function (event)
 
 function get_city_weather_data() {
     console.log("send runtime msg for get weather")
-    chrome.runtime.sendMessage({ action: "get_location_weather" }, (response) => {
+    chrome.runtime.sendMessage({ action: GET_LOCATION_WEATHER }, (response) => {
         console.log("got weather data from background")
         // if (response.response_message != undefined)
         set_city_weather_data(response)

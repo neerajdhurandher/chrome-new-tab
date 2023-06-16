@@ -1,4 +1,5 @@
 import { get_motivation_quote, get_location_weather_form_api } from "./api_call.js";
+import { GET_DAY_DATE, GET_QUOTE, GET_GREETING, REFRESH_QUOTE, SET_LOCATION_WEATHER, GET_LOCATION_WEATHER, SAVE_USER_NAME, GET_USER_NAME } from "./constants.js"
 
 console.log("I am background js")
 
@@ -44,37 +45,37 @@ chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
   console.log("chrome onMessage listner");
   console.log("recived listner message : " + param.action);
 
-  if (param.action == "get_quote") {
+  if (param.action == GET_QUOTE) {
     console.log("getting stored quote");
     sendResponse({ response_message: last_quote_details_from_cache })
 
-  } else if (param.action == "refresh_quote") {
+  } else if (param.action == REFRESH_QUOTE) {
     manage_quote_deails();
 
-  } else if (param.action == "get_day_date") {
+  } else if (param.action == GET_DAY_DATE) {
     sendResponse({ response_message: current_day_date_obj })
 
-  } else if (param.action == "get_greeting") {
+  } else if (param.action == GET_GREETING) {
     sendResponse({ response_message: get_greeting() })
 
-  } else if (param.action == "set_location_weather") {
+  } else if (param.action == SET_LOCATION_WEATHER) {
     location = param.msg;
     location_weather = await get_location_weather();
     console.log("returning location weather data")
     console.log(location_weather)
     sendResponse({ response_message: location_weather })
 
-  } else if (param.action == "get_location_weather") {
+  } else if (param.action == GET_LOCATION_WEATHER) {
     console.log("returning weather data from in response of get")
     console.log(location_weather)
     sendResponse({ response_message: location_weather })
 
-  } else if (param.action == "save_user_name") {
+  } else if (param.action == SAVE_USER_NAME) {
     console.log("saving user name " + param.msg)
     user_name = param.msg
     sendResponse({ response_message: "True" })
 
-  } else if (param.action == "get_user_name") {
+  } else if (param.action == GET_USER_NAME) {
     sendResponse({ response_message: { "user_name": user_name } })
   }
 
