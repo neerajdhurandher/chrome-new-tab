@@ -1,4 +1,4 @@
-import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, REFRESH_QUOTE_INTERVAL, SET_LOCATION_WEATHER, GET_LOCATION_WEATHER, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR } from "./constants.js"
+import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, REFRESH_QUOTE_INTERVAL, SET_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA } from "./constants.js"
 import { GOOGLE_SEARCH_LINK, YOUTUBE_SEARCH_LINK } from "./constants.js"
 console.log("I am script.js")
 
@@ -172,44 +172,52 @@ document.getElementById("city-input").addEventListener("keyup", function (event)
     if (event.keyCode === 13) {
         event.preventDefault();
         console.log("city enter key pressed")
-        var city_value = input_element.value;
-        console.log("location val " + city_value)
+        var location_value = input_element.value;
+        console.log("location val " + location_value)
 
         input_element.style.display = "none";
         loading_msg_element.innerHTML = "getting your location weather data.....";
         loading_msg_element.style.display = "block";
-
-        chrome.runtime.sendMessage({ action: SET_LOCATION_WEATHER, msg: city_value }, async (response) => {
-            console.log("got weather data response from background")
-            console.log(response)
-        })
-
-        setTimeout(() => {
-            console.log("this is timeout function for featching weather data")
-            get_city_weather_data();
-        }, 4000)
+        fetch_city_weather_data(location_value)
     }
 });
 
+function fetch_city_weather_data(city) {
+    chrome.runtime.sendMessage({ action: SET_LOCATION_WEATHER, location: city }, async (response) => {
+        console.log("got weather data response from background")
+        console.log(response)
+    })
+
+    setTimeout(() => {
+        console.log("this is timeout function for featching weather data")
+        get_city_weather_data();
+    }, 4000)
+}
+
 function get_city_weather_data() {
     console.log("send runtime msg for get weather")
-    chrome.runtime.sendMessage({ action: GET_LOCATION_WEATHER }, (response) => {
+    chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: LOCATION_WEATHER_DATA }, (response) => {
         console.log("got weather data from background")
-        // if (response.response_message != undefined)
         set_city_weather_data(response)
     })
 }
 
 function set_city_weather_data(response) {
     console.log(response)
-    if (response.response_message != undefined) {
+    if (response.response_message.status == true) {
         console.log("setting weather detail ")
         loading_msg_element.style.display = "none";
         document.querySelector(".weather-deatils-div").style.display = "grid";
-        document.querySelector(".location-name").innerHTML = response.response_message.location.name
-        document.querySelector(".weather-value").innerHTML = response.response_message.current.temp_c + "°C"
-        document.querySelector(".weather-type").innerHTML = response.response_message.current.condition.text
-        document.querySelector(".weather-icon").src = "https:" + response.response_message.current.condition.icon + ""
+        document.querySelector(".location-name").innerHTML = response.response_message.data.location_weather_data.location.name
+        document.querySelector(".weather-value").innerHTML = response.response_message.data.location_weather_data.current.temp_c + "°C"
+        document.querySelector(".weather-type").innerHTML = response.response_message.data.location_weather_data.current.condition.text
+        document.querySelector(".weather-icon").src = "https:" + response.response_message.data.location_weather_data.current.condition.icon + ""
+        let last = new Date(response.response_message.data.location_weather_data.current.last_updated)
+        let now = new Date()
+
+        if (now - last > REFRESH_WEATHER_INTERVAL) {
+            fetch_city_weather_data(response.response_message.data.location_weather_data.location.name)
+        }
     } else {
         console.log("no weather data")
         loading_msg_element.innerHTML = "Sorry, couldn't load weather data"

@@ -1,5 +1,5 @@
 import { get_motivation_quote, get_location_weather_form_api } from "./api_call.js";
-import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, SET_LOCATION_WEATHER, GET_LOCATION_WEATHER, STORE_DATA, RETRIEVE_DATA, QUOTE_DATA, REFRESH_QUOTE_INTERVAL, QUOTE, AUTHOR } from "./constants.js"
+import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, SET_LOCATION_WEATHER, STORE_DATA, RETRIEVE_DATA, QUOTE_DATA, REFRESH_QUOTE_INTERVAL, QUOTE, AUTHOR, LOCATION_WEATHER_DATA } from "./constants.js"
 
 console.log("I am background js")
 
@@ -54,14 +54,8 @@ chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
     sendResponse({ response_message: get_greeting() })
 
   } else if (param.action == SET_LOCATION_WEATHER) {
-    location = param.msg;
-    location_weather = await get_location_weather();
+    let location_weather = await get_location_weather_from_server(param.location);
     console.log("returning location weather data")
-    console.log(location_weather)
-    sendResponse({ response_message: location_weather })
-
-  } else if (param.action == GET_LOCATION_WEATHER) {
-    console.log("returning weather data from in response of get")
     console.log(location_weather)
     sendResponse({ response_message: location_weather })
 
@@ -102,9 +96,6 @@ chrome.runtime.onMessage.addListener((param, sender, sendResponse) => {
 })
 
 var last_quote_time = undefined;
-
-var location = undefined,
-  location_weather = undefined;
 
 function set_time() {
   let time = new Date();
@@ -212,9 +203,16 @@ function get_greeting() {
   return greeting
 }
 
-async function get_location_weather() {
+async function get_location_weather_from_server(location) {
   if (location != undefined) {
-    location_weather = await get_location_weather_form_api(location);
+    let location_weather = await get_location_weather_form_api(location);
+    if (location_weather != undefined) {
+      let store = {};
+      store[LOCATION_WEATHER_DATA] = location_weather
+      chrome.storage.local.set(store).then(() => { console.log(location + " weather data saved.") })
+    } else {
+      console.log(location + " weather data not available.")
+    }
     return location_weather;
   }
 }
