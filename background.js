@@ -1,5 +1,5 @@
 import { get_motivation_quote, get_location_weather_form_api } from "./api_call.js";
-import { GET_DAY_DATE, GET_QUOTE, GET_GREETING, REFRESH_QUOTE, SET_LOCATION_WEATHER, GET_LOCATION_WEATHER, SAVE_USER_NAME, GET_USER_NAME } from "./constants.js"
+import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, SET_LOCATION_WEATHER, GET_LOCATION_WEATHER, STORE_DATA, RETRIEVE_DATA, QUOTE_DATA, REFRESH_QUOTE_INTERVAL, QUOTE, AUTHOR } from "./constants.js"
 
 console.log("I am background js")
 
@@ -38,22 +38,17 @@ chrome.tabs.onCreated.addListener(function (tab) {
 //     console.log(tab)
 // })
 
-var user_name = undefined;
 
 chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
 
   console.log("chrome onMessage listner");
   console.log("recived listner message : " + param.action);
 
-  if (param.action == GET_QUOTE) {
-    console.log("getting stored quote");
-    sendResponse({ response_message: last_quote_details_from_cache })
-
-  } else if (param.action == REFRESH_QUOTE) {
+  if (param.action == REFRESH_QUOTE) {
     manage_quote_deails();
 
   } else if (param.action == GET_DAY_DATE) {
-    sendResponse({ response_message: current_day_date_obj })
+    sendResponse({ response_message: get_day_date() })
 
   } else if (param.action == GET_GREETING) {
     sendResponse({ response_message: get_greeting() })
@@ -70,13 +65,6 @@ chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
     console.log(location_weather)
     sendResponse({ response_message: location_weather })
 
-  } else if (param.action == SAVE_USER_NAME) {
-    console.log("saving user name " + param.msg)
-    user_name = param.msg
-    sendResponse({ response_message: "True" })
-
-  } else if (param.action == GET_USER_NAME) {
-    sendResponse({ response_message: { "user_name": user_name } })
   }
 
 
@@ -84,51 +72,53 @@ chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
 
 })
 
-var date_time = undefined,
-  current_hour = undefined,
-  current_min = undefined,
-  current_day_date_obj = undefined;
+// chrome storage actions
+chrome.runtime.onMessage.addListener((param, sender, sendResponse) => {
+  if (param.action == STORE_DATA) {
+    let key_val = param.key
+    let value_val = param.value
+    let store = {}
+    store[key_val] = value_val
 
-var last_quote_details_from_cache = undefined,
-  last_quote_hour = undefined,
-  last_quote_minute = undefined,
-  last_quote_quote = undefined,
-  last_quote_author = undefined;
+    chrome.storage.local.set(store).then(() => {
+      console.log("Value is set in local for " + param.name);
+      sendResponse({ response_message: { status: true, data: { key: key_val, value: value_val } } })
+    });
+
+  } else if (param.action == RETRIEVE_DATA) {
+    var key_val = param.key
+    console.log("Retrieve data for " + param.name + " with key " + param.key)
+    chrome.storage.local.get([key_val]).then((result) => {
+      console.log(result)
+      if (result[key_val] == undefined) {
+        sendResponse({ response_message: { status: false, error: "No data assosiate with key: " + key_val } })
+      } else {
+        sendResponse({ response_message: { status: true, data: result } })
+      }
+
+    });
+  }
+  return true;
+})
+
+var last_quote_time = undefined;
 
 var location = undefined,
   location_weather = undefined;
 
 function set_time() {
-  date_time = new Date();
-  current_hour = date_time.getHours();
-  current_min = date_time.getMinutes();
+  let time = new Date();
   get_day_date();
-  console.log("Background.js Current time is : " + current_hour + " : " + current_min);
+  console.log("Background.js Current time is : " + time.getHours() + " : " + time.getMinutes());
+  return time
 }
 
 async function manage_quote_deails() {
 
-  set_time();
+  let time = set_time();
   console.log("Fetching quote....")
 
-  if (last_quote_hour == undefined) {
-
-    chrome.storage.local.get(["last_quote_details"], (result) => {
-      last_quote_details_from_cache = result.last_quote_details;
-      console.log(last_quote_details_from_cache)
-      if (last_quote_details_from_cache == undefined) {
-        console.log("Fetching new quote....")
-        fetch_new_quote();
-      } else {
-        set_quote_global_values(last_quote_details_from_cache)
-        console.log("got stored quote....")
-        console.log("last quote time : " + last_quote_hour + " : " + last_quote_minute);
-        console.log("last quote : " + last_quote_quote + " \n by " + last_quote_author);
-      }
-    })
-
-  } else if (current_hour - last_quote_hour > 0 || current_min - last_quote_minute > 10) {
-    console.log("Previous code expire getting new quote....")
+  if (last_quote_time == undefined || (time - last_quote_time > REFRESH_QUOTE_INTERVAL)) {
     fetch_new_quote();
   }
 
@@ -141,70 +131,45 @@ async function fetch_new_quote() {
   let fetched_quote = undefined;
   console.log("api call function return : " + fetched_quote)
   if (fetched_quote == undefined)
-    set_default_quote()
+    console.log("Unable to fetch quote data from API.")
   else
-    store_last_quote_deails(fetched_quote)
+    store_last_quote_details(fetched_quote)
 
   return fetched_quote;
 }
 
+function store_last_quote_details(recived_quote) {
 
-async function fetch_quote_from_loacl() {
+  let time = set_time();
 
-  chrome.storage.local.get(["last_quote_details"], (result) => {
-    console.log('Retrieved quote details: ' + result.last_quote_details);
-    console.log(result.last_quote_details.quote)
-    console.log(result.last_quote_details.author)
-    return result.last_quote_details
-  });
-}
+  console.log("last quote time " + time);
+  console.log("Recived quote : " + recived_quote[QUOTE]);
+  console.log("Recived quote author : " + recived_quote[AUTHOR]);
 
+  let last_quote_details_obj = { store_time: time, quote_details: { quote: recived_quote[QUOTE], author: recived_quote[AUTHOR] } }
 
-function store_last_quote_deails(recived_quote) {
-
-  set_time();
-
-  console.log("last quote time " + current_hour + " : " + current_min);
-  console.log("Recived quote : " + recived_quote["quote"]);
-  console.log("Recived quote author : " + recived_quote["author"]);
-
-  let last_quote_details_obj = { hours: current_hour, minutes: current_min, quote: recived_quote["quote"], author: recived_quote["author"] }
-  console.log("storing quote details : \n \t" + last_quote_details_obj)
-
-  chrome.storage.local.set({ "last_quote_details": last_quote_details_obj }, () => {
+  console.log("storing quote details : ");
+  console.log(last_quote_details_obj)
+  let store = {};
+  store[QUOTE_DATA] = last_quote_details_obj
+  chrome.storage.local.set(store).then(() => {
     if (chrome.runtime.lastError)
-      console.log('Error setting');
+      console.log('Chrome runtime error');
     else {
-      console.log('Stored details: \n \t author: ' + last_quote_details_obj.author);
-      set_quote_global_values(last_quote_details_obj);
+      console.log('Stored quote details:');
+      console.log(last_quote_details_obj)
+      last_quote_time = time;
     }
   });
 }
 
-function set_default_quote() {
-  set_time();
-  last_quote_details_from_cache = { quote: "", author: "", hours: "", minutes: "" }
-  last_quote_details_from_cache.quote = "Today is your opportunity to build the tomorrow you want.";
-  last_quote_details_from_cache.author = "Ken Poirot";
-  last_quote_details_from_cache.hours = current_hour;
-  last_quote_details_from_cache.minutes = current_min;
-
-  set_quote_global_values(last_quote_details_from_cache);
-}
-
-function set_quote_global_values(quote_obj) {
-  last_quote_hour = quote_obj.hours;
-  last_quote_minute = quote_obj.minutes;
-  last_quote_quote = quote_obj.quote;
-  last_quote_author = quote_obj.author;
-}
-
 function get_day_date() {
 
-  let dayName = date_time.getDay(),
-    dayNum = date_time.getDate(),
-    month = date_time.getMonth(),
-    year = date_time.getFullYear();
+  let time = new Date(),
+    dayName = time.getDay(),
+    dayNum = time.getDate(),
+    month = time.getMonth(),
+    year = time.getFullYear();
 
   const months = [
     "January",
@@ -230,22 +195,19 @@ function get_day_date() {
     "Saturday",
   ];
 
-  current_day_date_obj = [dayWeek[dayName], dayNum, months[month], year];
+  let current_day_date_obj = [dayWeek[dayName], dayNum, months[month], year];
   return current_day_date_obj;
 }
 
 function get_greeting() {
-  set_time()
+  let time = set_time()
   let greeting = undefined;
-  if (current_hour < 12)
+  if (time.getHours() < 12)
     greeting = "morning";
-  else if (current_hour >= 12 && current_hour <= 16)
+  else if (time.getHours() >= 12 && time.getHours() <= 16)
     greeting = "afternoon";
   else
     greeting = "evening";
-
-  if (user_name != undefined)
-    greeting = greeting + ", " + user_name + "."
 
   return greeting
 }

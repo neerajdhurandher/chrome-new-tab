@@ -1,4 +1,4 @@
-import { SAVE_USER_NAME, WELOCOME_TEXT, THANKS_TEXT } from "./constants.js"
+import { USER_NAME, WELOCOME_TEXT, THANKS_TEXT, STORE_DATA } from "./constants.js"
 
 const welcome_element = document.getElementById("welcome-heading");
 const thanks_element = document.getElementById("thanks-heading");
@@ -44,7 +44,7 @@ async function type_writer(word, element, repeat) {
 
 function save_user_name(value) {
     console.log("save user name : " + value)
-    chrome.runtime.sendMessage({ action: SAVE_USER_NAME, msg: value }, (response) => {
+    chrome.runtime.sendMessage({ action: STORE_DATA, key: USER_NAME, value: value, name: "User name" }, (response) => {
         console.log("got save name response")
         console.log(response)
         close_welcome_tab()
