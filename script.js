@@ -1,3 +1,5 @@
+import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, REFRESH_QUOTE_INTERVAL, SET_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA } from "./constants.js"
+import { GOOGLE_SEARCH_LINK, YOUTUBE_SEARCH_LINK } from "./constants.js"
 console.log("I am script.js")
 
 var date_time = undefined;
@@ -11,12 +13,12 @@ function set_time() {
 
     console.log("Current time is : " + current_hour + " : " + current_min);
 
-    document.querySelector(".current_time").innerText = date_time.toLocaleTimeString("en-US", { hour12: false });
+    document.querySelector(".current_time").innerText = date_time.toLocaleTimeString("en-US", { hour12: true });
 }
 
 function updateDate() {
     const IDCollection = ["day", "daynum", "month", "year"];
-    chrome.runtime.sendMessage({ action: "get_day_date" }, (response) => {
+    chrome.runtime.sendMessage({ action: GET_DAY_DATE }, (response) => {
         for (let i = 0; i < IDCollection.length; i++) {
             document.getElementById(IDCollection[i]).firstChild.nodeValue = response.response_message[i];
         }
@@ -27,20 +29,41 @@ function set_quote() {
 
     console.log("Setting quote..........")
 
-    chrome.runtime.sendMessage({ action: "get_quote" }, (response) => {
+    chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: QUOTE_DATA, name: "Getting quote" }, (response) => {
         console.log("got quote from background")
         console.log(response)
-        document.querySelector(".quote_p").innerHTML = response.response_message.quote
-        document.querySelector(".quote_author_p").innerHTML = "-by " + response.response_message.author
+        let quote = undefined;
+        let author = undefined;
+
+        if (response.response_message.status == true) {
+            quote = response.response_message.data.quote_data.quote_details[QUOTE]
+            author = response.response_message.data.quote_data.quote_details[AUTHOR]
+        } else {
+            quote = DEFAULT_QUOTE
+            author = DEFAULT_QUOTE_AUTHOR
+        }
+        document.querySelector(".quote_p").innerHTML = quote
+        document.querySelector(".quote_author_p").innerHTML = "-by " + author
 
     })
 }
 
 function set_greeting() {
-    chrome.runtime.sendMessage({ action: "get_greeting" }, (response) => {
+    chrome.runtime.sendMessage({ action: GET_GREETING }, (response) => {
         console.log("got greeting from background")
         console.log(response)
         document.querySelector(".greeting-h1").innerHTML = "Good " + response.response_message;
+        set_user_name()
+    })
+}
+
+function set_user_name() {
+    chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: USER_NAME, name: "Retriving user name for greeting" }, (response) => {
+        if (response.response_message.data[USER_NAME] != undefined) {
+            document.querySelector(".greeting-h1").innerHTML = document.querySelector(".greeting-h1").innerHTML + ", "
+                + response.response_message.data[USER_NAME] + "."
+        }
+
     })
 }
 
@@ -51,7 +74,7 @@ async function refresh_quote() {
 
     if (curr_tab != undefined && curr_tab.url == "chrome://newtab/") {
 
-        chrome.runtime.sendMessage({ action: "refresh_quote" }), (response) => {
+        chrome.runtime.sendMessage({ action: REFRESH_QUOTE }), (response) => {
             console.log("quote refresh")
         }
         setTimeout(() => {
@@ -71,7 +94,7 @@ set_time()
 updateDate()
 setInterval(set_time, 1000)
 set_quote()
-setInterval(refresh_quote, 600000)
+setInterval(refresh_quote, REFRESH_QUOTE_INTERVAL)
 set_greeting()
 
 
@@ -119,16 +142,12 @@ document.getElementById("youtube-search-box-id").addEventListener("click", () =>
     hide_google_search_bar();
 })
 
-
-const youtube_search_link = "https://www.youtube.com/results?search_query=";
-const google_search_link = "https://www.google.com/search?q=";
-
 function got_for_google_search() {
-    got_for_search("google-search-input", google_search_link)
+    got_for_search("google-search-input", GOOGLE_SEARCH_LINK)
 }
 
 function got_for_youtube_search() {
-    got_for_search("youtube-search-input", youtube_search_link)
+    got_for_search("youtube-search-input", YOUTUBE_SEARCH_LINK)
 }
 
 function got_for_search(input_element_id, main_link) {
@@ -153,44 +172,52 @@ document.getElementById("city-input").addEventListener("keyup", function (event)
     if (event.keyCode === 13) {
         event.preventDefault();
         console.log("city enter key pressed")
-        var city_value = input_element.value;
-        console.log("location val " + city_value)
+        var location_value = input_element.value;
+        console.log("location val " + location_value)
 
         input_element.style.display = "none";
         loading_msg_element.innerHTML = "getting your location weather data.....";
         loading_msg_element.style.display = "block";
-
-        chrome.runtime.sendMessage({ action: "set_location_weather", msg: city_value }, async (response) => {
-            console.log("got weather data response from background")
-            console.log(response)
-        })
-
-        setTimeout(() => {
-            console.log("this is timeout function for featching weather data")
-            get_city_weather_data();
-        }, 4000)
+        fetch_city_weather_data(location_value)
     }
 });
 
+function fetch_city_weather_data(city) {
+    chrome.runtime.sendMessage({ action: SET_LOCATION_WEATHER, location: city }, async (response) => {
+        console.log("got weather data response from background")
+        console.log(response)
+    })
+
+    setTimeout(() => {
+        console.log("this is timeout function for featching weather data")
+        get_city_weather_data();
+    }, 4000)
+}
+
 function get_city_weather_data() {
     console.log("send runtime msg for get weather")
-    chrome.runtime.sendMessage({ action: "get_location_weather" }, (response) => {
+    chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: LOCATION_WEATHER_DATA }, (response) => {
         console.log("got weather data from background")
-        // if (response.response_message != undefined)
         set_city_weather_data(response)
     })
 }
 
 function set_city_weather_data(response) {
     console.log(response)
-    if (response.response_message != undefined) {
+    if (response.response_message.status == true) {
         console.log("setting weather detail ")
         loading_msg_element.style.display = "none";
         document.querySelector(".weather-deatils-div").style.display = "grid";
-        document.querySelector(".location-name").innerHTML = response.response_message.location.name
-        document.querySelector(".weather-value").innerHTML = response.response_message.current.temp_c + "°C"
-        document.querySelector(".weather-type").innerHTML = response.response_message.current.condition.text
-        document.querySelector(".weather-icon").src = "https:" + response.response_message.current.condition.icon + ""
+        document.querySelector(".location-name").innerHTML = response.response_message.data.location_weather_data.location.name
+        document.querySelector(".weather-value").innerHTML = response.response_message.data.location_weather_data.current.temp_c + "°C"
+        document.querySelector(".weather-type").innerHTML = response.response_message.data.location_weather_data.current.condition.text
+        document.querySelector(".weather-icon").src = "https:" + response.response_message.data.location_weather_data.current.condition.icon + ""
+        let last = new Date(response.response_message.data.location_weather_data.current.last_updated)
+        let now = new Date()
+
+        if (now - last > REFRESH_WEATHER_INTERVAL) {
+            fetch_city_weather_data(response.response_message.data.location_weather_data.location.name)
+        }
     } else {
         console.log("no weather data")
         loading_msg_element.innerHTML = "Sorry, couldn't load weather data"
@@ -212,10 +239,10 @@ var youtube_search_div_id_ele = document.getElementById("youtube-search-div-id")
 
 function hide_youtube_search_bar() {
     google_search_div_id_ele.classList.add("expend-anim");
-    
-    google_search_div_id_ele.style.width = "50%";   
+
+    google_search_div_id_ele.style.width = "50%";
     document.getElementById("google-search-box-id").style.width = "100%";
-    
+
     youtube_search_div_id_ele.classList.add("shrink-anim");
     youtube_search_div_id_ele.style.width = "min-content";
 }
@@ -230,11 +257,11 @@ function hide_google_search_bar() {
     google_search_div_id_ele.style.width = "min-content";
 }
 
-function reset_search_div(){
+function reset_search_div() {
     youtube_search_div_id_ele.classList.remove('shrink-anim');
     youtube_search_div_id_ele.classList.remove('expend-anim');
     google_search_div_id_ele.style.width = "fit-content";
-    
+
     google_search_div_id_ele.classList.remove('shrink-anim');
     google_search_div_id_ele.classList.remove('expend-anim');
     youtube_search_div_id_ele.style.width = "fit-content";

@@ -1,5 +1,5 @@
-var welocome_text = "Hey, Welcome"
-var thanks_text = "Thanks!"
+import { USER_NAME, WELOCOME_TEXT, THANKS_TEXT, STORE_DATA } from "./constants.js"
+
 const welcome_element = document.getElementById("welcome-heading");
 const thanks_element = document.getElementById("thanks-heading");
 
@@ -15,9 +15,9 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function type_writer(wrod, element, repeat) {
+async function type_writer(word, element, repeat) {
     let node_list = []
-    for (let char of wrod) {
+    for (let char of word) {
         await sleep(200);
         try {
             node = add_character(char, element)
@@ -44,7 +44,7 @@ async function type_writer(wrod, element, repeat) {
 
 function save_user_name(value) {
     console.log("save user name : " + value)
-    chrome.runtime.sendMessage({ action: "save_user_name", msg: value }, (response) => {
+    chrome.runtime.sendMessage({ action: STORE_DATA, key: USER_NAME, value: value, name: "User name" }, (response) => {
         console.log("got save name response")
         console.log(response)
         close_welcome_tab()
@@ -57,10 +57,10 @@ async function close_welcome_tab() {
     next_btn_element.style.display = "none"
     welcome_element.style.display = "none"
 
-    type_writer(thanks_text, thanks_element, false)
+    type_writer(THANKS_TEXT, thanks_element, false)
     await sleep(2500)
     chrome.tabs.create({});
-    await sleep(200) 
+    await sleep(200)
     chrome.tabs.getCurrent().then((curr_tab) => {
         console.log(curr_tab)
         chrome.tabs.remove(
@@ -96,4 +96,4 @@ next_btn_element.addEventListener('click', () => {
 
 })
 
-type_writer(welocome_text, welcome_element, true)
+type_writer(WELOCOME_TEXT, welcome_element, true)
