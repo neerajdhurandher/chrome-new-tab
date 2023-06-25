@@ -2,7 +2,7 @@
 <h1> To use this chrome extention follow these steps :- </h1>
 
 <ul>
-<li>Download this repository</li>
+<li><a href = "https://github.com/neerajdhurandher/chrome-new-tab/archive/refs/heads/main.zip"> Download </a> this repository</li>
 <li>Go to Google chrome extension setting and enable developer mode</li>
 <li>Click on Load unpaced option</li>
 <li>Select this repository downloaded file</li>
