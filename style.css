@@ -88,7 +88,9 @@ input:checked+.slider:before {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-top: -2%;
+    top: 25%;
+    left: 38%;
+    position: absolute;
 }
 
 .current-day-date {
@@ -96,24 +98,22 @@ input:checked+.slider:before {
     margin-bottom: 10px;
     font-size: 1.6rem;
     font-weight: 600;
+    display: none;
+    /* convert it into flip card */
 }
 
 .current_time {
     display: flex;
-    font-size: 3rem;
-    font-weight: bold;
-    border: 2px solid #ffd868;
+    font-size: 5rem;
+    font-weight: 600;
     padding: 10px 20px;
-    border-radius: 5px;
-    transition: ease-in-out 0.1s;
-    transition-property: background, box-shadow, color;
-    -webkit-box-reflect: below 2px linear-gradient(transparent, rgba(255, 255, 255, 0.05));
 }
 
 .current_time:hover {
     background: #ffd868;
     box-shadow: 0 0 30px#ffd868;
     color: #272727;
+    border-radius: 5px;
     cursor: pointer;
 }
 
@@ -134,6 +134,14 @@ input:checked+.slider:before {
     justify-content: center;
     align-items: center;
     text-align: center;
+}
+
+.quote_p {
+    font-size: 1.1rem;
+}
+
+.quote_author_p {
+    font-size: 1rem;
 }
 
 .search-container {
@@ -233,68 +241,77 @@ input {
 .greeting-div {
     display: flex;
     justify-content: center;
-    margin-top: 3%;
-    font-size: 2rem;
+    position: absolute;
+    font-size: 4.5rem;
+    font-weight: 500;
+    top: 40%;
+    left: 0%;
+    right: 0%;
 }
 
 .weather-div {
+    width: max-content;
+    position: absolute;
     display: grid;
     justify-content: end;
     align-content: center;
-    margin-right: 2%;
-    margin-top: 2%;
+    float: right;
+    right: 1%;
 }
 
-#city-input {
+.weather-input-div {
+    margin-top: 10%;
+}
+
+.weather-input-div #city-input {
     border: none;
     border-bottom: 2px solid white;
     font-size: 1rem;
     color: white;
     cursor: text;
     padding: 1%;
-    padding-left: 8%;
+    padding-left: 2%;
     background-color: transparent;
 }
 
-#city-input::placeholder {
+.weather-input-div #city-input::placeholder {
     color: #c5c2c2;
 }
 
 .weather-deatils-div {
-    gap: 10px;
     padding: 10px;
-    border: 1px solid white;
-    border-radius: 10px;
     text-align: center;
-    display: grid;
-    grid-template-areas:
-        'weather-type weather-value '
-        'weather-icon weather-value '
-        'weather-icon location-name ';
 }
 
+.weather-data-div {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.half-div {
+    min-width: 50%;
+    max-width: 50%;
+}
 
 .weather-icon {
-    grid-area: weather-icon;
-    width: 70%;
+    width: 75%;
+    max-width: min-content;
 }
 
 .weather-value {
-    grid-area: weather-value;
-    font-size: 25px;
+    font-size: 20px;
     font-weight: 600;
     display: flex;
     align-items: center;
     flex-direction: column-reverse;
 }
 
-.weather-type {
-    grid-area: weather-type;
-}
-
 .location-name {
-    grid-area: location-name;
-    font-weight: 600;
+    font-size: 15px;
+    font-weight: 500;
 }
 
 .display-flex-content-center {

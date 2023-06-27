@@ -13,7 +13,12 @@ function set_time() {
 
     console.log("Current time is : " + current_hour + " : " + current_min);
 
-    document.querySelector(".current_time").innerText = date_time.toLocaleTimeString("en-US", { hour12: true });
+    let time = date_time.toLocaleTimeString("en-US", { hour12: true })
+    let h = time.slice(0,2)
+    let m = time.slice(3,5)
+    let ap = time.slice(9,11)
+
+    document.querySelector(".current_time").innerText = h + ":" + m + " " + ap;
 }
 
 function updateDate() {
@@ -210,7 +215,6 @@ function set_city_weather_data(response) {
         document.querySelector(".weather-deatils-div").style.display = "grid";
         document.querySelector(".location-name").innerHTML = response.response_message.data.location_weather_data.location.name
         document.querySelector(".weather-value").innerHTML = response.response_message.data.location_weather_data.current.temp_c + "°C"
-        document.querySelector(".weather-type").innerHTML = response.response_message.data.location_weather_data.current.condition.text
         document.querySelector(".weather-icon").src = "https:" + response.response_message.data.location_weather_data.current.condition.icon + ""
         let last = new Date(response.response_message.data.location_weather_data.current.last_updated)
         let now = new Date()
@@ -231,7 +235,7 @@ function set_city_weather_data(response) {
 
 setTimeout(() => {
     get_city_weather_data();
-}, 2000)
+}, 500)
 
 
 var google_search_div_id_ele = document.getElementById("google-search-div-id");
