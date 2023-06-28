@@ -14,52 +14,58 @@
 <body>
 
     <div class="weather-div">
-        <input id="city-input" style="display: none;" type="search" placeholder="enter your city name">
-        <span id="loading_msg">getting your location weather data</span>
+        <div class="weather-input-div">
+            <input id="city-input" style="display: none;" type="search" placeholder="enter your city name">
+            <span id="loading_msg">getting your location weather data</span>
+        </div>
         <div class="weather-deatils-div" style="display:none;">
-            <img class="weather-icon" />
-            <span class="weather-value"></span>
-            <span class="weather-type"></span>
-            <span class="location-name"></span>
+            <div class="weather-data-div">
+                <div class="half-div">
+                    <img class="weather-icon" />
+                </div>
+                <div class="half-div">
+                    <span class="weather-value"></span>
+                    <span class="location-name"></span>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="date-time-body">
+        <div class="current_time"></div>
         <div class="current-day-date">
             <span id="day">day</span>,
             <span id="daynum">00</span>
             <span id="month">month</span>
             <span id="year">0000</span>
         </div>
-        <div class="current_time"></div>
     </div>
 
     <div class="quote-container">
-        <span class="quote_p" style="font-size: 1.1rem;">Today is your opportunity to build the tomorrow you want.</span>
-        <span class="quote_author_p" style="font-size: 1rem;">Ken Poirot</span>
+        <span class="quote_p">Today is your opportunity to build the tomorrow you
+            want.</span>
+        <span class="quote_author_p">Ken Poirot</span>
     </div>
 
     <div class="greeting-div">
-        <h1 class="greeting-h1"></h1>
+        <span class="greeting-h1"></span>
     </div>
 
 
     <div class="search-container">
 
-        <div id= "google-search-div-id" class="search-div">
-            <div id= "google-search-box-id" class="search-box">
+        <div id="google-search-div-id" class="search-div">
+            <div id="google-search-box-id" class="search-box">
                 <img class="img-logo" src="./imgs/google-icon.svg" />
-                <input type="search" id="google-search-input" class="input-box"
-                    placeholder="google search">
+                <input type="search" id="google-search-input" class="input-box" placeholder="google search">
             </div>
             <button id="google-search-btn" class="search-btn" type="submit">Search</button>
         </div>
 
-        <div id= "youtube-search-div-id" class="search-div">
-            <div id= "youtube-search-box-id" class="search-box">
+        <div id="youtube-search-div-id" class="search-div">
+            <div id="youtube-search-box-id" class="search-box">
                 <img class="img-logo" src="./imgs/youtube-icon.svg" />
-                <input type="search" id="youtube-search-input" class="input-box"
-                    placeholder="youtube search">
+                <input type="search" id="youtube-search-input" class="input-box" placeholder="youtube search">
             </div>
             <button id="youtube-search-btn" class="search-btn" type="submit">Search</button>
         </div>
