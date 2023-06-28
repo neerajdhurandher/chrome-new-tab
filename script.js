@@ -14,6 +14,9 @@ function set_time() {
     console.log("Current time is : " + current_hour + " : " + current_min);
 
     let time = date_time.toLocaleTimeString("en-US", { hour12: true })
+    if(current_hour < 10 || current_hour > 12){
+        time = "0"+time
+    }
     let h = time.slice(0,2)
     let m = time.slice(3,5)
     let ap = time.slice(9,11)

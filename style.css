@@ -104,7 +104,7 @@ input:checked+.slider:before {
 
 .current_time {
     display: flex;
-    font-size: 5rem;
+    font-size: 5vw;
     font-weight: 600;
     padding: 10px 20px;
 }
@@ -242,7 +242,7 @@ input {
     display: flex;
     justify-content: center;
     position: absolute;
-    font-size: 4.5rem;
+    font-size: 4.5vw;
     font-weight: 500;
     top: 40%;
     left: 0%;
@@ -302,7 +302,7 @@ input {
 }
 
 .weather-value {
-    font-size: 20px;
+    font-size: 1.2rem;
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -310,7 +310,7 @@ input {
 }
 
 .location-name {
-    font-size: 15px;
+    font-size: 0.8rem;
     font-weight: 500;
 }
 
