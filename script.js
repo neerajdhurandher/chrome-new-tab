@@ -1,6 +1,7 @@
-import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, REFRESH_QUOTE_INTERVAL, SET_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA } from "./constants.js"
+import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, REFRESH_QUOTE_INTERVAL, SET_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, STORE_DATA, BOOKMARK_LIST, BOOKMARK_ID, BOOKMARK_NAME, BOOKMARK_URL, BOOKMARK_LOGO, SAVED_TEXT, ERROR_TEXT } from "./constants.js"
 import { GOOGLE_SEARCH_LINK, YOUTUBE_SEARCH_LINK } from "./constants.js"
 console.log("I am script.js")
+import { extract_logo, get_domain_first_letter } from "./contentScript.js"
 
 var date_time = undefined;
 var current_hour = undefined;
@@ -14,14 +15,15 @@ function set_time() {
     console.log("Current time is : " + current_hour + " : " + current_min);
 
     let time = date_time.toLocaleTimeString("en-US", { hour12: true })
-    if(current_hour < 10 || current_hour > 12){
-        time = "0"+time
-    }
-    let h = time.slice(0,2)
-    let m = time.slice(3,5)
-    let ap = time.slice(9,11)
 
-    document.querySelector(".current_time").innerText = h + ":" + m + " " + ap;
+    if (current_hour < 10 || (current_hour > 12 && current_hour < 22)) {
+        time = "0" + time
+    }
+    let h = time.slice(0, 2)
+    let m = time.slice(3, 5)
+    let am_pm = time.slice(9, 11)
+
+    document.querySelector(".current_time").innerText = h + ":" + m + " " + am_pm;
 }
 
 function updateDate() {
@@ -272,4 +274,41 @@ function reset_search_div() {
     google_search_div_id_ele.classList.remove('shrink-anim');
     google_search_div_id_ele.classList.remove('expend-anim');
     youtube_search_div_id_ele.style.width = "fit-content";
+}
+
+let bookmark_popup_element = document.getElementById("bookmark-popup")
+let add_bookmark_btn = document.querySelector(".add-new-bm")
+let bm_save_btn = document.getElementById("save-btn")
+let loader_element = document.getElementById("loader")
+let saved_element = document.getElementById("saved_text")
+let bookmark_name_element = document.getElementById("bm-name")
+let bookmark_url_element = document.getElementById("bm-url")
+
+add_bookmark_btn.addEventListener("click", () => {
+    console.log("clicked")
+    bookmark_popup_element.style.visibility = "visible"
+    bookmark_popup_element.style.opacity = "1"
+
+})
+
+document.querySelector(".close").addEventListener("click", () => {
+    close_popup()
+
+})
+
+
+bm_save_btn.addEventListener("click", () => {
+    save_bookmark()
+    bm_save_btn.style.display = "none"
+    loader_element.style.display = "block"
+
+});
+
+
+
+function close_popup() {
+    bookmark_name_element.value = ""
+    bookmark_url_element.value = ""
+    bookmark_popup_element.style.visibility = "hidden"
+    bookmark_popup_element.style.opacity = "0"
 }
