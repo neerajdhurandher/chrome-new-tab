@@ -24,13 +24,13 @@ async function get_motivation_quote() {
             quote_details = response[0];
         })
         .catch(err => console.error(err));
-    
-    
+
+
     console.log("return api response.....")
     return quote_details
 }
 
-async function get_location_weather_form_api(city){
+async function get_location_weather_form_api(city) {
     let weather_deatils = undefined;
 
     const options = {
@@ -41,16 +41,34 @@ async function get_location_weather_form_api(city){
         contentType: 'application/json',
     };
 
-    await fetch('http://api.weatherapi.com/v1/current.json?q='+city , options)
-    .then(response => response.json())
-    .then(response => {
-        console.log("weather api response")
-        console.log(response)
-        weather_deatils = response;
-    })
-    .catch(err => console.error(err));
+    await fetch('http://api.weatherapi.com/v1/current.json?q=' + city, options)
+        .then(response => response.json())
+        .then(response => {
+            console.log("weather api response")
+            console.log(response)
+            weather_deatils = response;
+        })
+        .catch(err => console.error(err));
 
     return weather_deatils;
 }
 
-export {get_motivation_quote, get_location_weather_form_api}
+async function fetch_web_url_data(url) {
+    const options = {
+        method: 'GET',
+        contentType: 'application/json',
+    };
+
+    try {
+        // Fetch the HTML content of the website
+        const response = await fetch(url, options);
+        const html_content = await response.text()
+        return html_content
+
+    } catch (error) {
+        console.error('Error fetching weburl data:', error);
+        return null;
+    }
+}
+
+export { get_motivation_quote, get_location_weather_form_api, fetch_web_url_data }
