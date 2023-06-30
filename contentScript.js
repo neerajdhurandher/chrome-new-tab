@@ -1,3 +1,5 @@
+import { NULL_TEXT } from "./constants.js";
+
 async function extract_logo(url, html_response) {
   const html = html_response;
 
@@ -14,7 +16,7 @@ async function extract_logo(url, html_response) {
     'meta[name="twitter:image"]',
     'img[src*="logo"]',
   ];
-
+  console.log("extracting logo")
   for (const selector of logoSelectors) {
     const element = doc.querySelector(selector);
     if (element) {
@@ -29,7 +31,7 @@ async function extract_logo(url, html_response) {
   }
 
   console.log('Logo not found');
-  return null;
+  return NULL_TEXT;
 }
 
 function get_domain_first_letter(url) {
@@ -40,8 +42,6 @@ function get_domain_first_letter(url) {
 
   for (let x = 0; x < url.length; x++) {
     let char = url.charAt(x)
-
-    console.log(char)
 
     if (slash == true && last_char == "/" && letter == "") {
       letter = char
@@ -66,4 +66,15 @@ function get_domain_first_letter(url) {
   return last_letter;
 }
 
-export { extract_logo, get_domain_first_letter }
+function validate_url(url) {
+  var expression =
+    /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+  var regex = new RegExp(expression);
+  if (url.match(regex)) {
+    return true
+  } else {
+    return false
+  }
+}
+
+export { extract_logo, get_domain_first_letter, validate_url }

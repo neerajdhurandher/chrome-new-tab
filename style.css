@@ -422,7 +422,6 @@ input {
 .bookmark-card {
     width: 50px;
     height: 50px;
-    /* background-color: #c5c2c2; */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -445,8 +444,22 @@ input {
     font-size: small;
 }
 
+#custom-logo{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #06D85F;
+    display: none;
+}
+#logo-letter{
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+}
+
 
 .overlay {
+    display: none;
     position: fixed;
     top: 0;
     bottom: 0;
@@ -464,15 +477,12 @@ input {
 }
 
 .popup {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     width: 30%;
     position: relative;
     margin: 10% auto;
     padding: 20px;
     border-radius: 5px;
-    background: #c55252;
+    background: #3a3939d6;
     transition: all 1s ease-in-out;
 }
 
@@ -480,17 +490,15 @@ input {
     position: absolute;
     top: 1%;
     right: 3%;
-    transition: all 200ms;
     font-size: 30px;
     font-weight: bold;
     text-decoration: none;
-    color: #333;
+    color: #e81515;
     cursor: pointer;
 }
 
 .popup .close:hover {
-    color: #06D85F;
-    scale: 1.05;
+    scale: 1.3;
 }
 
 .popup .popup-content {
@@ -504,11 +512,10 @@ input {
 }
 
 .simple-input-box {
-    width: 25vw;
-    height: 5vh;
-    font-size: 1.2rem;
+    width: 100%;
+    font-size: 1.1rem;
     font-weight: 500;
-    padding: 3% 2%;
+    padding: 2%;
     margin: 2% 0%;
     border-radius: 8px;
     border: 3px solid transparent;
@@ -523,15 +530,15 @@ input {
     font-weight: 500;
     display: block;
     margin: 0% 1%;
+    margin-top: 2%  ;
 }
 
 #save-btn {
-    background-color: #706b6b;
-    width: 100%;
+    background-color: #0388f5;
+    width: 70%;
     height: 2.5em;
-    margin: 4% 0%;
+    margin: 4% 15%;
     border-radius: 8px;
-    float: right;
     border: none;
     cursor: pointer;
 
@@ -539,6 +546,7 @@ input {
 
 .loader {
     margin: auto;
+    margin-top: 3%;
     border: 10px solid #EAF0F6;
     border-radius: 50%;
     border-top: 10px solid #FF7A59;

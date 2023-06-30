@@ -1,3 +1,4 @@
+import { NULL_TEXT } from "./constants.js";
 
 async function get_motivation_quote() {
 
@@ -66,8 +67,8 @@ async function fetch_web_url_data(url) {
         return html_content
 
     } catch (error) {
-        console.error('Error fetching weburl data:', error);
-        return null;
+        console.error('Error fetching weburl data:' + error);
+        return NULL_TEXT;
     }
 }
 

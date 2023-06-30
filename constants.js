@@ -24,10 +24,17 @@ export let WELOCOME_TEXT = "Hey, Welcome"
 export let THANKS_TEXT = "Thanks!"
 export let SAVED_TEXT = "Saved " + '&#8730;'
 export let ERROR_TEXT = "Error: Something went wrong."
+export let NULL_TEXT = "null"
+export let INVALID_URL = "Invalid URL!!"
+export let INVALID_BOOKMARK_NAME = "Invalid bookmark name!!"
 // 2 hours
 export let REFRESH_QUOTE_INTERVAL = 7200000
 // 4 hours
 export let REFRESH_WEATHER_INTERVAL = 14400000
+
+// colors
+export let GREEN_COLOR = "#1ae94d"
+export let RED_COLOR = "#e31212"
 
 // URLs
 export const YOUTUBE_SEARCH_LINK = "https://www.youtube.com/results?search_query="

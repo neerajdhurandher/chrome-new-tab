@@ -81,13 +81,15 @@
 
             <div class="bookmark-card">
                 <img id="bm_i" class="bookmark-logo" src="neeraj-logo.png" alt="logo">
+                <div id="custom-logo" class="bookmark-logo">
+                    <span id="logo-letter">A</span>
+                </div>
                 <span id="bm-n" class="bookmark-name">bookmark</span>
             </div>
 
             <div class="bookmark-card add-new-bm">
-                <!-- <a href="#bookmark-popup"> -->
-                    <img class="bookmark-logo" src="./imgs/plus-icon.svg" alt="logo">
-                    <span class="bookmark-name">add new</span>
+                <img class="bookmark-logo" src="./imgs/plus-icon.svg" alt="logo">
+                <span class="bookmark-name">add new</span>
             </div>
 
         </div>
@@ -95,17 +97,17 @@
 
     <div id="bookmark-popup" class="overlay">
         <div class="popup">
-            <a class="close" >&times;</a>
+            <a class="close">&times;</a>
             <div class="popup-content">
                 <span>Add bookmark</span>
                 <label for="bm-name">Name</label>
-                <input id="bm-name" class="simple-input-box" type="text" maxlength="15"
+                <input id="bm-name" class="simple-input-box" autocomplete="off" type="text" maxlength="15"
                     placeholder="Enter bookmark name here">
                 <label for="bm-url">URL</label>
-                <input id="bm-url" class="simple-input-box" type="text" placeholder="Paste URL here">
+                <input id="bm-url" class="simple-input-box" autocomplete="off" type="text" placeholder="Paste URL here">
                 <input id="save-btn" type="button" value="Save">
                 <div id="loader" class="loader" style="display: none;"></div>
-                <span id="saved_text" style="font-size:large; margin-left: 40%; margin-right: 40%; display: none;">Saved
+                <span id="msg_text" style="font-size:large; margin-left: 40%; margin-right: 40%; display: none;">Saved
                     &#8730;</span>
             </div>
         </div>

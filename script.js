@@ -1,7 +1,8 @@
-import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, REFRESH_QUOTE_INTERVAL, SET_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, STORE_DATA, BOOKMARK_LIST, BOOKMARK_ID, BOOKMARK_NAME, BOOKMARK_URL, BOOKMARK_LOGO, SAVED_TEXT, ERROR_TEXT } from "./constants.js"
+import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, REFRESH_QUOTE_INTERVAL, SET_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, STORE_DATA, BOOKMARK_LIST, BOOKMARK_ID, BOOKMARK_NAME, BOOKMARK_URL, BOOKMARK_LOGO, SAVED_TEXT, ERROR_TEXT, NULL_TEXT, INVALID_URL, INVALID_BOOKMARK_NAME } from "./constants.js"
+import {RED_COLOR, GREEN_COLOR } from "./constants.js"
 import { GOOGLE_SEARCH_LINK, YOUTUBE_SEARCH_LINK } from "./constants.js"
 console.log("I am script.js")
-import { extract_logo, get_domain_first_letter } from "./contentScript.js"
+import { extract_logo, get_domain_first_letter, validate_url } from "./contentScript.js"
 
 var date_time = undefined;
 var current_hour = undefined;
@@ -280,12 +281,12 @@ let bookmark_popup_element = document.getElementById("bookmark-popup")
 let add_bookmark_btn = document.querySelector(".add-new-bm")
 let bm_save_btn = document.getElementById("save-btn")
 let loader_element = document.getElementById("loader")
-let saved_element = document.getElementById("saved_text")
+let msg_element = document.getElementById("msg_text")
 let bookmark_name_element = document.getElementById("bm-name")
 let bookmark_url_element = document.getElementById("bm-url")
 
 add_bookmark_btn.addEventListener("click", () => {
-    console.log("clicked")
+    bookmark_popup_element.style.display = "block"
     bookmark_popup_element.style.visibility = "visible"
     bookmark_popup_element.style.opacity = "1"
 
@@ -298,17 +299,135 @@ document.querySelector(".close").addEventListener("click", () => {
 
 
 bm_save_btn.addEventListener("click", () => {
-    save_bookmark()
-    bm_save_btn.style.display = "none"
-    loader_element.style.display = "block"
 
+    if (validate_input_data() == true) {
+        save_bookmark()
+    }
 });
 
+function validate_input_data() {
 
+    let valid_bookmark_name = true
+    let valid_url = validate_url(bookmark_url_element.value)
+    if (bookmark_name_element.value.length < 1) {
+        valid_bookmark_name = false
+        show_msg(false, INVALID_BOOKMARK_NAME)
+    } else if (valid_url == false) {
+        show_msg(false, INVALID_URL)
+    }
+
+    if (valid_bookmark_name == true && valid_url == true) {
+        return true
+    } else {
+        return false
+    }
+}
+
+function show_msg(status, msg) {
+    if (status == true) {
+        msg_element.style.color = GREEN_COLOR;
+    } else {
+        msg_element.style.color = RED_COLOR;
+    }
+    msg_element.innerHTML = msg
+    msg_element.style.display = "block"
+    msg_element.style.visibility = "visible"
+
+    setTimeout(() => {
+        msg_element.style.display = "none"
+    }, 2000)
+
+}
+
+function save_bookmark() {
+    let bookmark_name = bookmark_name_element.value
+    let bookmark_url = bookmark_url_element.value
+
+    bm_save_btn.style.display = "none"
+    msg_element.style.display = "block"
+    msg_element.style.visibility = "hidden"
+    loader_element.style.display = "block"
+
+    let domain_first_letter = get_domain_first_letter(bookmark_url)
+    if (domain_first_letter == " ") {
+        domain_first_letter = bookmark_name.charAt(0)
+    }
+
+    console.log("fetching logo.....")
+
+    chrome.runtime.sendMessage({ action: "get_url_logo", url: bookmark_url, name: bookmark_name }, (response) => {
+
+        if (response) {
+            extract_logo(bookmark_url, response).then((logo) => {
+                store_bookmark_data(bookmark_name, bookmark_url, logo, domain_first_letter)
+            })
+
+        } else {
+            store_bookmark_data(bookmark_name, bookmark_url, NULL_TEXT, domain_first_letter)
+        }
+
+    });
+}
+
+function store_bookmark_data(bm_name, bm_url, bm_logo, bm_letter) {
+
+    let bm_obj = {
+        "bookmark_id": date_time.toISOString(),
+        "bookmark_name": bm_name,
+        "bookmark_url": bm_url,
+        "bookmark_logo": bm_logo,
+        "bookmark_letter": bm_letter
+    }
+
+    let bm_list = [];
+
+    chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: BOOKMARK_LIST }, (response) => {
+
+        console.log(response)
+
+        if (response.response_message.status == true) {
+            bm_list = response.response_message.data.bookmark_list
+        }
+
+        bm_list.push(bm_obj)
+
+        chrome.runtime.sendMessage({ action: STORE_DATA, key: BOOKMARK_LIST, value: bm_list }, (response) => {
+            loader_element.style.display = "none"
+            if (response.response_message.status == true) {
+                show_msg(true, SAVED_TEXT)
+            } else {
+                show_msg(false, ERROR_TEXT)
+            }
+        })
+
+        setTimeout(() => {
+            close_popup()
+        }, 2000)
+
+    })
+
+}
 
 function close_popup() {
     bookmark_name_element.value = ""
     bookmark_url_element.value = ""
+    bookmark_popup_element.style.display = "none"
     bookmark_popup_element.style.visibility = "hidden"
     bookmark_popup_element.style.opacity = "0"
+    loader_element.style.display = "none"
+    msg_element.style.display = "none"
+    bm_save_btn.style.display = "block"
+
+    setTimeout(() => {
+        set_bookmark()
+    }, 2000)
+}
+
+function set_bookmark() {
+    chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: BOOKMARK_LIST }, (response) => {
+
+        console.log("Got bookmark data from local")
+        console.log(response)
+
+    });
 }
