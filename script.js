@@ -17,7 +17,7 @@ function set_time() {
 
     let time = date_time.toLocaleTimeString("en-US", { hour12: true })
 
-    if (current_hour < 10 || (current_hour > 12 && current_hour < 22)) {
+    if (time.charAt(1) == ":") {
         time = "0" + time
     }
     let h = time.slice(0, 2)
