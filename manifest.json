@@ -18,6 +18,16 @@
         "tabs",
         "activeTab",
         "bookmarks",
-        "storage"
+        "storage",
+        "webRequest"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "content_scripts": [
+        {
+          "matches": ["<all_urls>"],
+          "js": ["contentScript.js"]
+        }
     ]
 }

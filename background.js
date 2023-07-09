@@ -1,4 +1,4 @@
-import { get_motivation_quote, get_location_weather_form_api } from "./api_call.js";
+import { get_motivation_quote, get_location_weather_form_api, fetch_web_url_data } from "./api_call.js";
 import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, SET_LOCATION_WEATHER, STORE_DATA, RETRIEVE_DATA, QUOTE_DATA, REFRESH_QUOTE_INTERVAL, QUOTE, AUTHOR, LOCATION_WEATHER_DATA } from "./constants.js"
 
 console.log("I am background js")
@@ -59,6 +59,10 @@ chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
     console.log(location_weather)
     sendResponse({ response_message: location_weather })
 
+  } else if (param.action == "get_url_data") {
+    fetch_web_url_data(param.url).then((data) => {
+      sendResponse({ response_message: data })
+    });
   }
 
 
@@ -217,4 +221,19 @@ async function get_location_weather_from_server(location) {
   }
 }
 
+chrome.webRequest.onHeadersReceived.addListener(
+  (details) => {
+    const responseHeaders = details.responseHeaders;
+    const accessControlHeaderIndex = responseHeaders.findIndex((header) => header.name.toLowerCase() === 'access-control-allow-origin');
 
+    if (accessControlHeaderIndex !== -1) {
+      responseHeaders[accessControlHeaderIndex].value = '*';
+    } else {
+      responseHeaders.push({ name: 'Access-Control-Allow-Origin', value: '*' });
+    }
+
+    return { responseHeaders };
+  },
+  { urls: ['<all_urls>'] },
+  ['responseHeaders', 'extraHeaders']
+);
