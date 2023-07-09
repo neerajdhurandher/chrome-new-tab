@@ -1,5 +1,3 @@
-import { NULL_TEXT } from "./constants.js";
-
 async function extract_logo(url, html_response) {
   const html = html_response;
 
@@ -31,7 +29,7 @@ async function extract_logo(url, html_response) {
   }
 
   console.log('Logo not found');
-  return NULL_TEXT;
+  return "null";
 }
 
 function get_domain_first_letter(url) {

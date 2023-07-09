@@ -59,7 +59,7 @@ chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
     console.log(location_weather)
     sendResponse({ response_message: location_weather })
 
-  } else if (param.action == "get_url_logo") {
+  } else if (param.action == "get_url_data") {
     fetch_web_url_data(param.url).then((data) => {
       sendResponse({ response_message: data })
     });

@@ -31,6 +31,7 @@ export let INVALID_BOOKMARK_NAME = "Invalid bookmark name!!"
 export let REFRESH_QUOTE_INTERVAL = 7200000
 // 4 hours
 export let REFRESH_WEATHER_INTERVAL = 14400000
+export let MAX_BOOKMARK_SHOW = 4
 
 // colors
 export let GREEN_COLOR = "#1ae94d"

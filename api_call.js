@@ -1,5 +1,3 @@
-import { NULL_TEXT } from "./constants.js";
-
 async function get_motivation_quote() {
 
     let quote_details = undefined;
@@ -60,16 +58,9 @@ async function fetch_web_url_data(url) {
         contentType: 'application/json',
     };
 
-    try {
-        // Fetch the HTML content of the website
-        const response = await fetch(url, options);
-        const html_content = await response.text()
-        return html_content
-
-    } catch (error) {
-        console.error('Error fetching weburl data:' + error);
-        return NULL_TEXT;
-    }
+    const response = await fetch(url, options);
+    const html_content = await response.text()
+    return html_content
 }
 
 export { get_motivation_quote, get_location_weather_form_api, fetch_web_url_data }

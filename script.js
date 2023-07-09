@@ -1,5 +1,5 @@
-import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, REFRESH_QUOTE_INTERVAL, SET_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, STORE_DATA, BOOKMARK_LIST, BOOKMARK_ID, BOOKMARK_NAME, BOOKMARK_URL, BOOKMARK_LOGO, SAVED_TEXT, ERROR_TEXT, NULL_TEXT, INVALID_URL, INVALID_BOOKMARK_NAME } from "./constants.js"
-import {RED_COLOR, GREEN_COLOR } from "./constants.js"
+import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, REFRESH_QUOTE_INTERVAL, SET_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, STORE_DATA, BOOKMARK_LIST, SAVED_TEXT, ERROR_TEXT, NULL_TEXT, INVALID_URL, INVALID_BOOKMARK_NAME, MAX_BOOKMARK_SHOW } from "./constants.js"
+import { RED_COLOR, GREEN_COLOR } from "./constants.js"
 import { GOOGLE_SEARCH_LINK, YOUTUBE_SEARCH_LINK } from "./constants.js"
 console.log("I am script.js")
 import { extract_logo, get_domain_first_letter, validate_url } from "./contentScript.js"
@@ -182,7 +182,6 @@ var loading_msg_element = document.getElementById("loading_msg");
 document.getElementById("city-input").addEventListener("keyup", function (event) {
     if (event.keyCode === 13) {
         event.preventDefault();
-        console.log("city enter key pressed")
         var location_value = input_element.value;
         console.log("location val " + location_value)
 
@@ -200,7 +199,6 @@ function fetch_city_weather_data(city) {
     })
 
     setTimeout(() => {
-        console.log("this is timeout function for featching weather data")
         get_city_weather_data();
     }, 4000)
 }
@@ -353,12 +351,10 @@ function save_bookmark() {
         domain_first_letter = bookmark_name.charAt(0)
     }
 
-    console.log("fetching logo.....")
-
-    chrome.runtime.sendMessage({ action: "get_url_logo", url: bookmark_url, name: bookmark_name }, (response) => {
+    chrome.runtime.sendMessage({ action: "get_url_data", url: bookmark_url, name: bookmark_name }, (response) => {
 
         if (response) {
-            extract_logo(bookmark_url, response).then((logo) => {
+            extract_logo(bookmark_url, response.response_message).then((logo) => {
                 store_bookmark_data(bookmark_name, bookmark_url, logo, domain_first_letter)
             })
 
@@ -383,15 +379,13 @@ function store_bookmark_data(bm_name, bm_url, bm_logo, bm_letter) {
 
     chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: BOOKMARK_LIST }, (response) => {
 
-        console.log(response)
-
         if (response.response_message.status == true) {
             bm_list = response.response_message.data.bookmark_list
         }
 
         bm_list.push(bm_obj)
 
-        chrome.runtime.sendMessage({ action: STORE_DATA, key: BOOKMARK_LIST, value: bm_list }, (response) => {
+        chrome.runtime.sendMessage({ action: STORE_DATA, key: BOOKMARK_LIST, value: bm_list, name: "Bookmark list" }, (response) => {
             loader_element.style.display = "none"
             if (response.response_message.status == true) {
                 show_msg(true, SAVED_TEXT)
@@ -403,6 +397,12 @@ function store_bookmark_data(bm_name, bm_url, bm_logo, bm_letter) {
         setTimeout(() => {
             close_popup()
         }, 2000)
+
+        if (bm_list.length < MAX_BOOKMARK_SHOW) {
+            setTimeout(() => {
+                create_bookmark_element(bm_obj)
+            }, 3000)
+        }
 
     })
 
@@ -417,17 +417,73 @@ function close_popup() {
     loader_element.style.display = "none"
     msg_element.style.display = "none"
     bm_save_btn.style.display = "block"
-
-    setTimeout(() => {
-        set_bookmark()
-    }, 2000)
 }
 
 function set_bookmark() {
-    chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: BOOKMARK_LIST }, (response) => {
+    chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: BOOKMARK_LIST, name: "Bookmark list" }, (response) => {
 
         console.log("Got bookmark data from local")
         console.log(response)
+        let bm_list = response.response_message.data.bookmark_list
+
+        let max_count = MAX_BOOKMARK_SHOW
+        let number_of_bookmarks = bm_list.length
+
+        number_of_bookmarks = 10
+
+        if (number_of_bookmarks < max_count) {
+            max_count = number_of_bookmarks
+        } else {
+            document.querySelector(".more-bookmark-btn").style.display = "block"
+        }
+
+        for (let i = 0; i < max_count; i++) {
+            create_bookmark_element(bm_list[i])
+        }
 
     });
 }
+
+function create_bookmark_element(bookmark_details) {
+    let b_div = document.createElement("div")
+    b_div.classList.add("bookmark-card")
+
+    let logo_i = document.createElement("img")
+    logo_i.classList.add("bookmark-logo")
+
+    let custom_logo_div = document.createElement("div")
+    custom_logo_div.classList.add("bookmark-logo")
+    custom_logo_div.classList.add("custom-logo-div")
+
+    let custom_logo_span = document.createElement("span")
+    custom_logo_span.classList.add("logo-letter")
+
+    custom_logo_div.appendChild(custom_logo_span)
+
+    let b_name = document.createElement("span")
+    b_name.classList.add("bookmark-name")
+
+
+    if (bookmark_details.bookmark_logo == NULL_TEXT) {
+        let bm_letter = bookmark_details.bookmark_letter
+        custom_logo_span.innerHTML = bm_letter.toUpperCase()
+        logo_i.style.display = "none"
+        custom_logo_div.style.display = "block"
+    } else {
+        logo_i.src = bookmark_details.bookmark_logo
+    }
+    b_name.innerHTML = bookmark_details.bookmark_name.substring(0, 6)
+
+    b_div.addEventListener("click", () => {
+        window.open(bookmark_details.bookmark_url, '_blank')
+    })
+
+    b_div.appendChild(logo_i)
+    b_div.appendChild(custom_logo_div)
+    b_div.appendChild(b_name)
+
+    let main_b_div = document.querySelector(".bookmark-list")
+    main_b_div.appendChild(b_div)
+}
+
+set_bookmark()
