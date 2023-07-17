@@ -450,29 +450,76 @@ input {
 
 .bookmark-name {
     font-size: small;
+    text-align: center;
 }
 
-.custom-logo-div{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #06D85F;
+.custom-logo-div {
+    width: 100%;
+    height: 100%;
     display: none;
+    background-color: white;
 }
-.logo-letter{
+
+.logo-letter {
     font-size: 1.1rem;
     font-weight: 600;
     display: flex;
     align-items: center;
-    justify-content: center;   
+    justify-content: center;
+    color: #000000;
 }
 
-.more-bookmark-btn{
+.more-bookmark-btn {
     cursor: pointer;
     font-size: 0.9rem;
     color: #ffee56;
     margin-top: 10%;
     display: none;
+}
+
+#more-bookmark-popup {
+    .popup {
+        width: 50%;
+        margin: 8% auto;
+        background: #2a2a2a;
+    }
+
+    .all-bookmark-container {
+        overflow: auto;
+        min-height: 40vh;
+        max-height: 60vh;
+        margin-top: 1%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15%;
+        row-gap: 0;
+        padding: 0% 1%;
+
+        .bookmark-card {
+            width: 6em;
+            min-width: 60px;
+            height: 5em;
+            margin: 5% 1%;
+
+            .bookmark-logo {
+                background-color: #ffffff;
+            }
+
+            .bookmark-name {
+                font-size: 1.2rem;
+            }
+
+            .custom-logo-div {
+                .logo-letter {
+                    font-size: 2.1rem;
+                    font-weight: 700;
+                }
+
+            }
+        }
+    }
 }
 
 .overlay {
@@ -488,9 +535,11 @@ input {
     opacity: 0;
 }
 
-.overlay:target {
+.overlay_show {
+    display: block;
     visibility: visible;
     opacity: 1;
+    z-index: 2;
 }
 
 .popup {
@@ -499,7 +548,7 @@ input {
     margin: 10% auto;
     padding: 20px;
     border-radius: 5px;
-    background: #3a3939d6;
+    background: #2a2a2a;
     transition: all 1s ease-in-out;
 }
 
@@ -507,20 +556,20 @@ input {
     position: absolute;
     top: 1%;
     right: 3%;
-    font-size: 30px;
+    font-size: 2.2rem;
     font-weight: bold;
     text-decoration: none;
-    color: #e81515;
+    color: #ffee56;
     cursor: pointer;
+    transition: transform 0.5s;
 }
 
 .popup .close:hover {
-    scale: 1.3;
+    transform: rotate(90deg);
 }
 
 .popup .popup-content {
     max-height: 40%;
-    overflow: auto;
 }
 
 .popup .popup-content span {
@@ -547,11 +596,11 @@ input {
     font-weight: 500;
     display: block;
     margin: 0% 1%;
-    margin-top: 2%  ;
+    margin-top: 2%;
 }
 
 #save-btn {
-    background-color: #0388f5;
+    background-color: #ffee56;
     width: 70%;
     height: 2.5em;
     margin: 4% 15%;
@@ -566,10 +615,31 @@ input {
     margin-top: 3%;
     border: 10px solid #EAF0F6;
     border-radius: 50%;
-    border-top: 10px solid #FF7A59;
+    border-top: 10px solid #ffee56;
     width: 40px;
     height: 40px;
     animation: spinner 4s linear infinite;
+}
+
+/* Scroll bar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1b1a1a;
+    border-radius: 6px;
+    border-bottom: 2px solid #b4b4b4;
+    border-top: 2px solid #b4b4b4;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #ffee56;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #1b1a1a;
+    border: 2px solid #b4b4b4;
 }
 
 

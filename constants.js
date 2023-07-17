@@ -27,6 +27,7 @@ export let ERROR_TEXT = "Error: Something went wrong."
 export let NULL_TEXT = "null"
 export let INVALID_URL = "Invalid URL!!"
 export let INVALID_BOOKMARK_NAME = "Invalid bookmark name!!"
+export let BOOKMARKS = "Bookmarks"
 // 2 hours
 export let REFRESH_QUOTE_INTERVAL = 7200000
 // 4 hours

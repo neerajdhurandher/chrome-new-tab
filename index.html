@@ -90,7 +90,7 @@
             <div class="popup-content">
                 <span>Add bookmark</span>
                 <label for="bm-name">Name</label>
-                <input id="bm-name" class="simple-input-box" autocomplete="off" type="text" maxlength="15"
+                <input id="bm-name" class="simple-input-box" autocomplete="off" type="text"
                     placeholder="Enter bookmark name here">
                 <label for="bm-url">URL</label>
                 <input id="bm-url" class="simple-input-box" autocomplete="off" type="search"
@@ -99,6 +99,15 @@
                 <div id="loader" class="loader" style="display: none;"></div>
                 <span id="msg_text" style="font-size:large; margin-left: 40%; margin-right: 40%; display: none;">Saved
                     &#8730;</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="more-bookmark-popup" class="overlay">
+        <div class="popup">
+            <a class="more-bookmark-close close">&times;</a>
+            <div class="more-bookmark-popup-container popup-content">
+                <h1 id="bookmark-heading">Bookmarks</h1>
             </div>
         </div>
     </div>

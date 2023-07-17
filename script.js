@@ -1,4 +1,4 @@
-import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, REFRESH_QUOTE_INTERVAL, SET_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, STORE_DATA, BOOKMARK_LIST, SAVED_TEXT, ERROR_TEXT, NULL_TEXT, INVALID_URL, INVALID_BOOKMARK_NAME, MAX_BOOKMARK_SHOW } from "./constants.js"
+import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, REFRESH_QUOTE_INTERVAL, SET_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, STORE_DATA, BOOKMARK_LIST, SAVED_TEXT, ERROR_TEXT, NULL_TEXT, INVALID_URL, INVALID_BOOKMARK_NAME, MAX_BOOKMARK_SHOW, BOOKMARKS } from "./constants.js"
 import { RED_COLOR, GREEN_COLOR } from "./constants.js"
 import { GOOGLE_SEARCH_LINK, YOUTUBE_SEARCH_LINK } from "./constants.js"
 console.log("I am script.js")
@@ -282,11 +282,11 @@ let loader_element = document.getElementById("loader")
 let msg_element = document.getElementById("msg_text")
 let bookmark_name_element = document.getElementById("bm-name")
 let bookmark_url_element = document.getElementById("bm-url")
+let more_bookmark_btn = document.querySelector(".more-bookmark-btn")
+let more_bookmark_popup = document.getElementById("more-bookmark-popup")
 
 add_bookmark_btn.addEventListener("click", () => {
-    bookmark_popup_element.style.display = "block"
-    bookmark_popup_element.style.visibility = "visible"
-    bookmark_popup_element.style.opacity = "1"
+    bookmark_popup_element.classList.add("overlay_show")
 
 })
 
@@ -398,10 +398,12 @@ function store_bookmark_data(bm_name, bm_url, bm_logo, bm_letter) {
             close_popup()
         }, 2000)
 
-        if (bm_list.length < MAX_BOOKMARK_SHOW) {
-            setTimeout(() => {
-                create_bookmark_element(bm_obj)
-            }, 3000)
+
+        if (bm_list.length - 1 < MAX_BOOKMARK_SHOW) {
+            let new_bm = create_bookmark_element(bm_obj)
+            document.querySelector(".bookmark-list").appendChild(new_bm)
+        } else {
+            more_bookmark_btn.style.display = "block"
         }
 
     })
@@ -411,34 +413,31 @@ function store_bookmark_data(bm_name, bm_url, bm_logo, bm_letter) {
 function close_popup() {
     bookmark_name_element.value = ""
     bookmark_url_element.value = ""
-    bookmark_popup_element.style.display = "none"
-    bookmark_popup_element.style.visibility = "hidden"
-    bookmark_popup_element.style.opacity = "0"
+    bookmark_popup_element.classList.remove("overlay_show")
     loader_element.style.display = "none"
     msg_element.style.display = "none"
     bm_save_btn.style.display = "block"
 }
 
+
 function set_bookmark() {
     chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: BOOKMARK_LIST, name: "Bookmark list" }, (response) => {
 
-        console.log("Got bookmark data from local")
-        console.log(response)
         let bm_list = response.response_message.data.bookmark_list
 
         let max_count = MAX_BOOKMARK_SHOW
         let number_of_bookmarks = bm_list.length
 
-        number_of_bookmarks = 10
-
-        if (number_of_bookmarks < max_count) {
+        if (number_of_bookmarks <= max_count) {
             max_count = number_of_bookmarks
         } else {
-            document.querySelector(".more-bookmark-btn").style.display = "block"
+            more_bookmark_btn.style.display = "block"
         }
+        let main_b_div = document.querySelector(".bookmark-list")
 
         for (let i = 0; i < max_count; i++) {
-            create_bookmark_element(bm_list[i])
+            let b_div = create_bookmark_element(bm_list[i])
+            main_b_div.appendChild(b_div)
         }
 
     });
@@ -482,8 +481,50 @@ function create_bookmark_element(bookmark_details) {
     b_div.appendChild(custom_logo_div)
     b_div.appendChild(b_name)
 
-    let main_b_div = document.querySelector(".bookmark-list")
-    main_b_div.appendChild(b_div)
+    return b_div
 }
+
+function show_all_bookmarks() {
+    chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: BOOKMARK_LIST, name: "Bookmark list" }, (response) => {
+
+        let bm_list = response.response_message.data.bookmark_list
+
+        let number_of_bookmarks = bm_list.length
+
+        let more_bookmark_popup_container = document.querySelector(".more-bookmark-popup-container")
+
+        let bookmark_heading = document.getElementById("bookmark-heading")
+        bookmark_heading.innerHTML = BOOKMARKS + " (" + number_of_bookmarks + ")"
+
+
+        if (more_bookmark_popup_container.childElementCount > 1) {
+            more_bookmark_popup_container.removeChild(more_bookmark_popup_container.children[1])
+        }
+
+        let more_bookmark_div = document.createElement("div")
+        more_bookmark_div.classList.add("all-bookmark-container")
+
+        for (let i = 0; i < number_of_bookmarks; i++) {
+            let b_div = create_bookmark_element(bm_list[i])
+            let b_div_1 = create_bookmark_element(bm_list[i])
+            more_bookmark_div.appendChild(b_div)
+            more_bookmark_div.appendChild(b_div_1)
+        }
+
+        more_bookmark_popup_container.appendChild(more_bookmark_div)
+
+    });
+}
+
+more_bookmark_btn.addEventListener("click", () => {
+    more_bookmark_popup.classList.add("overlay_show")
+    show_all_bookmarks()
+})
+
+document.querySelector(".more-bookmark-close").addEventListener("click", () => {
+    more_bookmark_popup.classList.remove("overlay_show")
+    let more_bookmark_popup_container = document.querySelector(".more-bookmark-popup-container")
+    more_bookmark_popup_container.removeChild(more_bookmark_popup_container.children[1])
+})
 
 set_bookmark()
