@@ -506,9 +506,7 @@ function show_all_bookmarks() {
 
         for (let i = 0; i < number_of_bookmarks; i++) {
             let b_div = create_bookmark_element(bm_list[i])
-            let b_div_1 = create_bookmark_element(bm_list[i])
             more_bookmark_div.appendChild(b_div)
-            more_bookmark_div.appendChild(b_div_1)
         }
 
         more_bookmark_popup_container.appendChild(more_bookmark_div)
