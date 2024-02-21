@@ -474,7 +474,7 @@ function create_bookmark_element(bookmark_details) {
     b_name.innerHTML = bookmark_details.bookmark_name.substring(0, 6)
 
     b_div.addEventListener("click", () => {
-        window.open(bookmark_details.bookmark_url, '_blank')
+        window.open(bookmark_details.bookmark_url, '_parent')
     })
 
     b_div.appendChild(logo_i)
