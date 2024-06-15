@@ -1,5 +1,5 @@
-import { get_motivation_quote, get_location_weather_form_api, fetch_web_url_data } from "./api_call.js";
-import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, SET_LOCATION_WEATHER, STORE_DATA, RETRIEVE_DATA, QUOTE_DATA, REFRESH_QUOTE_INTERVAL, QUOTE, AUTHOR, LOCATION_WEATHER_DATA } from "./constants.js"
+import { get_motivation_quote, get_location_weather_form_api, fetch_location_list, fetch_web_url_data } from "./api_call.js";
+import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, FETCH_LOCATION_WEATHER, FETCH_LOCATION_LIST, STORE_DATA, RETRIEVE_DATA, QUOTE_DATA, REFRESH_QUOTE_INTERVAL, QUOTE, AUTHOR, LOCATION_WEATHER_DATA } from "./constants.js"
 
 console.log("I am background js")
 
@@ -53,11 +53,13 @@ chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
   } else if (param.action == GET_GREETING) {
     sendResponse({ response_message: get_greeting() })
 
-  } else if (param.action == SET_LOCATION_WEATHER) {
+  } else if (param.action == FETCH_LOCATION_WEATHER) {
     let location_weather = await get_location_weather_from_server(param.location);
-    console.log("returning location weather data")
-    console.log(location_weather)
     sendResponse({ response_message: location_weather })
+
+  } else if (param.action == FETCH_LOCATION_LIST) {
+    let location_data = await get_auto_complete_location_list(param.location_query);
+    sendResponse({ response_message: location_data })
 
   } else if (param.action == "get_url_data") {
     fetch_web_url_data(param.url).then((data) => {
@@ -89,7 +91,7 @@ chrome.runtime.onMessage.addListener((param, sender, sendResponse) => {
     chrome.storage.local.get([key_val]).then((result) => {
       console.log(result)
       if (result[key_val] == undefined) {
-        sendResponse({ response_message: { status: false, error: "No data assosiate with key: " + key_val } })
+        sendResponse({ response_message: { status: false, error: "No data associate with key: " + key_val } })
       } else {
         sendResponse({ response_message: { status: true, data: result } })
       }
@@ -209,15 +211,34 @@ function get_greeting() {
 
 async function get_location_weather_from_server(location) {
   if (location != undefined) {
+    let status = false
     let location_weather = await get_location_weather_form_api(location);
     if (location_weather != undefined) {
       let store = {};
-      store[LOCATION_WEATHER_DATA] = location_weather
-      chrome.storage.local.set(store).then(() => { console.log(location + " weather data saved.") })
+      let now = new Date();
+      store[LOCATION_WEATHER_DATA] = {
+        "weather_data": location_weather,
+        "last_updated": now.toISOString()
+      }
+      chrome.storage.local.set(store)
+        .then(() => {
+          console.log(location + " weather data saved.")
+        })
+      status = true
     } else {
       console.log(location + " weather data not available.")
     }
-    return location_weather;
+    return {
+      "status": status,
+      "data": { "location_weather_data": location_weather }
+    };
+  }
+}
+
+async function get_auto_complete_location_list(location_query) {
+  if (location_query != undefined) {
+    let location_data = await fetch_location_list(location_query)
+    return location_data
   }
 }
 
