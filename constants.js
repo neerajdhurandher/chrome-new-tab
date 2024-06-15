@@ -5,9 +5,10 @@ export let VALUE = "This is value"
 export let GET_DAY_DATE = "get_day_date"
 export let GET_GREETING = "get_greeting"
 export let REFRESH_QUOTE = "refresh_quote"
-export let SET_LOCATION_WEATHER = "set_location_weather"
+export let FETCH_LOCATION_WEATHER = "fetch_location_weather"
 export let GET_LOCATION_WEATHER = "get_location_weather"
 export let LOCATION_WEATHER_DATA = "location_weather_data"
+export let FETCH_LOCATION_LIST = "fetch_location_list"
 export let STORE_DATA = "store_data"
 export let RETRIEVE_DATA = "retrieve_data"
 export let QUOTE_DATA = "quote_data"
@@ -45,4 +46,5 @@ export const GOOGLE_SEARCH_LINK = "https://www.google.com/search?q=";
 // default quote
 export const DEFAULT_QUOTE = "Today is your opportunity to build the tomorrow you want.";
 export const DEFAULT_QUOTE_AUTHOR = "Ken Poirot";
-
+export const WEATHER_LOADING_MESSAGE = "getting your location weather data..."
+export const WEATHER_LOADING_ERROR_MESSAGE = "sorry, couldn't load weather data"

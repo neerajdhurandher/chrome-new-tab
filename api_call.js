@@ -30,7 +30,7 @@ async function get_motivation_quote() {
 }
 
 async function get_location_weather_form_api(city) {
-    let weather_deatils = undefined;
+    let weather_details = undefined;
 
     const options = {
         method: 'GET',
@@ -45,11 +45,32 @@ async function get_location_weather_form_api(city) {
         .then(response => {
             console.log("weather api response")
             console.log(response)
-            weather_deatils = response;
+            weather_details = response;
         })
         .catch(err => console.error(err));
 
-    return weather_deatils;
+    return weather_details;
+}
+
+async function fetch_location_list(query) {
+    let location_data = undefined
+    const options = {
+        method: 'GET',
+        headers: {
+            'Key': '7bb4e61a74b248e8ba6121521232804',
+        },
+        contentType: 'application/json',
+    };
+
+    await fetch('http://api.weatherapi.com/v1/search.json?q=' + query, options)
+        .then(response => response.json())
+        .then(response => {
+            console.log("location list api response")
+            console.log(response)
+            location_data = response
+        })
+        .catch(err => console.error(err));
+    return location_data
 }
 
 async function fetch_web_url_data(url) {
@@ -63,4 +84,4 @@ async function fetch_web_url_data(url) {
     return html_content
 }
 
-export { get_motivation_quote, get_location_weather_form_api, fetch_web_url_data }
+export { get_motivation_quote, get_location_weather_form_api, fetch_location_list, fetch_web_url_data }
