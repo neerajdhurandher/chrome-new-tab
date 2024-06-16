@@ -127,13 +127,13 @@ async function fetch_new_quote() {
   return fetched_quote;
 }
 
-function store_last_quote_details(recived_quote) {
+function store_last_quote_details(received_quote) {
   let time = set_time();
   console.log("last quote time " + time);
-  console.log("Recived quote : " + recived_quote[QUOTE]);
-  console.log("Recived quote author : " + recived_quote[AUTHOR]);
+  console.log("Received quote : " + received_quote[QUOTE]);
+  console.log("Received quote author : " + received_quote[AUTHOR]);
 
-  let last_quote_details_obj = { store_time: time, quote_details: { quote: recived_quote[QUOTE], author: recived_quote[AUTHOR] } }
+  let last_quote_details_obj = { store_time: time, quote_details: { quote: received_quote[QUOTE], author: received_quote[AUTHOR] } }
 
   console.log("storing quote details : ");
   let store = {};
