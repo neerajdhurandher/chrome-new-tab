@@ -15,10 +15,14 @@
 
     <div class="weather-div">
         <div class="weather-input-div">
-            <input id="city-input" style="display: none;" type="search" placeholder="enter your city name">
-            <span id="loading_msg">getting your location weather data</span>
+            <div class="autocomplete">
+                <input type="text" id="city-input" style="display: none;" type="search"
+                    placeholder="enter your city name">
+                <div id="cityDropdown" class="dropdown-content"></div>
+            </div>
+            <span id="loading_msg">getting your location weather data...</span>
         </div>
-        <div class="weather-deatils-div" style="display:none;">
+        <div class="weather-details-div" style="display:none;">
             <div class="weather-data-div">
                 <div class="half-div">
                     <img class="weather-icon" />
@@ -26,6 +30,9 @@
                 <div class="half-div">
                     <span class="weather-value"></span>
                     <span class="location-name"></span>
+                </div>
+                <div id="edit_icon" class="half-div edit-icon">
+                    <img src="/imgs/edit-icon.png" alt="">
                 </div>
             </div>
         </div>

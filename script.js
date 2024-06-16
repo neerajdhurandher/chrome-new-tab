@@ -1,4 +1,4 @@
-import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, REFRESH_QUOTE_INTERVAL, SET_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, STORE_DATA, BOOKMARK_LIST, SAVED_TEXT, ERROR_TEXT, NULL_TEXT, INVALID_URL, INVALID_BOOKMARK_NAME, MAX_BOOKMARK_SHOW, BOOKMARKS } from "./constants.js"
+import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, REFRESH_QUOTE_INTERVAL, FETCH_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, STORE_DATA, BOOKMARK_LIST, SAVED_TEXT, ERROR_TEXT, NULL_TEXT, INVALID_URL, INVALID_BOOKMARK_NAME, MAX_BOOKMARK_SHOW, BOOKMARKS, FETCH_LOCATION_LIST, WEATHER_LOADING_MESSAGE, WEATHER_LOADING_ERROR_MESSAGE } from "./constants.js"
 import { RED_COLOR, GREEN_COLOR } from "./constants.js"
 import { GOOGLE_SEARCH_LINK, YOUTUBE_SEARCH_LINK } from "./constants.js"
 console.log("I am script.js")
@@ -176,62 +176,171 @@ function got_for_search(input_element_id, main_link) {
 
 }
 
-var input_element = document.getElementById("city-input");
+let weather_input_div = document.querySelector(".weather-input-div")
+var city_input_element = document.getElementById("city-input");
 var loading_msg_element = document.getElementById("loading_msg");
+let city_drop_down = document.getElementById('cityDropdown');
+let weather_details_div = document.querySelector(".weather-details-div")
+let previousInputTime = 0;
+
+weather_details_div.addEventListener("mouseover", () => {
+    document.querySelector(".edit-icon").style.visibility = "visible"
+})
+weather_details_div.addEventListener("mouseout", () => {
+    document.querySelector(".edit-icon").style.visibility = "hidden"
+})
 
 document.getElementById("city-input").addEventListener("keyup", function (event) {
+    var location_query = city_input_element.value;
+    const currentInputTime = Date.now();
+    if (location_query.length == 1)
+        previousInputTime = currentInputTime
+    const timeInterval = currentInputTime - previousInputTime;
+
+    console.log("timeInterval : " + timeInterval)
+    console.log("location_query : " + location_query)
+
+    // Check if the input is a letter, time interval is greater than 1 second
+    if (location_query.length > 2 || timeInterval > 500) {
+        fetch_cities(location_query);
+        previousInputTime = 0;
+    } else if (location_query.length <= 2) {
+        city_drop_down.style.display = "none"
+    } else {
+        previousInputTime = currentInputTime;
+    }
+
+    // enter key pressed
     if (event.keyCode === 13) {
         event.preventDefault();
-        var location_value = input_element.value;
-        console.log("location val " + location_value)
-
-        input_element.style.display = "none";
-        loading_msg_element.innerHTML = "getting your location weather data.....";
+        console.log("location query " + location_query)
+        city_input_element.style.display = "none";
+        loading_msg_element.innerHTML = WEATHER_LOADING_MESSAGE;
         loading_msg_element.style.display = "block";
-        fetch_city_weather_data(location_value)
+        fetch_location_weather_data(location_query)
     }
 });
 
-function fetch_city_weather_data(city) {
-    chrome.runtime.sendMessage({ action: SET_LOCATION_WEATHER, location: city }, async (response) => {
-        console.log("got weather data response from background")
-        console.log(response)
+document.getElementById("edit_icon").addEventListener("click", () => {
+    weather_details_div.style.display = "none";
+    weather_input_div.style.display = "block";
+    city_input_element.style.display = "block";
+})
+
+const fetch_cities = async (query) => {
+    if (query.length <= 2)
+        return
+    console.log("Calling location list api ***********")
+    let location_list = undefined
+    chrome.runtime.sendMessage({ action: FETCH_LOCATION_LIST, location_query: query }, async (response) => {
+        console.log("got city list")
+        location_list = response
+    })
+    let location_list_interval = undefined
+    location_list_interval = setInterval(() => {
+        if (location_list != undefined) {
+            clearInterval(location_list_interval)
+            show_location_drop_down(location_list)
+        }
+    }, 200)
+}
+
+function analyze_region_name(region) {
+    let result = region[0]
+    let add = false
+    Array.from(region).forEach(element => {
+        if (add) {
+            result += (" " + element);
+            add = false;
+        }
+        if (element == " ")
+            add = true
+    });
+
+    if (result.length == 1) {
+        result = region.substring(0, 5)
+        result += ".."
+    }
+    return result
+}
+
+const show_location_drop_down = (cities) => {
+    cities = cities.response_message
+    if (!cities && cities.length < 0) {
+        city_drop_down.innerHTML = '';
+        city_drop_down.style.display = 'none';
+    } else {
+        city_drop_down.innerHTML = '';
+        for (var i = 0; i < cities.length; i++) {
+            const city = cities[i];
+            let region = analyze_region_name(city.region)
+            let location_display_name = city.name + ", " + region
+            const option = document.createElement('a');
+            option.textContent = location_display_name;
+            option.addEventListener('click', () => {
+                city_input_element.value = location_display_name;
+                city_drop_down.style.display = 'none';
+                loading_msg_element.innerHTML = WEATHER_LOADING_MESSAGE;
+                loading_msg_element.style.display = "block";
+                fetch_location_weather_data(city.name)
+            });
+            city_drop_down.appendChild(option);
+        }
+        city_drop_down.style.display = 'block';
+    }
+};
+
+function fetch_location_weather_data(city) {
+    console.log("fetching location weather data via API")
+    let location_data = undefined
+    chrome.runtime.sendMessage({ action: FETCH_LOCATION_WEATHER, location: city }, async (response) => {
+        console.log("got latest weather data response from API")
+        location_data = response
     })
 
-    setTimeout(() => {
-        get_city_weather_data();
-    }, 4000)
+    let location_data_interval = undefined
+    location_data_interval = setTimeout(() => {
+        if (location_data != undefined) {
+            clearInterval(location_data_interval)
+            get_city_weather_data();
+        }
+    }, 1000)
 }
 
 function get_city_weather_data() {
     console.log("send runtime msg for get weather")
     chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: LOCATION_WEATHER_DATA }, (response) => {
-        console.log("got weather data from background")
+        console.log("got weather data from database")
         set_city_weather_data(response)
     })
 }
 
 function set_city_weather_data(response) {
-    console.log(response)
     if (response.response_message.status == true) {
-        console.log("setting weather detail ")
+        console.log("setting weather details")
+        let location_weather_data = response.response_message.data.location_weather_data.weather_data
+        weather_input_div.style.display = "none";
         loading_msg_element.style.display = "none";
-        document.querySelector(".weather-deatils-div").style.display = "grid";
-        document.querySelector(".location-name").innerHTML = response.response_message.data.location_weather_data.location.name
-        document.querySelector(".weather-value").innerHTML = response.response_message.data.location_weather_data.current.temp_c + "°C"
-        document.querySelector(".weather-icon").src = "https:" + response.response_message.data.location_weather_data.current.condition.icon + ""
-        let last = new Date(response.response_message.data.location_weather_data.current.last_updated)
+        city_input_element.value = "";
+
+        weather_details_div.style.display = "flex";
+        document.querySelector(".location-name").innerHTML = location_weather_data.location.name
+        document.querySelector(".weather-value").innerHTML = location_weather_data.current.temp_c + "°C"
+        document.querySelector(".weather-icon").src = "https:" + location_weather_data.current.condition.icon + ""
+        let stored_date = response.response_message.data.location_weather_data.last_updated
+        let last = new Date(stored_date)
         let now = new Date()
 
         if (now - last > REFRESH_WEATHER_INTERVAL) {
-            fetch_city_weather_data(response.response_message.data.location_weather_data.location.name)
+            console.log("Auto refreshing weather details")
+            fetch_location_weather_data(location_weather_data.location.name)
         }
     } else {
         console.log("no weather data")
-        loading_msg_element.innerHTML = "Sorry, couldn't load weather data"
+        loading_msg_element.innerHTML = WEATHER_LOADING_ERROR_MESSAGE
         setTimeout(() => {
-            input_element.style.display = "block";
-            input_element.value = "";
+            city_input_element.style.display = "block";
+            city_input_element.value = "";
             loading_msg_element.style.display = "none";
         }, 2000)
     }
@@ -422,22 +531,23 @@ function close_popup() {
 
 function set_bookmark() {
     chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: BOOKMARK_LIST, name: "Bookmark list" }, (response) => {
+        if (response.response_message.data != undefined) {
+            let bm_list = response.response_message.data.bookmark_list
 
-        let bm_list = response.response_message.data.bookmark_list
+            let max_count = MAX_BOOKMARK_SHOW
+            let number_of_bookmarks = bm_list.length
 
-        let max_count = MAX_BOOKMARK_SHOW
-        let number_of_bookmarks = bm_list.length
+            if (number_of_bookmarks <= max_count) {
+                max_count = number_of_bookmarks
+            } else {
+                more_bookmark_btn.style.display = "block"
+            }
+            let main_b_div = document.querySelector(".bookmark-list")
 
-        if (number_of_bookmarks <= max_count) {
-            max_count = number_of_bookmarks
-        } else {
-            more_bookmark_btn.style.display = "block"
-        }
-        let main_b_div = document.querySelector(".bookmark-list")
-
-        for (let i = 0; i < max_count; i++) {
-            let b_div = create_bookmark_element(bm_list[i])
-            main_b_div.appendChild(b_div)
+            for (let i = 0; i < max_count; i++) {
+                let b_div = create_bookmark_element(bm_list[i])
+                main_b_div.appendChild(b_div)
+            }
         }
 
     });

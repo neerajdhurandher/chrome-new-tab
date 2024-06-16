@@ -261,6 +261,8 @@ input {
 
 .weather-input-div {
     margin-top: 10%;
+    margin-left: -10%;
+    z-index: 1;
 }
 
 .weather-input-div #city-input {
@@ -278,9 +280,12 @@ input {
     color: #c5c2c2;
 }
 
-.weather-deatils-div {
+.weather-details-div {
+    justify-content: center;
+    align-items: center;
     padding: 10px;
     text-align: center;
+    cursor: pointer;
 }
 
 .weather-data-div {
@@ -291,9 +296,46 @@ input {
     text-align: center;
 }
 
+.autocomplete {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #515050e0;
+    width: 100%;
+    margin-top: 4px;
+    max-height: 150px;
+    overflow-y: auto;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.dropdown-content a:hover {
+    color: #000000;
+    background-color: #ffffff;
+}
+
 .half-div {
-    min-width: 50%;
-    max-width: 50%;
+    max-width: 60%;
+}
+
+.edit-icon {
+    margin-top: 6px;
+    margin-left: 10px;
+    cursor: pointer;
+    visibility: hidden;
 }
 
 .weather-icon {

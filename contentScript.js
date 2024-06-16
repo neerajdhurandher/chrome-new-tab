@@ -74,5 +74,5 @@ function validate_url(url) {
     return false
   }
 }
-
-export { extract_logo, get_domain_first_letter, validate_url }
+export {extract_logo}
+export { get_domain_first_letter, validate_url }
