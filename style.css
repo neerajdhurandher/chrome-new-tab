@@ -9,14 +9,14 @@ body {
     box-sizing: border-box;
 }
 
-.dark-backgroud {
+.dark-background {
     background-color: #121212;
     color: #cde630;
 }
 
 .light-background {
     background-color: #fefefe;
-
+    color: #000000;
 }
 
 

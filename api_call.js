@@ -1,7 +1,7 @@
 async function get_motivation_quote() {
 
     let quote_details = undefined;
-    const category_list = ["amazing", "art", "attitude", "bueaty", "best", "business", "chnage", "communication", "computers", "ccol", "courage", "design", "dream", "education", "environmental", "equality", "experience", "failure", "faith", "family", "famous", "fear", "fitness", "food", "forgiveness", "freedom", "friendship", "funny", "future", "god", "good", "government", "graduation", "great", "happiness", "health", "history", "home", "hope", "humor", "imagination", "inspirational", "intelligence", "knowledge", "leadership", "learning", "legal", "life", "love", "marriage", "medical", "men", "mom", "money", "morning", "movies", "success"];
+    const category_list = ["amazing", "art", "attitude", "bueaty", "best", "business", "change", "communication", "computers", "cool", "courage", "design", "dream", "education", "environmental", "equality", "experience", "failure", "faith", "family", "famous", "fear", "fitness", "food", "forgiveness", "freedom", "friendship", "funny", "future", "god", "good", "government", "graduation", "great", "happiness", "health", "history", "home", "hope", "humor", "imagination", "inspirational", "intelligence", "knowledge", "leadership", "learning", "legal", "life", "love", "marriage", "medical", "men", "mom", "money", "morning", "movies", "success"];
 
     const category = category_list[Math.floor(Math.random() * category_list.length)]
     console.log("Quote category : " + category);

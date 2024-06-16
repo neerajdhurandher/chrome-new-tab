@@ -21,7 +21,7 @@ export let BOOKMARK_URL = "bookmark_url"
 export let BOOKMARK_LOGO = "bookmark_logo"
 
 // values
-export let WELOCOME_TEXT = "Hey, Welcome"
+export let WELCOME_TEXT = "Hey, Welcome"
 export let THANKS_TEXT = "Thanks!"
 export let SAVED_TEXT = "Saved " + '&#8730;'
 export let ERROR_TEXT = "Error: Something went wrong."

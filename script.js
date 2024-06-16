@@ -1,12 +1,15 @@
-import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, REFRESH_QUOTE_INTERVAL, FETCH_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, STORE_DATA, BOOKMARK_LIST, SAVED_TEXT, ERROR_TEXT, NULL_TEXT, INVALID_URL, INVALID_BOOKMARK_NAME, MAX_BOOKMARK_SHOW, BOOKMARKS, FETCH_LOCATION_LIST, WEATHER_LOADING_MESSAGE, WEATHER_LOADING_ERROR_MESSAGE } from "./constants.js"
+import { GET_DAY_DATE, GET_GREETING, FETCH_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, STORE_DATA, BOOKMARK_LIST, SAVED_TEXT, ERROR_TEXT, NULL_TEXT, INVALID_URL, INVALID_BOOKMARK_NAME, MAX_BOOKMARK_SHOW, BOOKMARKS, FETCH_LOCATION_LIST, WEATHER_LOADING_MESSAGE, WEATHER_LOADING_ERROR_MESSAGE } from "./constants.js"
 import { RED_COLOR, GREEN_COLOR } from "./constants.js"
 import { GOOGLE_SEARCH_LINK, YOUTUBE_SEARCH_LINK } from "./constants.js"
-console.log("I am script.js")
 import { extract_logo, get_domain_first_letter, validate_url } from "./contentScript.js"
 
+console.log("I am script.js")
+
+// time code section
 var date_time = undefined;
 var current_hour = undefined;
 var current_min = undefined;
+var last_minute = undefined
 
 function set_time() {
     date_time = new Date();
@@ -20,11 +23,13 @@ function set_time() {
     if (time.charAt(1) == ":") {
         time = "0" + time
     }
-    let h = time.slice(0, 2)
-    let m = time.slice(3, 5)
+    let hours = time.slice(0, 2)
+    let minutes = time.slice(3, 5)
     let am_pm = time.slice(9, 11)
 
-    document.querySelector(".current_time").innerText = h + ":" + m + " " + am_pm;
+    if(last_minute == undefined || minutes-last_minute > 0)
+        document.querySelector(".current_time").innerText = hours + ":" + minutes + " " + am_pm;
+    last_minute = minutes
 }
 
 function updateDate() {
@@ -36,6 +41,7 @@ function updateDate() {
     })
 }
 
+// quote code section
 function set_quote() {
 
     console.log("Setting quote..........")
@@ -59,6 +65,7 @@ function set_quote() {
     })
 }
 
+// user name & greeting code section
 function set_greeting() {
     chrome.runtime.sendMessage({ action: GET_GREETING }, (response) => {
         console.log("got greeting from background")
@@ -69,7 +76,7 @@ function set_greeting() {
 }
 
 function set_user_name() {
-    chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: USER_NAME, name: "Retriving user name for greeting" }, (response) => {
+    chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: USER_NAME, name: "Retrieving user name for greeting" }, (response) => {
         if (response.response_message.data[USER_NAME] != undefined) {
             document.querySelector(".greeting-h1").innerHTML = document.querySelector(".greeting-h1").innerHTML + ", "
                 + response.response_message.data[USER_NAME] + "."
@@ -78,36 +85,16 @@ function set_user_name() {
     })
 }
 
-async function refresh_quote() {
-
-    console.log("this is refresh quote.....")
-    let curr_tab = await getCurrentTab();
-
-    if (curr_tab != undefined && curr_tab.url == "chrome://newtab/") {
-
-        chrome.runtime.sendMessage({ action: REFRESH_QUOTE }), (response) => {
-            console.log("quote refresh")
-        }
-        setTimeout(() => {
-            console.log("this is timeout function")
-            set_quote()
-        }, 3000)
-    }
-}
-
 async function getCurrentTab() {
     let queryOptions = { active: true, lastFocusedWindow: true };
     let [tab] = await chrome.tabs.query(queryOptions);
     return tab;
 }
 
-set_time()
-updateDate()
-setInterval(set_time, 1000)
-set_quote()
-setInterval(refresh_quote, REFRESH_QUOTE_INTERVAL)
-set_greeting()
 
+// search code section
+var google_search_div_id_ele = document.getElementById("google-search-div-id");
+var youtube_search_div_id_ele = document.getElementById("youtube-search-div-id");
 
 document.getElementById("youtube-search-btn").addEventListener('click', () => {
     console.log("youtube search button clicked");
@@ -153,6 +140,8 @@ document.getElementById("youtube-search-box-id").addEventListener("click", () =>
     hide_google_search_bar();
 })
 
+
+
 function got_for_google_search() {
     got_for_search("google-search-input", GOOGLE_SEARCH_LINK)
 }
@@ -176,6 +165,38 @@ function got_for_search(input_element_id, main_link) {
 
 }
 
+function hide_youtube_search_bar() {
+    google_search_div_id_ele.classList.add("expend-anim");
+
+    google_search_div_id_ele.style.width = "50%";
+    document.getElementById("google-search-box-id").style.width = "100%";
+
+    youtube_search_div_id_ele.classList.add("shrink-anim");
+    youtube_search_div_id_ele.style.width = "min-content";
+}
+
+function hide_google_search_bar() {
+    youtube_search_div_id_ele.classList.add("expend-anim");
+
+    youtube_search_div_id_ele.style.width = "50%";
+    document.getElementById("youtube-search-box-id").style.width = "100%";
+
+    google_search_div_id_ele.classList.add("shrink-anim");
+    google_search_div_id_ele.style.width = "min-content";
+}
+
+function reset_search_div() {
+    youtube_search_div_id_ele.classList.remove('shrink-anim');
+    youtube_search_div_id_ele.classList.remove('expend-anim');
+    google_search_div_id_ele.style.width = "fit-content";
+
+    google_search_div_id_ele.classList.remove('shrink-anim');
+    google_search_div_id_ele.classList.remove('expend-anim');
+    youtube_search_div_id_ele.style.width = "fit-content";
+}
+
+
+// weather code section
 let weather_input_div = document.querySelector(".weather-input-div")
 var city_input_element = document.getElementById("city-input");
 var loading_msg_element = document.getElementById("loading_msg");
@@ -346,44 +367,8 @@ function set_city_weather_data(response) {
     }
 }
 
-setTimeout(() => {
-    get_city_weather_data();
-}, 500)
 
-
-var google_search_div_id_ele = document.getElementById("google-search-div-id");
-var youtube_search_div_id_ele = document.getElementById("youtube-search-div-id");
-
-function hide_youtube_search_bar() {
-    google_search_div_id_ele.classList.add("expend-anim");
-
-    google_search_div_id_ele.style.width = "50%";
-    document.getElementById("google-search-box-id").style.width = "100%";
-
-    youtube_search_div_id_ele.classList.add("shrink-anim");
-    youtube_search_div_id_ele.style.width = "min-content";
-}
-
-function hide_google_search_bar() {
-    youtube_search_div_id_ele.classList.add("expend-anim");
-
-    youtube_search_div_id_ele.style.width = "50%";
-    document.getElementById("youtube-search-box-id").style.width = "100%";
-
-    google_search_div_id_ele.classList.add("shrink-anim");
-    google_search_div_id_ele.style.width = "min-content";
-}
-
-function reset_search_div() {
-    youtube_search_div_id_ele.classList.remove('shrink-anim');
-    youtube_search_div_id_ele.classList.remove('expend-anim');
-    google_search_div_id_ele.style.width = "fit-content";
-
-    google_search_div_id_ele.classList.remove('shrink-anim');
-    google_search_div_id_ele.classList.remove('expend-anim');
-    youtube_search_div_id_ele.style.width = "fit-content";
-}
-
+// bookmark code section
 let bookmark_popup_element = document.getElementById("bookmark-popup")
 let add_bookmark_btn = document.querySelector(".add-new-bm")
 let bm_save_btn = document.getElementById("save-btn")
@@ -396,21 +381,28 @@ let more_bookmark_popup = document.getElementById("more-bookmark-popup")
 
 add_bookmark_btn.addEventListener("click", () => {
     bookmark_popup_element.classList.add("overlay_show")
-
 })
 
 document.querySelector(".close").addEventListener("click", () => {
     close_popup()
-
 })
 
-
 bm_save_btn.addEventListener("click", () => {
-
     if (validate_input_data() == true) {
         save_bookmark()
     }
 });
+
+more_bookmark_btn.addEventListener("click", () => {
+    more_bookmark_popup.classList.add("overlay_show")
+    show_all_bookmarks()
+})
+
+document.querySelector(".more-bookmark-close").addEventListener("click", () => {
+    more_bookmark_popup.classList.remove("overlay_show")
+    let more_bookmark_popup_container = document.querySelector(".more-bookmark-popup-container")
+    more_bookmark_popup_container.removeChild(more_bookmark_popup_container.children[1])
+})
 
 function validate_input_data() {
 
@@ -624,15 +616,14 @@ function show_all_bookmarks() {
     });
 }
 
-more_bookmark_btn.addEventListener("click", () => {
-    more_bookmark_popup.classList.add("overlay_show")
-    show_all_bookmarks()
-})
 
-document.querySelector(".more-bookmark-close").addEventListener("click", () => {
-    more_bookmark_popup.classList.remove("overlay_show")
-    let more_bookmark_popup_container = document.querySelector(".more-bookmark-popup-container")
-    more_bookmark_popup_container.removeChild(more_bookmark_popup_container.children[1])
-})
-
+set_time()
+updateDate()
+setInterval(set_time, 1000)
+set_greeting()
+set_quote()
 set_bookmark()
+setTimeout(() => {
+    get_city_weather_data();
+}, 500)
+

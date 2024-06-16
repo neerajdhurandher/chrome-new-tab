@@ -5,7 +5,7 @@ console.log("I am background js")
 
 function fun() {
   chrome.browserAction.onClicked.addListener(function (activeTab) {
-    var newURL = "http://stackoverflow.com/";
+    var newURL = "http://neerajdhurandher.me/";
     chrome.tabs.create({ url: newURL });
   });
 }
@@ -17,10 +17,10 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
       url: "welcome.html"
     });
   } else if (reason === 'update') {
-    console.log("updated....")
+    console.log("Extension updated....")
   }
 
-  manage_quote_deails();
+  manage_quote_details();
   get_greeting();
 
 });
@@ -29,9 +29,8 @@ chrome.tabs.onCreated.addListener(function (tab) {
   console.log("new tab created....")
   console.log(tab);
   if (tab.pendingUrl == "chrome://newtab/") {
-    manage_quote_deails();
+    manage_quote_details();
   }
-  get_greeting();
 })
 
 // chrome.tabs.onActivated.addListener(function(tab) {
@@ -41,11 +40,11 @@ chrome.tabs.onCreated.addListener(function (tab) {
 
 chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
 
-  console.log("chrome onMessage listner");
-  console.log("recived listner message : " + param.action);
+  console.log("chrome onMessage listener");
+  console.log("received listener message : " + param.action);
 
   if (param.action == REFRESH_QUOTE) {
-    manage_quote_deails();
+    manage_quote_details();
 
   } else if (param.action == GET_DAY_DATE) {
     sendResponse({ response_message: get_day_date() })
@@ -66,10 +65,7 @@ chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
       sendResponse({ response_message: data })
     });
   }
-
-
   return true;
-
 })
 
 // chrome storage actions
@@ -110,35 +106,29 @@ function set_time() {
   return time
 }
 
-async function manage_quote_deails() {
-
+async function manage_quote_details() {
   let time = set_time();
   console.log("Fetching quote....")
 
   if (last_quote_time == undefined || (time - last_quote_time > REFRESH_QUOTE_INTERVAL)) {
     fetch_new_quote();
   }
-
 }
 
 async function fetch_new_quote() {
-
   console.log("calling api function....")
-  // let fetched_quote = await get_motivation_quote();
+  // TODO let fetched_quote = await get_motivation_quote();
   let fetched_quote = undefined;
   console.log("api call function return : " + fetched_quote)
   if (fetched_quote == undefined)
     console.log("Unable to fetch quote data from API.")
   else
     store_last_quote_details(fetched_quote)
-
   return fetched_quote;
 }
 
 function store_last_quote_details(recived_quote) {
-
   let time = set_time();
-
   console.log("last quote time " + time);
   console.log("Recived quote : " + recived_quote[QUOTE]);
   console.log("Recived quote author : " + recived_quote[AUTHOR]);
@@ -146,15 +136,13 @@ function store_last_quote_details(recived_quote) {
   let last_quote_details_obj = { store_time: time, quote_details: { quote: recived_quote[QUOTE], author: recived_quote[AUTHOR] } }
 
   console.log("storing quote details : ");
-  console.log(last_quote_details_obj)
   let store = {};
   store[QUOTE_DATA] = last_quote_details_obj
   chrome.storage.local.set(store).then(() => {
     if (chrome.runtime.lastError)
       console.log('Chrome runtime error');
     else {
-      console.log('Stored quote details:');
-      console.log(last_quote_details_obj)
+      console.log('Stored latest quote details:');
       last_quote_time = time;
     }
   });
