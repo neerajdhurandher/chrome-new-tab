@@ -1,11 +1,11 @@
-import { get_motivation_quote, get_location_weather_form_api, fetch_location_list, fetch_web_url_data } from "./api_call.js";
-import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, FETCH_LOCATION_WEATHER, FETCH_LOCATION_LIST, STORE_DATA, RETRIEVE_DATA, QUOTE_DATA, REFRESH_QUOTE_INTERVAL, QUOTE, AUTHOR, LOCATION_WEATHER_DATA } from "./constants.js"
+import { get_motivation_quote, get_location_weather_form_api, fetch_location_list, fetch_web_url_data, check_network_connection_status } from "./api_call.js";
+import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, FETCH_LOCATION_WEATHER, FETCH_LOCATION_LIST, STORE_DATA, RETRIEVE_DATA, QUOTE_DATA, REFRESH_QUOTE_INTERVAL, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, NETWORK_STATUS, NETWORK_CONNECTION_REFRESH_INTERVAL } from "./constants.js"
 
 console.log("I am background js")
 
 function fun() {
   chrome.browserAction.onClicked.addListener(function (activeTab) {
-    var newURL = "http://stackoverflow.com/";
+    var newURL = "http://neerajdhurandher.me/";
     chrome.tabs.create({ url: newURL });
   });
 }
@@ -17,10 +17,10 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
       url: "welcome.html"
     });
   } else if (reason === 'update') {
-    console.log("updated....")
+    console.log("Extension updated....")
   }
 
-  manage_quote_deails();
+  manage_quote_details();
   get_greeting();
 
 });
@@ -29,9 +29,8 @@ chrome.tabs.onCreated.addListener(function (tab) {
   console.log("new tab created....")
   console.log(tab);
   if (tab.pendingUrl == "chrome://newtab/") {
-    manage_quote_deails();
+    manage_quote_details();
   }
-  get_greeting();
 })
 
 // chrome.tabs.onActivated.addListener(function(tab) {
@@ -41,11 +40,11 @@ chrome.tabs.onCreated.addListener(function (tab) {
 
 chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
 
-  console.log("chrome onMessage listner");
-  console.log("recived listner message : " + param.action);
+  console.log("chrome onMessage listener");
+  console.log("received listener message : " + param.action);
 
   if (param.action == REFRESH_QUOTE) {
-    manage_quote_deails();
+    manage_quote_details();
 
   } else if (param.action == GET_DAY_DATE) {
     sendResponse({ response_message: get_day_date() })
@@ -65,11 +64,10 @@ chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
     fetch_web_url_data(param.url).then((data) => {
       sendResponse({ response_message: data })
     });
+  } else if (param.action == NETWORK_STATUS) {
+    sendResponse({ response_message: update_network_connection_status() })
   }
-
-
   return true;
-
 })
 
 // chrome storage actions
@@ -110,51 +108,43 @@ function set_time() {
   return time
 }
 
-async function manage_quote_deails() {
-
+async function manage_quote_details() {
   let time = set_time();
   console.log("Fetching quote....")
 
   if (last_quote_time == undefined || (time - last_quote_time > REFRESH_QUOTE_INTERVAL)) {
     fetch_new_quote();
   }
-
 }
 
 async function fetch_new_quote() {
-
   console.log("calling api function....")
-  // let fetched_quote = await get_motivation_quote();
+  // TODO let fetched_quote = await get_motivation_quote();
   let fetched_quote = undefined;
   console.log("api call function return : " + fetched_quote)
   if (fetched_quote == undefined)
     console.log("Unable to fetch quote data from API.")
   else
     store_last_quote_details(fetched_quote)
-
   return fetched_quote;
 }
 
-function store_last_quote_details(recived_quote) {
-
+function store_last_quote_details(received_quote) {
   let time = set_time();
-
   console.log("last quote time " + time);
-  console.log("Recived quote : " + recived_quote[QUOTE]);
-  console.log("Recived quote author : " + recived_quote[AUTHOR]);
+  console.log("Received quote : " + received_quote[QUOTE]);
+  console.log("Received quote author : " + received_quote[AUTHOR]);
 
-  let last_quote_details_obj = { store_time: time, quote_details: { quote: recived_quote[QUOTE], author: recived_quote[AUTHOR] } }
+  let last_quote_details_obj = { store_time: time, quote_details: { quote: received_quote[QUOTE], author: received_quote[AUTHOR] } }
 
   console.log("storing quote details : ");
-  console.log(last_quote_details_obj)
   let store = {};
   store[QUOTE_DATA] = last_quote_details_obj
   chrome.storage.local.set(store).then(() => {
     if (chrome.runtime.lastError)
       console.log('Chrome runtime error');
     else {
-      console.log('Stored quote details:');
-      console.log(last_quote_details_obj)
+      console.log('Stored latest quote details:');
       last_quote_time = time;
     }
   });
@@ -240,6 +230,17 @@ async function get_auto_complete_location_list(location_query) {
     let location_data = await fetch_location_list(location_query)
     return location_data
   }
+}
+
+let network_connection_status = false
+let network_connection_status_last_updated = undefined
+
+async function update_network_connection_status() {
+  if (network_connection_status_last_updated == undefined || new Date() - network_connection_status_last_updated > NETWORK_CONNECTION_REFRESH_INTERVAL) {
+    network_connection_status = await check_network_connection_status()
+    network_connection_status_last_updated = new Date()
+  }
+  return network_connection_status
 }
 
 chrome.webRequest.onHeadersReceived.addListener(

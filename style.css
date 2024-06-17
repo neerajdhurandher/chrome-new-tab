@@ -9,14 +9,14 @@ body {
     box-sizing: border-box;
 }
 
-.dark-backgroud {
+.dark-background {
     background-color: #121212;
     color: #cde630;
 }
 
 .light-background {
     background-color: #fefefe;
-
+    color: #000000;
 }
 
 
@@ -489,6 +489,13 @@ input {
     height: 80%;
     border-radius: 8px;
 }
+.bookmark-arrow{
+    width: 30px;
+    height: 20px;
+    margin: auto;
+    display: none;
+    cursor: pointer;
+}
 
 .bookmark-name {
     font-size: small;
@@ -703,5 +710,17 @@ input {
 
     .popup {
         width: 70%;
+    }
+}
+
+@media screen and (max-width: 1050px) {
+    .bookmark-container{
+        height: 16vh;
+    }
+    .bookmark-list{
+        display: none;
+    }
+    #bookmark_down_arrow{
+        display: block;
     }
 }

@@ -1,4 +1,4 @@
-import { USER_NAME, WELOCOME_TEXT, THANKS_TEXT, STORE_DATA } from "./constants.js"
+import { USER_NAME, WELCOME_TEXT, THANKS_TEXT, STORE_DATA } from "./constants.js"
 
 const welcome_element = document.getElementById("welcome-heading");
 const thanks_element = document.getElementById("thanks-heading");
@@ -66,7 +66,7 @@ async function close_welcome_tab() {
         chrome.tabs.remove(
             curr_tab.id
         ).then((res) => {
-            console.log("Sucessflly closed welcome tab. " + res)
+            console.log("Successfully closed welcome tab. " + res)
         })
     })
 }
@@ -91,9 +91,9 @@ name_input_element.addEventListener("keyup", function (event) {
 });
 
 next_btn_element.addEventListener('click', () => {
-    console.log("next buttton clicked")
+    console.log("next button clicked")
     save_user_name(name_input_element.value)
 
 })
 
-type_writer(WELOCOME_TEXT, welcome_element, true)
+type_writer(WELCOME_TEXT, welcome_element, true)

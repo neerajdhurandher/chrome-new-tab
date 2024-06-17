@@ -1,12 +1,15 @@
-import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, REFRESH_QUOTE_INTERVAL, FETCH_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, STORE_DATA, BOOKMARK_LIST, SAVED_TEXT, ERROR_TEXT, NULL_TEXT, INVALID_URL, INVALID_BOOKMARK_NAME, MAX_BOOKMARK_SHOW, BOOKMARKS, FETCH_LOCATION_LIST, WEATHER_LOADING_MESSAGE, WEATHER_LOADING_ERROR_MESSAGE } from "./constants.js"
+import { GET_DAY_DATE, GET_GREETING, FETCH_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, STORE_DATA, BOOKMARK_LIST, SAVED_TEXT, ERROR_TEXT, NULL_TEXT, INVALID_URL, INVALID_BOOKMARK_NAME, MAX_BOOKMARK_SHOW, BOOKMARKS, FETCH_LOCATION_LIST, WEATHER_LOADING_MESSAGE, WEATHER_LOADING_ERROR_MESSAGE, BIG_WINDOW, SMALL_WINDOW, NETWORK_STATUS } from "./constants.js"
 import { RED_COLOR, GREEN_COLOR } from "./constants.js"
 import { GOOGLE_SEARCH_LINK, YOUTUBE_SEARCH_LINK } from "./constants.js"
-console.log("I am script.js")
 import { extract_logo, get_domain_first_letter, validate_url } from "./contentScript.js"
 
+console.log("I am script.js")
+
+// time code section
 var date_time = undefined;
 var current_hour = undefined;
 var current_min = undefined;
+var last_minute = undefined
 
 function set_time() {
     date_time = new Date();
@@ -20,11 +23,13 @@ function set_time() {
     if (time.charAt(1) == ":") {
         time = "0" + time
     }
-    let h = time.slice(0, 2)
-    let m = time.slice(3, 5)
+    let hours = time.slice(0, 2)
+    let minutes = time.slice(3, 5)
     let am_pm = time.slice(9, 11)
 
-    document.querySelector(".current_time").innerText = h + ":" + m + " " + am_pm;
+    if (last_minute == undefined || minutes - last_minute > 0)
+        document.querySelector(".current_time").innerText = hours + ":" + minutes + " " + am_pm;
+    last_minute = minutes
 }
 
 function updateDate() {
@@ -36,6 +41,16 @@ function updateDate() {
     })
 }
 
+let network_connection_status = false
+
+function get_network_connection_status(){
+    chrome.runtime.sendMessage({ action: NETWORK_STATUS, key: NETWORK_STATUS, name: "Getting network status" }, (response) => {
+        network_connection_status = response.response_message
+        set_bookmark()
+    })
+}
+
+// quote code section
 function set_quote() {
 
     console.log("Setting quote..........")
@@ -59,6 +74,7 @@ function set_quote() {
     })
 }
 
+// user name & greeting code section
 function set_greeting() {
     chrome.runtime.sendMessage({ action: GET_GREETING }, (response) => {
         console.log("got greeting from background")
@@ -69,7 +85,7 @@ function set_greeting() {
 }
 
 function set_user_name() {
-    chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: USER_NAME, name: "Retriving user name for greeting" }, (response) => {
+    chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: USER_NAME, name: "Retrieving user name for greeting" }, (response) => {
         if (response.response_message.data[USER_NAME] != undefined) {
             document.querySelector(".greeting-h1").innerHTML = document.querySelector(".greeting-h1").innerHTML + ", "
                 + response.response_message.data[USER_NAME] + "."
@@ -78,36 +94,16 @@ function set_user_name() {
     })
 }
 
-async function refresh_quote() {
-
-    console.log("this is refresh quote.....")
-    let curr_tab = await getCurrentTab();
-
-    if (curr_tab != undefined && curr_tab.url == "chrome://newtab/") {
-
-        chrome.runtime.sendMessage({ action: REFRESH_QUOTE }), (response) => {
-            console.log("quote refresh")
-        }
-        setTimeout(() => {
-            console.log("this is timeout function")
-            set_quote()
-        }, 3000)
-    }
-}
-
 async function getCurrentTab() {
     let queryOptions = { active: true, lastFocusedWindow: true };
     let [tab] = await chrome.tabs.query(queryOptions);
     return tab;
 }
 
-set_time()
-updateDate()
-setInterval(set_time, 1000)
-set_quote()
-setInterval(refresh_quote, REFRESH_QUOTE_INTERVAL)
-set_greeting()
 
+// search code section
+var google_search_div_id_ele = document.getElementById("google-search-div-id");
+var youtube_search_div_id_ele = document.getElementById("youtube-search-div-id");
 
 document.getElementById("youtube-search-btn").addEventListener('click', () => {
     console.log("youtube search button clicked");
@@ -153,6 +149,8 @@ document.getElementById("youtube-search-box-id").addEventListener("click", () =>
     hide_google_search_bar();
 })
 
+
+
 function got_for_google_search() {
     got_for_search("google-search-input", GOOGLE_SEARCH_LINK)
 }
@@ -176,6 +174,38 @@ function got_for_search(input_element_id, main_link) {
 
 }
 
+function hide_youtube_search_bar() {
+    google_search_div_id_ele.classList.add("expend-anim");
+
+    google_search_div_id_ele.style.width = "50%";
+    document.getElementById("google-search-box-id").style.width = "100%";
+
+    youtube_search_div_id_ele.classList.add("shrink-anim");
+    youtube_search_div_id_ele.style.width = "min-content";
+}
+
+function hide_google_search_bar() {
+    youtube_search_div_id_ele.classList.add("expend-anim");
+
+    youtube_search_div_id_ele.style.width = "50%";
+    document.getElementById("youtube-search-box-id").style.width = "100%";
+
+    google_search_div_id_ele.classList.add("shrink-anim");
+    google_search_div_id_ele.style.width = "min-content";
+}
+
+function reset_search_div() {
+    youtube_search_div_id_ele.classList.remove('shrink-anim');
+    youtube_search_div_id_ele.classList.remove('expend-anim');
+    google_search_div_id_ele.style.width = "fit-content";
+
+    google_search_div_id_ele.classList.remove('shrink-anim');
+    google_search_div_id_ele.classList.remove('expend-anim');
+    youtube_search_div_id_ele.style.width = "fit-content";
+}
+
+
+// weather code section
 let weather_input_div = document.querySelector(".weather-input-div")
 var city_input_element = document.getElementById("city-input");
 var loading_msg_element = document.getElementById("loading_msg");
@@ -346,71 +376,89 @@ function set_city_weather_data(response) {
     }
 }
 
-setTimeout(() => {
-    get_city_weather_data();
-}, 500)
 
-
-var google_search_div_id_ele = document.getElementById("google-search-div-id");
-var youtube_search_div_id_ele = document.getElementById("youtube-search-div-id");
-
-function hide_youtube_search_bar() {
-    google_search_div_id_ele.classList.add("expend-anim");
-
-    google_search_div_id_ele.style.width = "50%";
-    document.getElementById("google-search-box-id").style.width = "100%";
-
-    youtube_search_div_id_ele.classList.add("shrink-anim");
-    youtube_search_div_id_ele.style.width = "min-content";
-}
-
-function hide_google_search_bar() {
-    youtube_search_div_id_ele.classList.add("expend-anim");
-
-    youtube_search_div_id_ele.style.width = "50%";
-    document.getElementById("youtube-search-box-id").style.width = "100%";
-
-    google_search_div_id_ele.classList.add("shrink-anim");
-    google_search_div_id_ele.style.width = "min-content";
-}
-
-function reset_search_div() {
-    youtube_search_div_id_ele.classList.remove('shrink-anim');
-    youtube_search_div_id_ele.classList.remove('expend-anim');
-    google_search_div_id_ele.style.width = "fit-content";
-
-    google_search_div_id_ele.classList.remove('shrink-anim');
-    google_search_div_id_ele.classList.remove('expend-anim');
-    youtube_search_div_id_ele.style.width = "fit-content";
-}
-
+// bookmark code section
 let bookmark_popup_element = document.getElementById("bookmark-popup")
+let bookmark_container = document.querySelector(".bookmark-container")
 let add_bookmark_btn = document.querySelector(".add-new-bm")
 let bm_save_btn = document.getElementById("save-btn")
 let loader_element = document.getElementById("loader")
 let msg_element = document.getElementById("msg_text")
+let bookmark_list_element = document.querySelector(".bookmark-list")
 let bookmark_name_element = document.getElementById("bm-name")
 let bookmark_url_element = document.getElementById("bm-url")
 let more_bookmark_btn = document.querySelector(".more-bookmark-btn")
 let more_bookmark_popup = document.getElementById("more-bookmark-popup")
+let bookmark_down_arrow_btn = document.getElementById("bookmark_down_arrow")
+let bookmark_up_arrow_btn = document.getElementById("bookmark_up_arrow")
+let bookmark_section_expended = false
+let last_window_size = undefined
 
 add_bookmark_btn.addEventListener("click", () => {
     bookmark_popup_element.classList.add("overlay_show")
-
 })
 
 document.querySelector(".close").addEventListener("click", () => {
     close_popup()
-
 })
 
-
 bm_save_btn.addEventListener("click", () => {
-
     if (validate_input_data() == true) {
         save_bookmark()
     }
 });
+
+more_bookmark_btn.addEventListener("click", () => {
+    more_bookmark_popup.classList.add("overlay_show")
+    show_all_bookmarks()
+})
+
+document.querySelector(".more-bookmark-close").addEventListener("click", () => {
+    more_bookmark_popup.classList.remove("overlay_show")
+    let more_bookmark_popup_container = document.querySelector(".more-bookmark-popup-container")
+    more_bookmark_popup_container.removeChild(more_bookmark_popup_container.children[1])
+})
+
+window.addEventListener("resize", () => {
+    let window_width = window.innerWidth;
+    if (last_window_size == undefined) {
+        if (window_width > 1050)
+            last_window_size = BIG_WINDOW
+        else
+            last_window_size = SMALL_WINDOW
+    }
+
+    if (window_width > 1050 && last_window_size == SMALL_WINDOW) {
+        bookmark_container.style.height = "60vh"
+        bookmark_list_element.style.display = "flex"
+        bookmark_up_arrow_btn.style.display = "none"
+        bookmark_down_arrow_btn.style.display = "none"
+        bookmark_section_expended = false
+        last_window_size = BIG_WINDOW
+    } else if (window_width <= 1050 && last_window_size == BIG_WINDOW) {
+        bookmark_container.style.height = "16vh"
+        bookmark_list_element.style.display = "none"
+        bookmark_up_arrow_btn.style.display = "none"
+        bookmark_down_arrow_btn.style.display = "block"
+        last_window_size = SMALL_WINDOW
+    }
+})
+
+bookmark_down_arrow_btn.addEventListener("click", () => {
+    bookmark_list_element.style.display = "flex"
+    bookmark_down_arrow_btn.style.display = "none"
+    bookmark_up_arrow_btn.style.display = "block"
+    bookmark_container.style.height = "max-content"
+    bookmark_section_expended = true
+})
+
+bookmark_up_arrow_btn.addEventListener("click", () => {
+    bookmark_list_element.style.display = "none"
+    bookmark_up_arrow_btn.style.display = "none"
+    bookmark_down_arrow_btn.style.display = "block"
+    bookmark_container.style.height = "16vh"
+    bookmark_section_expended = false
+})
 
 function validate_input_data() {
 
@@ -510,7 +558,7 @@ function store_bookmark_data(bm_name, bm_url, bm_logo, bm_letter) {
 
         if (bm_list.length - 1 < MAX_BOOKMARK_SHOW) {
             let new_bm = create_bookmark_element(bm_obj)
-            document.querySelector(".bookmark-list").appendChild(new_bm)
+            bookmark_list_element.appendChild(new_bm)
         } else {
             more_bookmark_btn.style.display = "block"
         }
@@ -542,11 +590,10 @@ function set_bookmark() {
             } else {
                 more_bookmark_btn.style.display = "block"
             }
-            let main_b_div = document.querySelector(".bookmark-list")
 
             for (let i = 0; i < max_count; i++) {
                 let b_div = create_bookmark_element(bm_list[i])
-                main_b_div.appendChild(b_div)
+                bookmark_list_element.appendChild(b_div)
             }
         }
 
@@ -573,7 +620,7 @@ function create_bookmark_element(bookmark_details) {
     b_name.classList.add("bookmark-name")
 
 
-    if (bookmark_details.bookmark_logo == NULL_TEXT) {
+    if (network_connection_status == false || bookmark_details.bookmark_logo == NULL_TEXT) {
         let bm_letter = bookmark_details.bookmark_letter
         custom_logo_span.innerHTML = bm_letter.toUpperCase()
         logo_i.style.display = "none"
@@ -584,7 +631,7 @@ function create_bookmark_element(bookmark_details) {
     b_name.innerHTML = bookmark_details.bookmark_name.substring(0, 6)
 
     b_div.addEventListener("click", () => {
-        window.open(bookmark_details.bookmark_url, '_blank')
+        window.open(bookmark_details.bookmark_url, '_parent')
     })
 
     b_div.appendChild(logo_i)
@@ -616,9 +663,7 @@ function show_all_bookmarks() {
 
         for (let i = 0; i < number_of_bookmarks; i++) {
             let b_div = create_bookmark_element(bm_list[i])
-            let b_div_1 = create_bookmark_element(bm_list[i])
             more_bookmark_div.appendChild(b_div)
-            more_bookmark_div.appendChild(b_div_1)
         }
 
         more_bookmark_popup_container.appendChild(more_bookmark_div)
@@ -626,15 +671,13 @@ function show_all_bookmarks() {
     });
 }
 
-more_bookmark_btn.addEventListener("click", () => {
-    more_bookmark_popup.classList.add("overlay_show")
-    show_all_bookmarks()
-})
 
-document.querySelector(".more-bookmark-close").addEventListener("click", () => {
-    more_bookmark_popup.classList.remove("overlay_show")
-    let more_bookmark_popup_container = document.querySelector(".more-bookmark-popup-container")
-    more_bookmark_popup_container.removeChild(more_bookmark_popup_container.children[1])
-})
-
-set_bookmark()
+set_time()
+updateDate()
+setInterval(set_time, 1000)
+set_greeting()
+set_quote()
+get_network_connection_status()
+setTimeout(() => {
+    get_city_weather_data();
+}, 500)
