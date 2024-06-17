@@ -1,4 +1,4 @@
-import { GET_DAY_DATE, GET_GREETING, FETCH_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, STORE_DATA, BOOKMARK_LIST, SAVED_TEXT, ERROR_TEXT, NULL_TEXT, INVALID_URL, INVALID_BOOKMARK_NAME, MAX_BOOKMARK_SHOW, BOOKMARKS, FETCH_LOCATION_LIST, WEATHER_LOADING_MESSAGE, WEATHER_LOADING_ERROR_MESSAGE } from "./constants.js"
+import { GET_DAY_DATE, GET_GREETING, FETCH_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, STORE_DATA, BOOKMARK_LIST, SAVED_TEXT, ERROR_TEXT, NULL_TEXT, INVALID_URL, INVALID_BOOKMARK_NAME, MAX_BOOKMARK_SHOW, BOOKMARKS, FETCH_LOCATION_LIST, WEATHER_LOADING_MESSAGE, WEATHER_LOADING_ERROR_MESSAGE, BIG_WINDOW, SMALL_WINDOW, NETWORK_STATUS } from "./constants.js"
 import { RED_COLOR, GREEN_COLOR } from "./constants.js"
 import { GOOGLE_SEARCH_LINK, YOUTUBE_SEARCH_LINK } from "./constants.js"
 import { extract_logo, get_domain_first_letter, validate_url } from "./contentScript.js"
@@ -27,7 +27,7 @@ function set_time() {
     let minutes = time.slice(3, 5)
     let am_pm = time.slice(9, 11)
 
-    if(last_minute == undefined || minutes-last_minute > 0)
+    if (last_minute == undefined || minutes - last_minute > 0)
         document.querySelector(".current_time").innerText = hours + ":" + minutes + " " + am_pm;
     last_minute = minutes
 }
@@ -38,6 +38,15 @@ function updateDate() {
         for (let i = 0; i < IDCollection.length; i++) {
             document.getElementById(IDCollection[i]).firstChild.nodeValue = response.response_message[i];
         }
+    })
+}
+
+let network_connection_status = false
+
+function get_network_connection_status(){
+    chrome.runtime.sendMessage({ action: NETWORK_STATUS, key: NETWORK_STATUS, name: "Getting network status" }, (response) => {
+        network_connection_status = response.response_message
+        set_bookmark()
     })
 }
 
@@ -370,14 +379,20 @@ function set_city_weather_data(response) {
 
 // bookmark code section
 let bookmark_popup_element = document.getElementById("bookmark-popup")
+let bookmark_container = document.querySelector(".bookmark-container")
 let add_bookmark_btn = document.querySelector(".add-new-bm")
 let bm_save_btn = document.getElementById("save-btn")
 let loader_element = document.getElementById("loader")
 let msg_element = document.getElementById("msg_text")
+let bookmark_list_element = document.querySelector(".bookmark-list")
 let bookmark_name_element = document.getElementById("bm-name")
 let bookmark_url_element = document.getElementById("bm-url")
 let more_bookmark_btn = document.querySelector(".more-bookmark-btn")
 let more_bookmark_popup = document.getElementById("more-bookmark-popup")
+let bookmark_down_arrow_btn = document.getElementById("bookmark_down_arrow")
+let bookmark_up_arrow_btn = document.getElementById("bookmark_up_arrow")
+let bookmark_section_expended = false
+let last_window_size = undefined
 
 add_bookmark_btn.addEventListener("click", () => {
     bookmark_popup_element.classList.add("overlay_show")
@@ -402,6 +417,47 @@ document.querySelector(".more-bookmark-close").addEventListener("click", () => {
     more_bookmark_popup.classList.remove("overlay_show")
     let more_bookmark_popup_container = document.querySelector(".more-bookmark-popup-container")
     more_bookmark_popup_container.removeChild(more_bookmark_popup_container.children[1])
+})
+
+window.addEventListener("resize", () => {
+    let window_width = window.innerWidth;
+    if (last_window_size == undefined) {
+        if (window_width > 1050)
+            last_window_size = BIG_WINDOW
+        else
+            last_window_size = SMALL_WINDOW
+    }
+
+    if (window_width > 1050 && last_window_size == SMALL_WINDOW) {
+        bookmark_container.style.height = "60vh"
+        bookmark_list_element.style.display = "flex"
+        bookmark_up_arrow_btn.style.display = "none"
+        bookmark_down_arrow_btn.style.display = "none"
+        bookmark_section_expended = false
+        last_window_size = BIG_WINDOW
+    } else if (window_width <= 1050 && last_window_size == BIG_WINDOW) {
+        bookmark_container.style.height = "16vh"
+        bookmark_list_element.style.display = "none"
+        bookmark_up_arrow_btn.style.display = "none"
+        bookmark_down_arrow_btn.style.display = "block"
+        last_window_size = SMALL_WINDOW
+    }
+})
+
+bookmark_down_arrow_btn.addEventListener("click", () => {
+    bookmark_list_element.style.display = "flex"
+    bookmark_down_arrow_btn.style.display = "none"
+    bookmark_up_arrow_btn.style.display = "block"
+    bookmark_container.style.height = "max-content"
+    bookmark_section_expended = true
+})
+
+bookmark_up_arrow_btn.addEventListener("click", () => {
+    bookmark_list_element.style.display = "none"
+    bookmark_up_arrow_btn.style.display = "none"
+    bookmark_down_arrow_btn.style.display = "block"
+    bookmark_container.style.height = "16vh"
+    bookmark_section_expended = false
 })
 
 function validate_input_data() {
@@ -502,7 +558,7 @@ function store_bookmark_data(bm_name, bm_url, bm_logo, bm_letter) {
 
         if (bm_list.length - 1 < MAX_BOOKMARK_SHOW) {
             let new_bm = create_bookmark_element(bm_obj)
-            document.querySelector(".bookmark-list").appendChild(new_bm)
+            bookmark_list_element.appendChild(new_bm)
         } else {
             more_bookmark_btn.style.display = "block"
         }
@@ -534,11 +590,10 @@ function set_bookmark() {
             } else {
                 more_bookmark_btn.style.display = "block"
             }
-            let main_b_div = document.querySelector(".bookmark-list")
 
             for (let i = 0; i < max_count; i++) {
                 let b_div = create_bookmark_element(bm_list[i])
-                main_b_div.appendChild(b_div)
+                bookmark_list_element.appendChild(b_div)
             }
         }
 
@@ -565,7 +620,7 @@ function create_bookmark_element(bookmark_details) {
     b_name.classList.add("bookmark-name")
 
 
-    if (bookmark_details.bookmark_logo == NULL_TEXT) {
+    if (network_connection_status == false || bookmark_details.bookmark_logo == NULL_TEXT) {
         let bm_letter = bookmark_details.bookmark_letter
         custom_logo_span.innerHTML = bm_letter.toUpperCase()
         logo_i.style.display = "none"
@@ -622,8 +677,7 @@ updateDate()
 setInterval(set_time, 1000)
 set_greeting()
 set_quote()
-set_bookmark()
+get_network_connection_status()
 setTimeout(() => {
     get_city_weather_data();
 }, 500)
-

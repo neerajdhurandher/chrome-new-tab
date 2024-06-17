@@ -84,4 +84,12 @@ async function fetch_web_url_data(url) {
     return html_content
 }
 
-export { get_motivation_quote, get_location_weather_form_api, fetch_location_list, fetch_web_url_data }
+async function check_network_connection_status(){
+    let network_connection_status = false
+    await fetch('https://google.com').then(response => {
+        network_connection_status = true
+    })
+    return network_connection_status
+}
+
+export { get_motivation_quote, get_location_weather_form_api, fetch_location_list, fetch_web_url_data, check_network_connection_status }

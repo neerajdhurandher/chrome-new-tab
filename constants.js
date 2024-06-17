@@ -19,6 +19,7 @@ export let BOOKMARK_ID = "bookmark_id"
 export let BOOKMARK_NAME = "bookmark_name"
 export let BOOKMARK_URL = "bookmark_url"
 export let BOOKMARK_LOGO = "bookmark_logo"
+export let NETWORK_STATUS = "network_status"
 
 // values
 export let WELCOME_TEXT = "Hey, Welcome"
@@ -29,6 +30,10 @@ export let NULL_TEXT = "null"
 export let INVALID_URL = "Invalid URL!!"
 export let INVALID_BOOKMARK_NAME = "Invalid bookmark name!!"
 export let BOOKMARKS = "Bookmarks"
+export let BIG_WINDOW = "big_window"
+export let SMALL_WINDOW = "small_window"
+//  10 min
+export let NETWORK_CONNECTION_REFRESH_INTERVAL = 600000
 // 2 hours
 export let REFRESH_QUOTE_INTERVAL = 7200000
 // 4 hours

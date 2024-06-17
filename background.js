@@ -1,5 +1,5 @@
-import { get_motivation_quote, get_location_weather_form_api, fetch_location_list, fetch_web_url_data } from "./api_call.js";
-import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, FETCH_LOCATION_WEATHER, FETCH_LOCATION_LIST, STORE_DATA, RETRIEVE_DATA, QUOTE_DATA, REFRESH_QUOTE_INTERVAL, QUOTE, AUTHOR, LOCATION_WEATHER_DATA } from "./constants.js"
+import { get_motivation_quote, get_location_weather_form_api, fetch_location_list, fetch_web_url_data, check_network_connection_status } from "./api_call.js";
+import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, FETCH_LOCATION_WEATHER, FETCH_LOCATION_LIST, STORE_DATA, RETRIEVE_DATA, QUOTE_DATA, REFRESH_QUOTE_INTERVAL, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, NETWORK_STATUS, NETWORK_CONNECTION_REFRESH_INTERVAL } from "./constants.js"
 
 console.log("I am background js")
 
@@ -64,6 +64,8 @@ chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
     fetch_web_url_data(param.url).then((data) => {
       sendResponse({ response_message: data })
     });
+  } else if (param.action == NETWORK_STATUS) {
+    sendResponse({ response_message: update_network_connection_status() })
   }
   return true;
 })
@@ -228,6 +230,17 @@ async function get_auto_complete_location_list(location_query) {
     let location_data = await fetch_location_list(location_query)
     return location_data
   }
+}
+
+let network_connection_status = false
+let network_connection_status_last_updated = undefined
+
+async function update_network_connection_status() {
+  if (network_connection_status_last_updated == undefined || new Date() - network_connection_status_last_updated > NETWORK_CONNECTION_REFRESH_INTERVAL) {
+    network_connection_status = await check_network_connection_status()
+    network_connection_status_last_updated = new Date()
+  }
+  return network_connection_status
 }
 
 chrome.webRequest.onHeadersReceived.addListener(
