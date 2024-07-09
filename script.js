@@ -382,6 +382,7 @@ let bookmark_popup_element = document.getElementById("bookmark-popup")
 let bookmark_container = document.querySelector(".bookmark-container")
 let add_bookmark_btn = document.querySelector(".add-new-bm")
 let bm_save_btn = document.getElementById("save-btn")
+let bm_delete_btn = document.getElementById("delete-btn")
 let loader_element = document.getElementById("loader")
 let msg_element = document.getElementById("msg_text")
 let bookmark_list_element = document.querySelector(".bookmark-list")
@@ -391,8 +392,11 @@ let more_bookmark_btn = document.querySelector(".more-bookmark-btn")
 let more_bookmark_popup = document.getElementById("more-bookmark-popup")
 let bookmark_down_arrow_btn = document.getElementById("bookmark_down_arrow")
 let bookmark_up_arrow_btn = document.getElementById("bookmark_up_arrow")
+let bookmark_edit_button = document.querySelector(".bookmark-edit-btn")
 let bookmark_section_expended = false
+let more_bookmark = false
 let last_window_size = undefined
+let bookmark_list = []
 
 add_bookmark_btn.addEventListener("click", () => {
     bookmark_popup_element.classList.add("overlay_show")
@@ -409,14 +413,11 @@ bm_save_btn.addEventListener("click", () => {
 });
 
 more_bookmark_btn.addEventListener("click", () => {
-    more_bookmark_popup.classList.add("overlay_show")
-    show_all_bookmarks()
+    show_all_bookmarks([], false)
 })
 
 document.querySelector(".more-bookmark-close").addEventListener("click", () => {
-    more_bookmark_popup.classList.remove("overlay_show")
-    let more_bookmark_popup_container = document.querySelector(".more-bookmark-popup-container")
-    more_bookmark_popup_container.removeChild(more_bookmark_popup_container.children[1])
+    close_more_bookmark_popup()
 })
 
 window.addEventListener("resize", () => {
@@ -435,12 +436,16 @@ window.addEventListener("resize", () => {
         bookmark_down_arrow_btn.style.display = "none"
         bookmark_section_expended = false
         last_window_size = BIG_WINDOW
+        if(more_bookmark == true)
+            more_bookmark_btn.style.display = "block"
     } else if (window_width <= 1050 && last_window_size == BIG_WINDOW) {
-        bookmark_container.style.height = "16vh"
+        bookmark_container.style.height = "125px"
         bookmark_list_element.style.display = "none"
         bookmark_up_arrow_btn.style.display = "none"
         bookmark_down_arrow_btn.style.display = "block"
         last_window_size = SMALL_WINDOW
+        // if(more_bookmark == true)
+        more_bookmark_btn.style.display = "none"
     }
 })
 
@@ -459,6 +464,51 @@ bookmark_up_arrow_btn.addEventListener("click", () => {
     bookmark_container.style.height = "16vh"
     bookmark_section_expended = false
 })
+
+bookmark_container.addEventListener("mouseover", ()=>{
+    bookmark_edit_button.style.display = "block"
+})
+bookmark_container.addEventListener("mouseout", ()=>{
+    bookmark_edit_button.style.display = "none"
+})
+
+bookmark_edit_button.addEventListener("click", ()=>{
+    show_all_bookmarks(bookmark_list, true)
+})
+
+function add_edit_bookmark(bookmark_details, edit_field){
+
+    let bm_popup_content_element = document.querySelector(".add-edit-bookmark");
+    let bm_popup_title = document.getElementById("bookmark-popup-title");
+    let bm_name_element = document.getElementById("bm-name");
+    let bm_url_element = document.getElementById("bm-url");
+
+    if(edit_field == true){
+        bm_popup_title.innerHTML = "Edit bookmark";
+        bm_name_element.value = bookmark_details.bookmark_name;
+        bm_url_element.value = bookmark_details.bookmark_url;
+        bm_delete_btn.style.display = "block"
+        bm_delete_btn.addEventListener("click", ()=>{
+            delete_bookmark(bookmark_details);
+         })
+    }
+
+    close_more_bookmark_popup()
+    bookmark_popup_element.classList.add("overlay_show")
+
+}
+
+function delete_bookmark(bookmark_details){
+    console.log("deleting bookmark : { " + bookmark_details.bookmark_name + " }.......")
+
+    const { v4: uuidv4 } = require('uuid');
+
+    // Generate a random UUID
+    const random_uuid = uuidv4();
+
+    // Print the UUID
+    console.log(random_uuid);
+}
 
 function validate_input_data() {
 
@@ -561,6 +611,7 @@ function store_bookmark_data(bm_name, bm_url, bm_logo, bm_letter) {
             bookmark_list_element.appendChild(new_bm)
         } else {
             more_bookmark_btn.style.display = "block"
+            more_bookmark = true
         }
 
     })
@@ -576,6 +627,12 @@ function close_popup() {
     bm_save_btn.style.display = "block"
 }
 
+function close_more_bookmark_popup(){
+    more_bookmark_popup.classList.remove("overlay_show")
+    let more_bookmark_popup_container = document.querySelector(".more-bookmark-popup-container")
+    more_bookmark_popup_container.removeChild(more_bookmark_popup_container.children[1])
+}
+
 
 function set_bookmark() {
     chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: BOOKMARK_LIST, name: "Bookmark list" }, (response) => {
@@ -587,8 +644,10 @@ function set_bookmark() {
 
             if (number_of_bookmarks <= max_count) {
                 max_count = number_of_bookmarks
+                more_bookmark = false
             } else {
                 more_bookmark_btn.style.display = "block"
+                more_bookmark = true
             }
 
             for (let i = 0; i < max_count; i++) {
@@ -600,7 +659,7 @@ function set_bookmark() {
     });
 }
 
-function create_bookmark_element(bookmark_details) {
+function create_bookmark_element(bookmark_details, edit_field) {
     let b_div = document.createElement("div")
     b_div.classList.add("bookmark-card")
 
@@ -630,23 +689,38 @@ function create_bookmark_element(bookmark_details) {
     }
     b_name.innerHTML = bookmark_details.bookmark_name.substring(0, 6)
 
-    b_div.addEventListener("click", () => {
-        window.open(bookmark_details.bookmark_url, '_parent')
-    })
+
 
     b_div.appendChild(logo_i)
     b_div.appendChild(custom_logo_div)
     b_div.appendChild(b_name)
 
+    if(edit_field == true){
+        let b_edit_icon = document.createElement("img")
+        b_edit_icon.src = "./imgs/edit-icon.png"
+        b_edit_icon.classList.add("bookmark-edit-btn-more-bookmark")
+        b_edit_icon.addEventListener("click",()=>{
+            add_edit_bookmark(bookmark_details, true)
+        })
+        b_div.appendChild(b_edit_icon)
+    }
+
+    b_div.addEventListener("click", (event) => {
+        if (event.target === parent)
+            window.open(bookmark_details.bookmark_url, '_parent')
+    })
+
     return b_div
 }
 
-function show_all_bookmarks() {
+function show_all_bookmarks(bookmark_list, edit_field) {
     chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: BOOKMARK_LIST, name: "Bookmark list" }, (response) => {
 
         let bm_list = response.response_message.data.bookmark_list
 
         let number_of_bookmarks = bm_list.length
+        
+        more_bookmark_popup.classList.add("overlay_show")
 
         let more_bookmark_popup_container = document.querySelector(".more-bookmark-popup-container")
 
@@ -662,7 +736,7 @@ function show_all_bookmarks() {
         more_bookmark_div.classList.add("all-bookmark-container")
 
         for (let i = 0; i < number_of_bookmarks; i++) {
-            let b_div = create_bookmark_element(bm_list[i])
+            let b_div = create_bookmark_element(bm_list[i], edit_field)
             more_bookmark_div.appendChild(b_div)
         }
 
