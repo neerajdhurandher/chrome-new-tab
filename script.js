@@ -3,7 +3,6 @@ import { RED_COLOR, GREEN_COLOR } from "./constants.js"
 import { GOOGLE_SEARCH_LINK, YOUTUBE_SEARCH_LINK } from "./constants.js"
 import { extract_logo, get_domain_first_letter, validate_url } from "./contentScript.js"
 
-console.log("I am script.js")
 
 // time code section
 var date_time = undefined;
@@ -15,8 +14,6 @@ function set_time() {
     date_time = new Date();
     current_hour = date_time.getHours();
     current_min = date_time.getMinutes();
-
-    console.log("Current time is : " + current_hour + " : " + current_min);
 
     let time = date_time.toLocaleTimeString("en-US", { hour12: true })
 
@@ -52,12 +49,7 @@ function get_network_connection_status(){
 
 // quote code section
 function set_quote() {
-
-    console.log("Setting quote..........")
-
     chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: QUOTE_DATA, name: "Getting quote" }, (response) => {
-        console.log("got quote from background")
-        console.log(response)
         let quote = undefined;
         let author = undefined;
 
@@ -70,15 +62,12 @@ function set_quote() {
         }
         document.querySelector(".quote_p").innerHTML = quote
         document.querySelector(".quote_author_p").innerHTML = "-by " + author
-
     })
 }
 
 // user name & greeting code section
 function set_greeting() {
     chrome.runtime.sendMessage({ action: GET_GREETING }, (response) => {
-        console.log("got greeting from background")
-        console.log(response)
         document.querySelector(".greeting-h1").innerHTML = "Good " + response.response_message;
         set_user_name()
     })
@@ -106,19 +95,16 @@ var google_search_div_id_ele = document.getElementById("google-search-div-id");
 var youtube_search_div_id_ele = document.getElementById("youtube-search-div-id");
 
 document.getElementById("youtube-search-btn").addEventListener('click', () => {
-    console.log("youtube search button clicked");
     got_for_youtube_search();
 })
 
 document.getElementById("google-search-btn").addEventListener('click', () => {
-    console.log("google  button clicked");
     got_for_google_search();
 })
 
 document.getElementById("youtube-search-input").addEventListener("keyup", function (event) {
     if (event.keyCode === 13) {
         event.preventDefault();
-        console.log("youtube enter key pressed")
         got_for_youtube_search();
     }
 });
@@ -126,7 +112,6 @@ document.getElementById("youtube-search-input").addEventListener("keyup", functi
 document.getElementById("google-search-input").addEventListener("keyup", function (event) {
     if (event.keyCode === 13) {
         event.preventDefault();
-        console.log("google enter key pressed")
         got_for_google_search();
     }
 });
@@ -160,18 +145,12 @@ function got_for_youtube_search() {
 }
 
 function got_for_search(input_element_id, main_link) {
-
     var search_quey = document.getElementById(input_element_id).value;
-    console.log(search_quey)
-
-    if (search_quey == "") {
-        console.log("empty search query")
-    } else {
+    if (search_quey != ""){
         search_quey = search_quey.replaceAll(" ", "+");
         window.open(main_link + search_quey, "_parent");
         document.getElementById(input_element_id).value = "";
     }
-
 }
 
 function hide_youtube_search_bar() {
@@ -227,9 +206,6 @@ document.getElementById("city-input").addEventListener("keyup", function (event)
         previousInputTime = currentInputTime
     const timeInterval = currentInputTime - previousInputTime;
 
-    console.log("timeInterval : " + timeInterval)
-    console.log("location_query : " + location_query)
-
     // Check if the input is a letter, time interval is greater than 1 second
     if (location_query.length > 2 || timeInterval > 500) {
         fetch_cities(location_query);
@@ -243,7 +219,6 @@ document.getElementById("city-input").addEventListener("keyup", function (event)
     // enter key pressed
     if (event.keyCode === 13) {
         event.preventDefault();
-        console.log("location query " + location_query)
         city_input_element.style.display = "none";
         loading_msg_element.innerHTML = WEATHER_LOADING_MESSAGE;
         loading_msg_element.style.display = "block";
@@ -260,10 +235,8 @@ document.getElementById("edit_icon").addEventListener("click", () => {
 const fetch_cities = async (query) => {
     if (query.length <= 2)
         return
-    console.log("Calling location list api ***********")
     let location_list = undefined
     chrome.runtime.sendMessage({ action: FETCH_LOCATION_LIST, location_query: query }, async (response) => {
-        console.log("got city list")
         location_list = response
     })
     let location_list_interval = undefined
@@ -321,10 +294,8 @@ const show_location_drop_down = (cities) => {
 };
 
 function fetch_location_weather_data(city) {
-    console.log("fetching location weather data via API")
     let location_data = undefined
     chrome.runtime.sendMessage({ action: FETCH_LOCATION_WEATHER, location: city }, async (response) => {
-        console.log("got latest weather data response from API")
         location_data = response
     })
 
@@ -338,16 +309,13 @@ function fetch_location_weather_data(city) {
 }
 
 function get_city_weather_data() {
-    console.log("send runtime msg for get weather")
     chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: LOCATION_WEATHER_DATA }, (response) => {
-        console.log("got weather data from database")
         set_city_weather_data(response)
     })
 }
 
 function set_city_weather_data(response) {
     if (response.response_message.status == true) {
-        console.log("setting weather details")
         let location_weather_data = response.response_message.data.location_weather_data.weather_data
         weather_input_div.style.display = "none";
         loading_msg_element.style.display = "none";
@@ -362,11 +330,9 @@ function set_city_weather_data(response) {
         let now = new Date()
 
         if (now - last > REFRESH_WEATHER_INTERVAL) {
-            console.log("Auto refreshing weather details")
             fetch_location_weather_data(location_weather_data.location.name)
         }
     } else {
-        console.log("no weather data")
         loading_msg_element.innerHTML = WEATHER_LOADING_ERROR_MESSAGE
         setTimeout(() => {
             city_input_element.style.display = "block";
