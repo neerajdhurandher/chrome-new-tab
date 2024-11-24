@@ -121,8 +121,8 @@ input:checked+.slider:before {
     position: absolute;
     margin: auto;
     bottom: 3%;
-    right: 5%;
-    left: 5%;
+    right: 12%;
+    left: 12%;
     padding: 1%;
     background-color: rgba(135, 135, 135, 0.133);
     z-index: 2;
@@ -508,7 +508,8 @@ input {
     height: 80%;
     border-radius: 8px;
 }
-.bookmark-arrow{
+
+.bookmark-arrow {
     width: 30px;
     height: 20px;
     margin: auto;
@@ -695,6 +696,41 @@ input {
     animation: spinner 4s linear infinite;
 }
 
+.feedback {
+    a {
+        color: #2196F3;
+    }
+
+    position: absolute;
+    margin: auto;
+    bottom: 3%;
+    right: 5%;
+    left: 1%;
+
+}
+
+.neeraj-logo {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    position: absolute;
+    float: right;
+    bottom: 2%;
+    right: 1%;
+
+    a {
+        display: flex;
+        justify-content: end;
+        align-items: center;
+
+        img {
+            height: 14%;
+            width: 14%;
+            cursor: pointer;
+        }
+    }
+}
+
 /* Scroll bar */
 ::-webkit-scrollbar {
     width: 10px;
@@ -739,13 +775,15 @@ input {
 }
 
 @media screen and (max-width: 1050px) {
-    .bookmark-container{
+    .bookmark-container {
         height: 16vh;
     }
-    .bookmark-list{
+
+    .bookmark-list {
         display: none;
     }
-    #bookmark_down_arrow{
+
+    #bookmark_down_arrow {
         display: block;
     }
 }

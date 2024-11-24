@@ -1,17 +1,8 @@
 import { get_motivation_quote, get_location_weather_form_api, fetch_location_list, fetch_web_url_data, check_network_connection_status } from "./api_call.js";
 import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, FETCH_LOCATION_WEATHER, FETCH_LOCATION_LIST, STORE_DATA, RETRIEVE_DATA, QUOTE_DATA, REFRESH_QUOTE_INTERVAL, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, NETWORK_STATUS, NETWORK_CONNECTION_REFRESH_INTERVAL } from "./constants.js"
 
-console.log("I am background js")
-
-function fun() {
-  chrome.browserAction.onClicked.addListener(function (activeTab) {
-    var newURL = "http://neerajdhurandher.me/";
-    chrome.tabs.create({ url: newURL });
-  });
-}
 
 chrome.runtime.onInstalled.addListener(({ reason }) => {
-  console.log("Install reason : " + reason);
   if (reason === 'install') {
     chrome.tabs.create({
       url: "welcome.html"
@@ -26,8 +17,6 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
 });
 
 chrome.tabs.onCreated.addListener(function (tab) {
-  console.log("new tab created....")
-  console.log(tab);
   if (tab.pendingUrl == "chrome://newtab/") {
     manage_quote_details();
   }
@@ -39,10 +28,6 @@ chrome.tabs.onCreated.addListener(function (tab) {
 
 
 chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
-
-  console.log("chrome onMessage listener");
-  console.log("received listener message : " + param.action);
-
   if (param.action == REFRESH_QUOTE) {
     manage_quote_details();
 
@@ -79,15 +64,12 @@ chrome.runtime.onMessage.addListener((param, sender, sendResponse) => {
     store[key_val] = value_val
 
     chrome.storage.local.set(store).then(() => {
-      console.log("Value is set in local for " + param.name);
       sendResponse({ response_message: { status: true, data: { key: key_val, value: value_val } } })
     });
 
   } else if (param.action == RETRIEVE_DATA) {
     var key_val = param.key
-    console.log("Retrieve data for " + param.name + " with key " + param.key)
     chrome.storage.local.get([key_val]).then((result) => {
-      console.log(result)
       if (result[key_val] == undefined) {
         sendResponse({ response_message: { status: false, error: "No data associate with key: " + key_val } })
       } else {
@@ -104,47 +86,32 @@ var last_quote_time = undefined;
 function set_time() {
   let time = new Date();
   get_day_date();
-  console.log("Background.js Current time is : " + time.getHours() + " : " + time.getMinutes());
   return time
 }
 
 async function manage_quote_details() {
   let time = set_time();
-  console.log("Fetching quote....")
-
   if (last_quote_time == undefined || (time - last_quote_time > REFRESH_QUOTE_INTERVAL)) {
     fetch_new_quote();
   }
 }
 
 async function fetch_new_quote() {
-  console.log("calling api function....")
-  // TODO let fetched_quote = await get_motivation_quote();
-  let fetched_quote = undefined;
-  console.log("api call function return : " + fetched_quote)
-  if (fetched_quote == undefined)
-    console.log("Unable to fetch quote data from API.")
-  else
+  let fetched_quote = await get_motivation_quote();
+  if (fetched_quote != undefined)
     store_last_quote_details(fetched_quote)
   return fetched_quote;
 }
 
 function store_last_quote_details(received_quote) {
   let time = set_time();
-  console.log("last quote time " + time);
-  console.log("Received quote : " + received_quote[QUOTE]);
-  console.log("Received quote author : " + received_quote[AUTHOR]);
-
   let last_quote_details_obj = { store_time: time, quote_details: { quote: received_quote[QUOTE], author: received_quote[AUTHOR] } }
-
-  console.log("storing quote details : ");
   let store = {};
   store[QUOTE_DATA] = last_quote_details_obj
   chrome.storage.local.set(store).then(() => {
     if (chrome.runtime.lastError)
-      console.log('Chrome runtime error');
+      console.error('Chrome runtime error');
     else {
-      console.log('Stored latest quote details:');
       last_quote_time = time;
     }
   });
@@ -212,11 +179,8 @@ async function get_location_weather_from_server(location) {
       }
       chrome.storage.local.set(store)
         .then(() => {
-          console.log(location + " weather data saved.")
+          status = true
         })
-      status = true
-    } else {
-      console.log(location + " weather data not available.")
     }
     return {
       "status": status,

@@ -43,13 +43,9 @@ async function type_writer(word, element, repeat) {
 }
 
 function save_user_name(value) {
-    console.log("save user name : " + value)
-    chrome.runtime.sendMessage({ action: STORE_DATA, key: USER_NAME, value: value, name: "User name" }, (response) => {
-        console.log("got save name response")
-        console.log(response)
+    chrome.runtime.sendMessage({ action: STORE_DATA, key: USER_NAME, value: value, name: "User name" }, () => {
         close_welcome_tab()
     })
-
 }
 
 async function close_welcome_tab() {
@@ -62,12 +58,9 @@ async function close_welcome_tab() {
     chrome.tabs.create({});
     await sleep(200)
     chrome.tabs.getCurrent().then((curr_tab) => {
-        console.log(curr_tab)
         chrome.tabs.remove(
             curr_tab.id
-        ).then((res) => {
-            console.log("Successfully closed welcome tab. " + res)
-        })
+        ).then(() => {})
     })
 }
 
@@ -85,15 +78,12 @@ name_input_element.addEventListener("keyup", function (event) {
 
     if (event.keyCode === 13) {
         event.preventDefault();
-        console.log("name enter key pressed")
         save_user_name(name_input_value)
     }
 });
 
 next_btn_element.addEventListener('click', () => {
-    console.log("next button clicked")
     save_user_name(name_input_element.value)
-
 })
 
 type_writer(WELCOME_TEXT, welcome_element, true)

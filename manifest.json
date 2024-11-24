@@ -14,10 +14,7 @@
         "type": "module"
     },
     "permissions": [
-        "scripting",
         "tabs",
-        "activeTab",
-        "bookmarks",
         "storage",
         "webRequest"
     ],

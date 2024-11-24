@@ -14,7 +14,6 @@ async function extract_logo(url, html_response) {
     'meta[name="twitter:image"]',
     'img[src*="logo"]',
   ];
-  console.log("extracting logo")
   for (const selector of logoSelectors) {
     const element = doc.querySelector(selector);
     if (element) {
@@ -22,13 +21,10 @@ async function extract_logo(url, html_response) {
       if (logoUrl) {
         // If the logo URL is relative, convert it to an absolute URL
         const absoluteLogoUrl = new URL(logoUrl, url).href;
-        console.log('Logo found:', absoluteLogoUrl);
         return absoluteLogoUrl;
       }
     }
   }
-
-  console.log('Logo not found');
   return "null";
 }
 
