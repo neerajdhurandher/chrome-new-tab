@@ -1,12 +1,6 @@
 import { get_motivation_quote, get_location_weather_form_api, fetch_location_list, fetch_web_url_data, check_network_connection_status } from "./api_call.js";
 import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, FETCH_LOCATION_WEATHER, FETCH_LOCATION_LIST, STORE_DATA, RETRIEVE_DATA, QUOTE_DATA, REFRESH_QUOTE_INTERVAL, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, NETWORK_STATUS, NETWORK_CONNECTION_REFRESH_INTERVAL } from "./constants.js"
 
-function fun() {
-  chrome.browserAction.onClicked.addListener(function (activeTab) {
-    var newURL = "http://neerajdhurandher.me/";
-    chrome.tabs.create({ url: newURL });
-  });
-}
 
 chrome.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
