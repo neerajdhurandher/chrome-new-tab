@@ -8,7 +8,9 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
       url: "welcome.html"
     });
   } else if (reason === 'update') {
-    console.log("Extension updated....")
+    chrome.tabs.create({
+      url: "update.html"
+    });
   }
 
   manage_quote_details();
