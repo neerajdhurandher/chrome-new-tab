@@ -40,7 +40,7 @@ function updateDate() {
 
 let network_connection_status = false
 
-function get_network_connection_status(){
+function get_network_connection_status() {
     chrome.runtime.sendMessage({ action: NETWORK_STATUS, key: NETWORK_STATUS, name: "Getting network status" }, (response) => {
         network_connection_status = response.response_message
         set_bookmark()
@@ -146,11 +146,24 @@ function got_for_youtube_search() {
 
 function got_for_search(input_element_id, main_link) {
     var search_quey = document.getElementById(input_element_id).value;
-    if (search_quey != ""){
+    search_quey = search_quey.trim();
+    if (search_quey != "") {
         search_quey = search_quey.replaceAll(" ", "+");
-        window.open(main_link + search_quey, "_parent");
+        if (main_link == GOOGLE_SEARCH_LINK) {
+            // using chrome search api
+            chrome_search_api(search_quey);
+        } else {
+            window.open(main_link + search_quey, "_parent");
+        }
         document.getElementById(input_element_id).value = "";
     }
+}
+
+function chrome_search_api(search_query) {
+    chrome.search.query({
+        text: search_query,
+        disposition: "CURRENT_TAB"
+    });
 }
 
 function hide_youtube_search_bar() {
