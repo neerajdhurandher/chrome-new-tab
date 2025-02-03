@@ -8,7 +8,7 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
       url: "welcome.html"
     });
   } else if (reason === 'update') {
-    console.log("Extension updated....")
+    url: "update.html"
   }
 
   manage_quote_details();
