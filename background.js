@@ -8,7 +8,9 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
       url: "welcome.html"
     });
   } else if (reason === 'update') {
-    url: "update.html"
+    chrome.tabs.create({
+      url: "update.html"
+    });
   }
 
   manage_quote_details();
