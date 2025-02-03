@@ -16,6 +16,7 @@
     "permissions": [
         "tabs",
         "storage",
+        "search",
         "webRequest"
     ],
     "host_permissions": [
