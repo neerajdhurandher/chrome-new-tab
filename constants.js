@@ -20,6 +20,7 @@ export let BOOKMARK_NAME = "bookmark_name"
 export let BOOKMARK_URL = "bookmark_url"
 export let BOOKMARK_LOGO = "bookmark_logo"
 export let NETWORK_STATUS = "network_status"
+export let GET_SEARCH_SUGGESTIONs = "get_search_suggestions"
 
 // values
 export let WELCOME_TEXT = "Hey, Welcome"

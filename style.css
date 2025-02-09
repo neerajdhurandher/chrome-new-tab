@@ -167,6 +167,7 @@ input:checked+.slider:before {
 }
 
 .search-box {
+    position: relative;
     display: flex;
     flex-direction: row;
     background-color: white;
@@ -176,6 +177,34 @@ input:checked+.slider:before {
 
 .search-div:has(input:focus) {
     border: solid #FFE600 2px;
+}
+
+.suggestions {
+    position: absolute;
+    top: 80%;
+    width: 91.2%;
+    left: 10%;
+    background-color: #ffffff;
+    color: #000000;
+    font-size: 1rem;
+    border-radius: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    z-index: 10;
+}
+
+.suggestion-item {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.suggestion-item:hover {
+    background-color: #ccc9c9;
+}
+
+.suggestion-active {
+    background-color: #ccc9c9;
 }
 
 .img-logo {

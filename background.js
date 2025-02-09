@@ -1,5 +1,5 @@
-import { get_motivation_quote, get_location_weather_form_api, fetch_location_list, fetch_web_url_data, check_network_connection_status } from "./api_call.js";
-import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, FETCH_LOCATION_WEATHER, FETCH_LOCATION_LIST, STORE_DATA, RETRIEVE_DATA, QUOTE_DATA, REFRESH_QUOTE_INTERVAL, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, NETWORK_STATUS, NETWORK_CONNECTION_REFRESH_INTERVAL } from "./constants.js"
+import { get_motivation_quote, get_location_weather_form_api, fetch_location_list, fetch_web_url_data, check_network_connection_status, fetch_search_suggestions } from "./api_call.js";
+import { GET_DAY_DATE, GET_GREETING, REFRESH_QUOTE, FETCH_LOCATION_WEATHER, FETCH_LOCATION_LIST, STORE_DATA, RETRIEVE_DATA, QUOTE_DATA, REFRESH_QUOTE_INTERVAL, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, NETWORK_STATUS, NETWORK_CONNECTION_REFRESH_INTERVAL, GET_SEARCH_SUGGESTIONs } from "./constants.js"
 
 
 chrome.runtime.onInstalled.addListener(({ reason }) => {
@@ -53,7 +53,11 @@ chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
     });
   } else if (param.action == NETWORK_STATUS) {
     sendResponse({ response_message: update_network_connection_status() })
+  } else if (param.action == GET_SEARCH_SUGGESTIONs) {
+    let suggestions = await fetch_search_suggestions(param.query)
+      sendResponse({ response_message: suggestions })
   }
+
   return true;
 })
 

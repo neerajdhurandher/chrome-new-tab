@@ -72,7 +72,7 @@ async function fetch_web_url_data(url) {
     return html_content
 }
 
-async function check_network_connection_status(){
+async function check_network_connection_status() {
     let network_connection_status = false
     await fetch('https://google.com').then(response => {
         network_connection_status = true
@@ -80,4 +80,30 @@ async function check_network_connection_status(){
     return network_connection_status
 }
 
-export { get_motivation_quote, get_location_weather_form_api, fetch_location_list, fetch_web_url_data, check_network_connection_status }
+async function fetch_search_suggestions(query) {
+    let suggestions_data = []
+    await fetch('https://suggestqueries.google.com/complete/search?client=chrome&format=os&hl=en&gl=ind&q=' + query)
+        .then(response => response.text())
+        .then(data => {
+            // the response is in 'text/javascript; charset=ISO-8859-1' format so we need to convert it to json
+            // Decode the text using ISO-8859-1 charset
+            const decoder = new TextDecoder('ISO-8859-1');
+            const decodedText = decoder.decode(new TextEncoder().encode(data));
+            // Parse the decoded text as JSON
+            const jsonResponse = JSON.parse(decodedText);
+            let suggestions = jsonResponse[1];
+            let suggestion_types = jsonResponse[4]["google:suggesttype"]
+
+            for (let i = 0; i < suggestions.length; i++) {
+                suggestions_data.push({
+                    "suggestion": suggestions[i],
+                    "suggestion_type": suggestion_types[i]
+                })
+            }
+
+        })
+        .catch(err => console.error(err));
+    return suggestions_data
+}
+
+export { get_motivation_quote, get_location_weather_form_api, fetch_location_list, fetch_web_url_data, check_network_connection_status, fetch_search_suggestions }

@@ -1,4 +1,4 @@
-import { GET_DAY_DATE, GET_GREETING, FETCH_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, STORE_DATA, BOOKMARK_LIST, SAVED_TEXT, ERROR_TEXT, NULL_TEXT, INVALID_URL, INVALID_BOOKMARK_NAME, MAX_BOOKMARK_SHOW, BOOKMARKS, FETCH_LOCATION_LIST, WEATHER_LOADING_MESSAGE, WEATHER_LOADING_ERROR_MESSAGE, BIG_WINDOW, SMALL_WINDOW, NETWORK_STATUS } from "./constants.js"
+import { GET_DAY_DATE, GET_GREETING, FETCH_LOCATION_WEATHER, REFRESH_WEATHER_INTERVAL, RETRIEVE_DATA, USER_NAME, QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, LOCATION_WEATHER_DATA, STORE_DATA, BOOKMARK_LIST, SAVED_TEXT, ERROR_TEXT, NULL_TEXT, INVALID_URL, INVALID_BOOKMARK_NAME, MAX_BOOKMARK_SHOW, BOOKMARKS, FETCH_LOCATION_LIST, WEATHER_LOADING_MESSAGE, WEATHER_LOADING_ERROR_MESSAGE, BIG_WINDOW, SMALL_WINDOW, NETWORK_STATUS, GET_SEARCH_SUGGESTIONs } from "./constants.js"
 import { RED_COLOR, GREEN_COLOR } from "./constants.js"
 import { GOOGLE_SEARCH_LINK, YOUTUBE_SEARCH_LINK } from "./constants.js"
 import { extract_logo, get_domain_first_letter, validate_url } from "./contentScript.js"
@@ -92,7 +92,15 @@ async function getCurrentTab() {
 
 // search code section
 var google_search_div_id_ele = document.getElementById("google-search-div-id");
+var google_search_input_ele = document.getElementById("google-search-input");
+var youtube_search_input_ele = document.getElementById("youtube-search-input");
 var youtube_search_div_id_ele = document.getElementById("youtube-search-div-id");
+var suggestions_div_element = document.getElementById("suggestions");
+let suggestionItems = suggestions_div_element.getElementsByClassName('suggestion-item');
+
+let suggestions_data = [];
+let last_input = '';
+let current_focus = -1;
 
 document.getElementById("youtube-search-btn").addEventListener('click', () => {
     got_for_youtube_search();
@@ -109,10 +117,24 @@ document.getElementById("youtube-search-input").addEventListener("keyup", functi
     }
 });
 
-document.getElementById("google-search-input").addEventListener("keyup", function (event) {
-    if (event.keyCode === 13) {
+document.getElementById("google-search-input").addEventListener("keydown", function (event) {
+    if (event.keyCode === 40) {
+        // Down arrow key
         event.preventDefault();
-        got_for_google_search();
+        current_focus++;
+        addActive(suggestionItems);
+    } else if (event.keyCode === 38) {
+        // Up arrow key
+        event.preventDefault();
+        current_focus--;
+        addActive(suggestionItems);
+    } else if (event.keyCode === 13) {
+        event.preventDefault();
+        if (current_focus > -1) {
+            if (suggestionItems) suggestionItems[current_focus].click();
+        } else {
+            got_for_google_search();
+        }
     }
 });
 
@@ -134,7 +156,29 @@ document.getElementById("youtube-search-box-id").addEventListener("click", () =>
     hide_google_search_bar();
 })
 
+document.getElementById('google-search-input').addEventListener('input', debounce(showSearchSuggestions, 800));
 
+
+google_search_div_id_ele.addEventListener("focusin", () => {
+    showSearchSuggestions();
+});
+
+google_search_div_id_ele.addEventListener("focusout", () => {
+    suggestions_div_element.style.display = 'none';
+});
+
+
+
+
+function debounce(func, delay) {
+    let debounceTimer;
+    return function () {
+        const context = this;
+        const args = arguments;
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => func.apply(context, args), delay);
+    };
+}
 
 function got_for_google_search() {
     got_for_search("google-search-input", GOOGLE_SEARCH_LINK)
@@ -156,6 +200,7 @@ function got_for_search(input_element_id, main_link) {
             window.open(main_link + search_quey, "_parent");
         }
         document.getElementById(input_element_id).value = "";
+        current_focus = -1;
     }
 }
 
@@ -165,6 +210,106 @@ function chrome_search_api(search_query) {
         disposition: "CURRENT_TAB"
     });
 }
+
+function open_url(url) {
+    // check if url is valid or not 
+    if (url == undefined || validate_url(url) == false) {
+        return;
+    }
+    window.open(url, "_parent");
+    google_search_input_ele.value = "";
+    youtube_search_input_ele.value = "";
+}
+
+async function showSearchSuggestions() {
+    let input = document.getElementById('google-search-input').value;
+    input = input.trim();
+    const suggestionsContainer = document.getElementById('suggestions');
+
+    if (input.trim() === '' || input.length < 2) {
+        suggestionsContainer.style.display = 'none';
+        return;
+    }
+
+    if (suggestions_data.length == 0 || input !== last_input) {
+        last_input = input;
+        suggestions_data = await getSearchSuggestions(input);
+        current_focus = -1;
+    }
+
+    if (!suggestions_data) {
+        suggestionsContainer.style.display = 'none';
+        return;
+    }
+
+    suggestionsContainer.innerHTML = '';
+
+    suggestions_data.forEach(suggestion_item => {
+        let suggestion_type = suggestion_item["suggestion_type"];
+        let suggestion = suggestion_item["suggestion"];
+        let suggestionItem = document.createElement('div');
+
+
+        if (suggestion_type === 'NAVIGATION') {
+            suggestionItem.setAttribute('data-url', suggestion);
+            //  remove http from suggestion and any thing after .com
+            suggestion = suggestion.replace(/(^\w+:|^)\/\//, '');
+        }
+
+        suggestionItem.className = 'suggestion-item';
+        suggestionItem.textContent = suggestion;
+        // Add custom data-tag attribute to store suggestion type
+        suggestionItem.setAttribute('data-tag', suggestion_type); 
+        suggestionItem.addEventListener('click', () => {
+            google_search_input_ele.value = suggestion;
+            suggestionsContainer.style.display = 'none';
+            suggestionClickHandler(suggestionItem);
+        });
+        suggestionsContainer.appendChild(suggestionItem);
+    });
+
+    suggestionsContainer.style.display = 'block';
+}
+
+async function getSearchSuggestions(input) {
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage({ action: GET_SEARCH_SUGGESTIONs, query: input }, (response) => {
+            if (response && response.response_message) {
+                resolve(response.response_message);
+            } else {
+                reject([]);
+            }
+        });
+    });
+}
+
+
+function addActive(items) {
+    if (!items) return false;
+    removeActive(items);
+    if (current_focus >= items.length) current_focus = 0;
+    if (current_focus < 0) current_focus = items.length - 1;
+    items[current_focus].classList.add('suggestion-active');
+    items[current_focus].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+}
+
+function removeActive(items) {
+    for (let i = 0; i < items.length; i++) {
+        items[i].classList.remove('suggestion-active');
+    }
+}
+
+function suggestionClickHandler(suggestion_element) {
+    let suggestion_type = suggestion_element.getAttribute('data-tag');
+    if (suggestion_type === 'NAVIGATION') {
+        let suggestion_url = suggestion_element.getAttribute('data-url');
+        open_url(suggestion_url);
+    }else{
+        got_for_google_search();
+    }
+}
+
 
 function hide_youtube_search_bar() {
     google_search_div_id_ele.classList.add("expend-anim");
