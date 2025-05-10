@@ -189,15 +189,14 @@ function got_for_youtube_search() {
 }
 
 function got_for_search(input_element_id, main_link) {
-    var search_quey = document.getElementById(input_element_id).value;
-    search_quey = search_quey.trim();
-    if (search_quey != "") {
-        search_quey = search_quey.replaceAll(" ", "+");
+    var search_query = document.getElementById(input_element_id).value;
+    search_query = search_query.trim();
+    if (search_query != "") {
         if (main_link == GOOGLE_SEARCH_LINK) {
             // using chrome search api
-            chrome_search_api(search_quey);
+            chrome_search_api(search_query);
         } else {
-            window.open(main_link + search_quey, "_parent");
+            window.open(main_link + search_query, "_parent");
         }
         document.getElementById(input_element_id).value = "";
         current_focus = -1;
