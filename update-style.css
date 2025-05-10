@@ -64,8 +64,8 @@ body {
   .image-box img {
     max-width: 100%;
     height: auto;
-    width: 300px; 
-    height: 100px;
+    width: 450px; 
+    height: 150px;
     border: 1px solid #ddd;
     border-radius: 8px;
 }
