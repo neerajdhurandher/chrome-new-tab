@@ -482,7 +482,7 @@ input {
     border-radius: 8px;
 }
 
-.bookmark-edit-btn{
+.bookmark-edit-btn {
     position: absolute;
     float: right;
     right: 1%;
@@ -491,9 +491,9 @@ input {
     display: none;
 }
 
-.bookmark-edit-btn-more-bookmark{
+.bookmark-edit-btn-more-bookmark {
     cursor: pointer;
-    visibility:hidden;
+    visibility: hidden;
 }
 
 .bookmark-div {
@@ -524,12 +524,24 @@ input {
     margin: 20% 0%;
 }
 
-.bookmark-card:hover {
+.bookmark-card-wrapper:hover {
     scale: 1.05;
 }
 
 .bookmark-card:hover .bookmark-edit-btn-more-bookmark {
     visibility: visible;
+    margin-top: 12px;
+}
+
+.bookmark-card-wrapper {
+
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    cursor: pointer;
 }
 
 .bookmark-logo {
@@ -601,20 +613,27 @@ input {
             height: 5em;
             margin: 5% 1%;
 
-            .bookmark-logo {
-                background-color: #ffffff;
-            }
+            .bookmark-card-wrapper {
+                width: 6em;
+                min-width: 60px;
+                height: 5em;
 
-            .bookmark-name {
-                font-size: 1.2rem;
-            }
 
-            .custom-logo-div {
-                .logo-letter {
-                    font-size: 2.1rem;
-                    font-weight: 700;
+                .bookmark-logo {
+                    background-color: #ffffff;
                 }
 
+                .bookmark-name {
+                    font-size: 1.2rem;
+                }
+
+                .custom-logo-div {
+                    .logo-letter {
+                        font-size: 2.1rem;
+                        font-weight: 700;
+                    }
+
+                }
             }
         }
     }
@@ -708,7 +727,7 @@ input {
 
 }
 
-#delete-btn{
+#delete-btn {
     display: none;
     color: #ffffff;
     background-color: #ed2b2b;
