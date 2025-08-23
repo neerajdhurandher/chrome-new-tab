@@ -2,7 +2,7 @@
 
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/gdopmhkjbdoceejomgdgecljcmhdiphf.svg?label=Chrome%20Web%20Store)](https://chromewebstore.google.com/detail/neeraj-new-tab/gdopmhkjbdoceejomgdgecljcmhdiphf)
 
-**Neeraj's new tab** is a feature-rich Chrome extension that transforms your new tab page into a productivity and inspiration hub. With customizable search, live weather, quotes, and bookmarks—all in a visually appealing design—it brings a delightful, efficient experience to every new tab.
+**Neeraj's new tab** is a feature-rich Chrome extension that transforms your new tab page into a productivity and inspiration hub. With customizable search, live weather, quotes, and bookmarks—all in a sleek, modern interface.
 
 ---
 
@@ -49,16 +49,26 @@ Transform your browsing experience in seconds by installing **neeraj-new-tab** f
 
 ---
 
+
+>![Edit bookmark popup](https://github.com/neerajdhurandher/chrome-new-tab/releases/download/v1.3/edit-bookmark-popup.png)
+>
+> *Edit bookmark in action!*
+
+---
+
 ## 📦 Releases
 
 **Latest Release:**
 
-- **[v1.2](https://github.com/neerajdhurandher/chrome-new-tab/releases/tag/v1.2)**
-  - Added Chrome search API integration for using the user's default search engine.
-  - Implemented web search suggestions for an enhanced browsing experience.
+- **[v1.3](https://github.com/neerajdhurandher/chrome-new-tab/releases/tag/v1.3)**
+  - Introduce new functionality to update the bookmarks. 
+  - Now user can edit bookmark name, url & delete the bookmark as well. 
 
 **Previous Releases:**
 
+- [v1.2](https://github.com/neerajdhurandher/chrome-new-tab/releases/tag/v1.2)
+  - Added Chrome search API integration for using the user's default search engine.
+  - Implemented web search suggestions for an enhanced browsing experience.
 - [v1.1](https://github.com/neerajdhurandher/chrome-new-tab/releases/tag/v1.1)
   - Switched to user's default search engine.
   - More customization and flexibility.
