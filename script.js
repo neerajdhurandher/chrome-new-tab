@@ -211,7 +211,7 @@ function chrome_search_api(search_query) {
 }
 
 function open_url(url) {
-    // check if url is valid or not 
+    // check if url is valid or not
     if (url == undefined || validate_url(url) == false) {
         return;
     }
@@ -916,7 +916,7 @@ function create_bookmark_element(bookmark_details, edit_field) {
         window.open(bookmark_details.bookmark_url, '_parent')
     })
 
-    
+
 
     return b_div
 }
