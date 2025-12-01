@@ -1,7 +1,7 @@
 async function get_motivation_quote() {
 
     let quote_details = undefined;
-    const category_list = ["wisdom","philosophy","life","truth","inspirational","relationships","love","faith","humor","success","courage","happiness","art","writing","fear","nature","time","freedom","death","leadership"];
+    const category_list = ["wisdom","philosophy","life","truth","inspirational","love","faith","humor","success","courage","happiness","art","writing","fear","nature","time","freedom","leadership"];
 
     const category = category_list[Math.floor(Math.random() * category_list.length)]
 
