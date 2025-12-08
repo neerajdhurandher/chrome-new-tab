@@ -14,6 +14,7 @@ async function extract_logo(url, html_response) {
     'meta[name="twitter:image"]',
     'img[src*="logo"]',
   ];
+
   for (const selector of logoSelectors) {
     const element = doc.querySelector(selector);
     if (element) {
@@ -70,5 +71,5 @@ function validate_url(url) {
     return false
   }
 }
-export {extract_logo}
-export { get_domain_first_letter, validate_url }
+
+export { extract_logo, get_domain_first_letter, validate_url }
