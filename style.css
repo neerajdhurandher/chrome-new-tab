@@ -344,7 +344,7 @@ input {
 
 .dropdown-content a {
     display: block;
-    padding: 10px;
+    padding: 6px;
     text-decoration: none;
     color: #ffffff;
     font-weight: 600;
@@ -511,6 +511,12 @@ input {
     align-items: center;
     flex-direction: column;
     overflow-y: hidden;
+}
+
+.no-bookmark-message {
+    color: #ffffff;
+    font-size: 1.2rem;
+    text-align: center;
 }
 
 .bookmark-card {
@@ -706,6 +712,17 @@ input {
 
 .simple-input-box:focus {
     border-color: #000000;
+}
+
+.simple-input-box.input-error {
+    border-color: #ff0000 !important;
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
 }
 
 .popup .popup-content label {

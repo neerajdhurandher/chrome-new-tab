@@ -1,5 +1,5 @@
 import { get_location_weather_form_api, fetch_location_list, fetch_web_url_data, check_network_connection_status, fetch_search_suggestions } from "./api_call.js";
-import { FETCH_LOCATION_WEATHER, FETCH_LOCATION_LIST, STORE_DATA, RETRIEVE_DATA, LOCATION_WEATHER_DATA, NETWORK_STATUS, NETWORK_CONNECTION_REFRESH_INTERVAL, GET_SEARCH_SUGGESTIONs } from "./constants.js"
+import { FETCH_LOCATION_WEATHER, FETCH_LOCATION_LIST, STORE_DATA, RETRIEVE_DATA, LOCATION_WEATHER_DATA, NETWORK_STATUS, NETWORK_CONNECTION_REFRESH_INTERVAL, GET_SEARCH_SUGGESTIONs, GET_URL_DATA } from "./constants.js"
 
 
 chrome.runtime.onInstalled.addListener(({ reason }) => {
@@ -29,21 +29,19 @@ chrome.tabs.onCreated.addListener(function (tab) {
 chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
   if (param.action == FETCH_LOCATION_WEATHER) {
     let location_weather = await get_location_weather_from_server(param.location);
-    sendResponse({ response_message: location_weather })
-
+    sendResponse({ response_message: location_weather });
   } else if (param.action == FETCH_LOCATION_LIST) {
     let location_data = await get_auto_complete_location_list(param.location_query);
-    sendResponse({ response_message: location_data })
-
-  } else if (param.action == "get_url_data") {
+    sendResponse({ response_message: location_data });
+  } else if (param.action == GET_URL_DATA) {
     fetch_web_url_data(param.url).then((data) => {
-      sendResponse({ response_message: data })
+      sendResponse({ response_message: data });
     });
   } else if (param.action == NETWORK_STATUS) {
-    sendResponse({ response_message: update_network_connection_status() })
+    sendResponse({ response_message: update_network_connection_status() });
   } else if (param.action == GET_SEARCH_SUGGESTIONs) {
     let suggestions = await fetch_search_suggestions(param.query)
-    sendResponse({ response_message: suggestions })
+    sendResponse({ response_message: suggestions });
   }
 
   return true;
@@ -51,29 +49,26 @@ chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
 
 // chrome storage actions
 chrome.runtime.onMessage.addListener((param, sender, sendResponse) => {
-  const key_val = param.key;
-  if (key_val == undefined)
-    sendResponse({ response_message: { status: false, error: "Key is undefined" } });
-
   if (param.action == STORE_DATA) {
     const value_val = param.value
     let store = {}
-    store[key_val] = value_val
+    store[param.key] = value_val
 
     chrome.storage.local.set(store).then(() => {
-      sendResponse({ response_message: { status: true, data: { key: key_val, value: value_val } } })
+      sendResponse({ response_message: { status: true, data: { key: param.key, value: value_val } } })
     }).catch((error) => {
       sendResponse({ response_message: { status: false, error: error.message } })
     });
 
   } else if (param.action == RETRIEVE_DATA) {
-    chrome.storage.local.get([key_val]).then((result) => {
-      if (result[key_val] == undefined) {
-        sendResponse({ response_message: { status: false, error: "No data associate with key: " + key_val } })
+    chrome.storage.local.get([param.key]).then((result) => {
+      if (result[param.key] == undefined) {
+        sendResponse({ response_message: { status: false, error: "No data associate with key: " + param.key } })
       } else {
         sendResponse({ response_message: { status: true, data: result } })
       }
-
+    }).catch((error) => {
+      sendResponse({ response_message: { status: false, error: error.message } })
     });
   }
   return true;
@@ -105,7 +100,7 @@ async function get_location_weather_from_server(location) {
 
 async function get_auto_complete_location_list(location_query) {
   if (location_query != undefined) {
-    let location_data = await fetch_location_list(location_query)
+    let location_data = await fetch_location_list(location_query);
     return location_data
   }
 }
