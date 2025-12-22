@@ -57,3 +57,5 @@ export const DEFAULT_QUOTE = "Today is your opportunity to build the tomorrow yo
 export const DEFAULT_QUOTE_AUTHOR = "Ken Poirot";
 export const WEATHER_LOADING_MESSAGE = "getting your location weather data..."
 export const WEATHER_LOADING_ERROR_MESSAGE = "sorry, couldn't load weather data"
+
+export const INCORRECT_WEATHER_DATA_MESSAGE = "Weather info may be inaccurate; trouble fetching current data";

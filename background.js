@@ -75,6 +75,10 @@ chrome.runtime.onMessage.addListener((param, sender, sendResponse) => {
 })
 
 
+/** * Fetches weather data for a given location from the server and stores it in Chrome's local storage.
+ * @param {string} location - The name of the location to fetch weather data for.
+ * @returns {Promise<Object>} An object containing the status of the operation and the fetched weather data.
+ */
 async function get_location_weather_from_server(location) {
   if (location != undefined) {
     let status = false
@@ -86,11 +90,15 @@ async function get_location_weather_from_server(location) {
         "weather_data": location_weather,
         "last_updated": now.toISOString()
       }
-      chrome.storage.local.set(store)
-        .then(() => {
-          status = true
-        })
+
+      await chrome.storage.local.set(store).then(() => {
+        status = true;
+      }).catch((error) => {
+        status = false;
+        console.error("Error storing location weather data:", error);
+      });
     }
+
     return {
       "status": status,
       "data": { "location_weather_data": location_weather }

@@ -23,16 +23,49 @@
             <span id="loading_msg">getting your location weather data...</span>
         </div>
         <div class="weather-details-div" style="display:none;">
-            <div class="weather-data-div">
-                <div class="half-div">
-                    <img class="weather-icon" />
+            <div class="weather-essential-data">
+                <div class="half-div weather-error-info">
+                    <img id="weather-error-info-icon" class="weather-error-info-icon" title="Additional weather information"
+                        src="./imgs/info-icon-red.svg" />
                 </div>
-                <div class="half-div">
-                    <span class="weather-value"></span>
-                    <span class="location-name"></span>
+                <div class="weather-data-div">
+                    <div class="half-div">
+                        <img class="weather-icon" />
+                    </div>
+                    <div class="half-div weather-value-div">
+                        <span class="weather-value"></span>
+                        <span class="location-name"></span>
+                    </div>
+                    <div class="half-div weather-icons-container">
+                        <div id="city_edit_icon" class="city-edit-icon">
+                            <img src="./imgs/edit-icon.png" alt="">
+                        </div>
+                        <div id="weather_additional_info_icon" class="weather-additional-info-icon">
+                            <img src="./imgs/info-icon-white.svg" alt="">
+                        </div>
+                    </div>
                 </div>
-                <div id="edit_icon" class="half-div edit-icon">
-                    <img src="/imgs/edit-icon.png" alt="">
+            </div>
+            <div id="weather_additional_data" class="weather-additional-data" style="display: none;">
+                <div class="wad-grid">
+                    <div class="wad-item wad-feels">
+                        <span class="wad-label">Feels Like</span>
+                        <span class="wad-value" id="wad-feels-like">—</span>
+                    </div>
+                    <div class="wad-item wad-humidity">
+                        <img class="wad-icon" src="./imgs/humidity-icon-blue.png" alt="humidity" />
+                        <span class="wad-label">Humidity</span>
+                        <span class="wad-value" id="wad-humidity">—</span>
+                    </div>
+                    <div class="wad-item wad-wind">
+                        <img class="wad-icon" src="./imgs/wind.svg" alt="wind" />
+                        <span class="wad-label">Wind</span>
+                        <span class="wad-value" id="wad-wind">—</span>
+                    </div>
+                    <div class="wad-item wad-condition">
+                        <span class="wad-label">Condition</span>
+                        <span class="wad-value" id="wad-condition">—</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -139,5 +172,7 @@
 
 </body>
 <script type="module" src="script.js"></script>
+<script type="module" src="search.js"></script>
+<script type="module" src="bookmark.js"></script>
 
 </html>

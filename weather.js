@@ -1,4 +1,4 @@
-import { FETCH_LOCATION_LIST, FETCH_LOCATION_WEATHER, RETRIEVE_DATA, LOCATION_WEATHER_DATA, REFRESH_WEATHER_INTERVAL, WEATHER_LOADING_MESSAGE, WEATHER_LOADING_ERROR_MESSAGE, LOCATION_INPUT_DEBOUNCE_INTERVAL } from "./constants.js";
+import { FETCH_LOCATION_LIST, FETCH_LOCATION_WEATHER, RETRIEVE_DATA, LOCATION_WEATHER_DATA, REFRESH_WEATHER_INTERVAL, WEATHER_LOADING_MESSAGE, WEATHER_LOADING_ERROR_MESSAGE, LOCATION_INPUT_DEBOUNCE_INTERVAL, INCORRECT_WEATHER_DATA_MESSAGE } from "./constants.js";
 import { callChromeStorageApi } from "./chrome-storage-api.js";
 
 let weather_input_div = document.querySelector(".weather-input-div");
@@ -6,14 +6,37 @@ let city_input_element = document.getElementById("city-input");
 let loading_msg_element = document.getElementById("loading_msg");
 let weather_details_div = document.querySelector(".weather-details-div");
 let city_drop_down = document.getElementById('cityDropdown');
+let city_edit_icon = document.getElementById("city_edit_icon");
+let weather_additional_info_icon = document.getElementById("weather_additional_info_icon");
+let weather_additional_data_div = document.getElementById("weather_additional_data");
+let weather_error_info_div = document.querySelector(".weather-error-info");
+let weather_error_info_icon = document.getElementById("weather-error-info-icon");
+let weather_additional_data_div_popup = false;
+let location_weather_data_global = null;
 
 let previousInputTime = 0;
 
+
+// Close additional weather data popup when clicking anywhere on screen
+document.addEventListener("click", (event) => {
+    if (weather_additional_data_div_popup) {
+        // Don't close if clicking on the info icon or inside the popup itself
+        if (!weather_additional_info_icon.contains(event.target) &&
+            !weather_additional_data_div.contains(event.target)) {
+            weather_additional_data_div.style.display = "none";
+            weather_additional_data_div_popup = false;
+        }
+    }
+});
+
 weather_details_div.addEventListener("mouseover", () => {
-    document.querySelector(".edit-icon").style.visibility = "visible";
+    city_edit_icon.style.visibility = "visible";
+    weather_additional_info_icon.style.visibility = "visible";
 })
+
 weather_details_div.addEventListener("mouseout", () => {
-    document.querySelector(".edit-icon").style.visibility = "hidden";
+    city_edit_icon.style.visibility = "hidden";
+    weather_additional_info_icon.style.visibility = "hidden";
 })
 
 document.getElementById("city-input").addEventListener("keyup", async function (event) {
@@ -43,11 +66,16 @@ document.getElementById("city-input").addEventListener("keyup", async function (
     }
 });
 
-document.getElementById("edit_icon").addEventListener("click", () => {
+city_edit_icon.addEventListener("click", () => {
     weather_details_div.style.display = "none";
     weather_input_div.style.display = "block";
     city_input_element.style.display = "block";
 })
+
+weather_additional_info_icon.addEventListener("click", () => {
+    display_weather_Additional_info(location_weather_data_global);
+});
+
 
 /**
  * Fetches a list of cities matching the query from the background script and displays them in a dropdown.
@@ -167,25 +195,33 @@ const show_location_drop_down = (cities) => {
 /**
  * Fetches and sets the weather data for a given city.
  * If the data is outdated, it refreshes the weather data.
+ * @param {string} city - The name of the city to fetch weather data for
+ * @param {boolean} forceRefresh - Whether to force refresh the weather data
  */
-export async function fetch_location_weather_data(city) {
+async function fetch_location_weather_data(city, forceRefresh = false) {
     try {
-        await callChromeStorageApi({ action: FETCH_LOCATION_WEATHER, location: city });
-        get_city_weather_data();
+        let response = await callChromeStorageApi({ action: FETCH_LOCATION_WEATHER, location: city });
+        if (response.response_message.status) {
+            get_city_weather_data(response);
+            return;
+        } else {
+            weather_loading_error_display(forceRefresh);
+        }
     } catch (error) {
         console.error("Failed to fetch location weather data:", error);
         weather_loading_error_display();
-    }   
+    }
 }
 
 /** Retrieves city weather data from Chrome local storage and updates the UI.
  */
-async function get_city_weather_data() {
+export async function get_city_weather_data() {
     try {
         const response = await callChromeStorageApi({ action: RETRIEVE_DATA, key: LOCATION_WEATHER_DATA });
         set_city_weather_data(response);
     } catch (error) {
         console.error("Failed to get city weather data:", error);
+        weather_loading_error_display();
     }
 }
 
@@ -193,32 +229,78 @@ async function get_city_weather_data() {
  * @param {object} response - The response object containing weather data and status
  */
 function set_city_weather_data(response) {
-    if (response.response_message.status) {
-        let location_weather_data = response.response_message.data.location_weather_data.weather_data;
-        weather_input_div.style.display = "none";
-        loading_msg_element.style.display = "none";
-        city_input_element.value = "";
-
-        weather_details_div.style.display = "flex";
-        document.querySelector(".location-name").innerHTML = location_weather_data.location.name;
-        document.querySelector(".weather-value").innerHTML = location_weather_data.current.temp_c + "°C";
-        document.querySelector(".weather-icon").src = "https:" + location_weather_data.current.condition.icon;
-
-        let stored_date = response.response_message.data.location_weather_data.last_updated;
-        let last = new Date(stored_date);
-        let now = new Date();
-
-        if (now - last > REFRESH_WEATHER_INTERVAL) {
-            fetch_location_weather_data(location_weather_data.location.name);
-        }
-    } else {
+    if (!response.response_message.status) {
         weather_loading_error_display();
     }
+
+    let location_weather_data = response.response_message.data.location_weather_data.weather_data;
+    location_weather_data_global = location_weather_data;
+
+    weather_input_div.style.display = "none";
+    loading_msg_element.style.display = "none";
+    city_input_element.value = "";
+
+    weather_details_div.style.display = "flex";
+    document.querySelector(".location-name").innerHTML = location_weather_data.location.name;
+    document.querySelector(".weather-value").innerHTML = location_weather_data.current.temp_c + "°C";
+    document.querySelector(".weather-icon").src = "https:" + location_weather_data.current.condition.icon;
+
+    let stored_date = response.response_message.data.location_weather_data.last_updated;
+    let last = new Date(stored_date);
+    let now = new Date();
+
+    if (now - last > REFRESH_WEATHER_INTERVAL) {
+        fetch_location_weather_data(location_weather_data.location.name, true);
+    }
+
+    return;
+}
+
+/** Displays additional weather information in a popup.
+ * @param {object} location_weather_data - The weather data object for the location
+ */
+function display_weather_Additional_info(location_weather_data) {
+
+    if (!location_weather_data) {
+        return;
+    }
+
+    if (weather_additional_data_div_popup) {
+        weather_additional_data_div.style.display = "none";
+        weather_additional_data_div_popup = false;
+        return;
+    }
+
+    // Populate additional weather details
+    const loc = location_weather_data.location || {};
+    const cur = location_weather_data.current || {};
+    const setText = (id, text) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+    };
+
+    setText("wad-region", loc.region ?? "—");
+    setText("wad-country", loc.country ?? "—");
+    setText("wad-feels-like", cur.feelslike_c != null ? Math.round(cur.feelslike_c) + "°C" : "—");
+    setText("wad-humidity", cur.humidity != null ? cur.humidity + "%" : "—");
+    const wind = cur.wind_kph != null ? cur.wind_kph + " kph" : (cur.wind_mph != null ? cur.wind_mph + " mph" : "—");
+    setText("wad-wind", wind);
+    setText("wad-condition", (cur.condition && cur.condition.text) ? cur.condition.text : "—");
+
+    weather_additional_data_div.style.display = "block";
+    weather_additional_data_div_popup = true;
+
 }
 
 /** Displays an error message when weather data fails to load and resets the input field.
  */
-function weather_loading_error_display() {
+function weather_loading_error_display(outdated = false) {
+    if (outdated) {
+        weather_error_info_icon.title = INCORRECT_WEATHER_DATA_MESSAGE;
+        weather_error_info_div.style.display = "block";
+        return;
+    }
+
     loading_msg_element.innerHTML = WEATHER_LOADING_ERROR_MESSAGE;
     setTimeout(() => {
         city_input_element.style.display = "block";
@@ -226,4 +308,3 @@ function weather_loading_error_display() {
         loading_msg_element.style.display = "none";
     }, 2000);
 }
-
