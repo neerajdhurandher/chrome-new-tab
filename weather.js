@@ -202,7 +202,7 @@ async function fetch_location_weather_data(city, forceRefresh = false) {
     try {
         let response = await callChromeStorageApi({ action: FETCH_LOCATION_WEATHER, location: city });
         if (response.response_message.status) {
-            get_city_weather_data(response);
+            set_city_weather_data(response);
             return;
         } else {
             weather_loading_error_display(forceRefresh);
@@ -218,7 +218,11 @@ async function fetch_location_weather_data(city, forceRefresh = false) {
 export async function get_city_weather_data() {
     try {
         const response = await callChromeStorageApi({ action: RETRIEVE_DATA, key: LOCATION_WEATHER_DATA });
-        set_city_weather_data(response);
+        if (response.response_message.status) {
+            set_city_weather_data(response);
+        }else {
+            weather_loading_error_display();
+        }
     } catch (error) {
         console.error("Failed to get city weather data:", error);
         weather_loading_error_display();
@@ -229,7 +233,7 @@ export async function get_city_weather_data() {
  * @param {object} response - The response object containing weather data and status
  */
 function set_city_weather_data(response) {
-    if (!response.response_message.status) {
+    if (response.response_message.status == false) {
         weather_loading_error_display();
     }
 
