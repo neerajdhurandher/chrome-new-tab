@@ -27,41 +27,19 @@ chrome.tabs.onCreated.addListener(function (tab) {
 
 
 chrome.runtime.onMessage.addListener(async (param, sender, sendResponse) => {
-  if (param.action == FETCH_LOCATION_WEATHER) {
-    let location_weather = await get_location_weather_from_server(param.location);
-    sendResponse({ response_message: location_weather });
-  } else if (param.action == FETCH_LOCATION_LIST) {
-    let location_data = await get_auto_complete_location_list(param.location_query);
-    sendResponse({ response_message: location_data });
-  } else if (param.action == GET_URL_DATA) {
-    fetch_web_url_data(param.url).then((data) => {
-      sendResponse({ response_message: data });
-    });
-  } else if (param.action == NETWORK_STATUS) {
-    sendResponse({ response_message: update_network_connection_status() });
-  } else if (param.action == GET_SEARCH_SUGGESTIONs) {
-    let suggestions = await fetch_search_suggestions(param.query)
-    sendResponse({ response_message: suggestions });
-  }
-
-  return true;
-})
-
-// chrome storage actions
-chrome.runtime.onMessage.addListener((param, sender, sendResponse) => {
+  // Storage actions
   if (param.action == STORE_DATA) {
     const value_val = param.value
     let store = {}
     store[param.key] = value_val
-
-    chrome.storage.local.set(store).then(() => {
+    await chrome.storage.local.set(store).then(() => {
       sendResponse({ response_message: { status: true, data: { key: param.key, value: value_val } } })
     }).catch((error) => {
       sendResponse({ response_message: { status: false, error: error.message } })
     });
 
   } else if (param.action == RETRIEVE_DATA) {
-    chrome.storage.local.get([param.key]).then((result) => {
+    await chrome.storage.local.get([param.key]).then((result) => {
       if (result[param.key] == undefined) {
         sendResponse({ response_message: { status: false, error: "No data associate with key: " + param.key } })
       } else {
@@ -70,8 +48,26 @@ chrome.runtime.onMessage.addListener((param, sender, sendResponse) => {
     }).catch((error) => {
       sendResponse({ response_message: { status: false, error: error.message } })
     });
+  } 
+  // API call actions
+  else if (param.action == FETCH_LOCATION_WEATHER) {
+    let location_weather = await get_location_weather_from_server(param.location);
+    sendResponse({ response_message: location_weather });
+  } else if (param.action == FETCH_LOCATION_LIST) {
+    let location_data = await get_auto_complete_location_list(param.location_query);
+    sendResponse({ response_message: location_data });
+  } else if (param.action == GET_URL_DATA) {
+    let url_data = await fetch_web_url_data(param.url);
+    sendResponse({ response_message: url_data });
+  } else if (param.action == NETWORK_STATUS) {
+    sendResponse({ response_message: await update_network_connection_status() });
+  } else if (param.action == GET_SEARCH_SUGGESTIONs) {
+    let suggestions = await fetch_search_suggestions(param.query)
+    sendResponse({ response_message: suggestions });
   }
-  return true;
+
+  // default response for unhandled actions
+  sendResponse({ response_message: { status: false, error: "Unhandled action: " + param.action } })
 })
 
 

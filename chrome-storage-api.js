@@ -63,6 +63,13 @@ export async function retrieveDataFromLocalStorage(dataKey) {
     return new Promise((resolve, reject) => {
         chrome.runtime.sendMessage({ action: RETRIEVE_DATA, key: dataKey }, (response) => {
             if (chrome.runtime.lastError || response.response_message.status === false) {
+                if (response.response_message.error == "No data associate with key: bookmark_list"){
+                    resolve({
+                        status: true,
+                        data: [],
+                        message: "No bookmark found, returning empty list"
+                    });
+                }
                 reject({
                     status: false,
                     message: chrome.runtime.lastError ? chrome.runtime.lastError.message : response.response_message.error
