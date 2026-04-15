@@ -1,4 +1,6 @@
-import { USER_NAME, WELCOME_TEXT, THANKS_TEXT, STORE_DATA } from "./constants.js"
+import { WELCOME_TEXT, THANKS_TEXT } from "./constants.js"
+import { store_default_quote } from "./quote.js"
+import { saveUserName } from "./user.js"
 
 const welcome_element = document.getElementById("welcome-heading");
 const thanks_element = document.getElementById("thanks-heading");
@@ -42,10 +44,10 @@ async function type_writer(word, element, repeat) {
     }
 }
 
-function save_user_name(value) {
-    chrome.runtime.sendMessage({ action: STORE_DATA, key: USER_NAME, value: value, name: "User name" }, () => {
-        close_welcome_tab()
-    })
+async function save_user_name(value) {
+    await saveUserName(value);
+    await store_default_quote();
+    close_welcome_tab()
 }
 
 async function close_welcome_tab() {
@@ -60,14 +62,14 @@ async function close_welcome_tab() {
     chrome.tabs.getCurrent().then((curr_tab) => {
         chrome.tabs.remove(
             curr_tab.id
-        ).then(() => {})
+        ).then(() => { })
     })
 }
 
 let name_input_element = document.getElementById("name-input-id")
 let next_btn_element = document.getElementById("next_btn_id")
 
-name_input_element.addEventListener("keyup", function (event) {
+name_input_element.addEventListener("keyup", async function (event) {
     var name_input_value = name_input_element.value.trim()
 
     if (name_input_value.length > 2) {
@@ -76,14 +78,16 @@ name_input_element.addEventListener("keyup", function (event) {
         next_btn_element.style.backgroundColor = "#706b6b"
     }
 
-    if (event.keyCode === 13) {
-        event.preventDefault();
-        save_user_name(name_input_value)
+    if (event.keyCode != 13) {
+        return;
     }
+
+    event.preventDefault();
+    await save_user_name(name_input_value)
 });
 
-next_btn_element.addEventListener('click', () => {
-    save_user_name(name_input_element.value)
+next_btn_element.addEventListener('click', async () => {
+    await save_user_name(name_input_element.value)
 })
 
 type_writer(WELCOME_TEXT, welcome_element, true)

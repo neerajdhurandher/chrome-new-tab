@@ -21,6 +21,7 @@ export let BOOKMARK_URL = "bookmark_url"
 export let BOOKMARK_LOGO = "bookmark_logo"
 export let NETWORK_STATUS = "network_status"
 export let GET_SEARCH_SUGGESTIONs = "get_search_suggestions"
+export let GET_URL_DATA = "get_url_data"
 
 // values
 export let WELCOME_TEXT = "Hey, Welcome"
@@ -39,6 +40,8 @@ export let NETWORK_CONNECTION_REFRESH_INTERVAL = 600000
 export let REFRESH_QUOTE_INTERVAL = 7200000
 // 4 hours
 export let REFRESH_WEATHER_INTERVAL = 14400000
+// 800 milliseconds (0.8 seconds)
+export let LOCATION_INPUT_DEBOUNCE_INTERVAL = 800 // milliseconds
 export let MAX_BOOKMARK_SHOW = 4
 
 // colors
@@ -54,3 +57,5 @@ export const DEFAULT_QUOTE = "Today is your opportunity to build the tomorrow yo
 export const DEFAULT_QUOTE_AUTHOR = "Ken Poirot";
 export const WEATHER_LOADING_MESSAGE = "getting your location weather data..."
 export const WEATHER_LOADING_ERROR_MESSAGE = "sorry, couldn't load weather data"
+
+export const INCORRECT_WEATHER_DATA_MESSAGE = "Weather info may be inaccurate; trouble fetching current data";
