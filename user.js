@@ -50,7 +50,15 @@ async function setUserName() {
     try {
         const response = await callChromeStorageApi({ action: RETRIEVE_DATA, key: USER_NAME, name: "Retrieving user name for greeting" });
         if (response.response_message.data[USER_NAME] !== undefined) {
-            document.querySelector(".greeting-h1").innerHTML += response.response_message.data[USER_NAME] + ".";
+            let userName = response.response_message.data[USER_NAME];
+            // make its length less then 8 characters with "..." at the end if it is longer than 8 characters
+            if (userName.length > 8) {
+                userName = userName.substring(0, 8) + "...";
+            }
+            // Append the user name to the greeting message
+            document.querySelector(".greeting-h1").innerHTML += userName + ".";
+            // add user name in page title
+            document.title = userName + "'s New Tab";
         }
     } catch (error) {
         console.error("Failed to set user name:", error);
