@@ -4,9 +4,9 @@
  * and returns the first matching absolute logo URL.
  * @param {string} url - The base URL of the page, used to resolve relative logo URLs.
  * @param {string} html_response - The raw HTML content of the page to parse.
- * @returns {Promise<string>} A promise that resolves to the absolute logo URL, or "null" if not found.
+ * @returns {string} The absolute logo URL, or "null" if not found.
  */
-export async function extract_logo(url, html_response) {
+export function extract_logo(url, html_response) {
   const html = html_response;
 
   // Parse the HTML content
