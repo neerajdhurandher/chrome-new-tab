@@ -1,7 +1,17 @@
 import { RETRIEVE_DATA, STORE_DATA, BOOKMARK_LIST, MAX_BOOKMARK_SHOW, SAVED_TEXT, ERROR_TEXT, NULL_TEXT, NETWORK_STATUS } from "./constants.js";
 import { BIG_WINDOW, SMALL_WINDOW, BOOKMARKS, INVALID_URL, INVALID_BOOKMARK_NAME, GREEN_COLOR, RED_COLOR, GET_URL_DATA } from "./constants.js";
+import {
+    SETTINGS_BOOKMARK_BAR_POSITION,
+    SETTINGS_BOOKMARK_OPEN_NEW_TAB,
+    SETTINGS_BOOKMARK_SHOW_ICONS_ONLY,
+    BOOKMARK_BAR_POSITION_LEFT,
+    BOOKMARK_BAR_POSITION_RIGHT,
+    BOOKMARK_OPEN_NEW_TAB_DEFAULT,
+    BOOKMARK_SHOW_ICONS_ONLY_DEFAULT
+} from "./constants.js";
 import { callChromeStorageApi, retrieveDataFromLocalStorage, storeDataInLocalStorage } from "./chrome-storage-api.js";
 import { validate_url, get_domain_first_letter, extract_logo } from "./contentScript.js";
+import { initAppSettings, getAppSetting } from "./app-settings.js";
 
 let bookmark_popup_element = document.getElementById("bookmark-popup")
 let bookmark_container = document.querySelector(".bookmark-container")
@@ -24,10 +34,73 @@ let more_bookmark = false
 let last_window_size = undefined
 let bookmark_list = []
 let network_connection_status = false
+let bookmarkBarPosition = BOOKMARK_BAR_POSITION_RIGHT;
+let bookmarkOpenMode = BOOKMARK_OPEN_NEW_TAB_DEFAULT;
+let bookmarkLabelVisibility = BOOKMARK_SHOW_ICONS_ONLY_DEFAULT;
 
 
 // Add a global variable to track the bookmark being edited
 let current_editing_bookmark_id = null;
+
+document.addEventListener("app-setting-changed", (event) => {
+    if (!event.detail) {
+        return;
+    }
+
+    if (event.detail.key === SETTINGS_BOOKMARK_BAR_POSITION) {
+        bookmarkBarPosition = event.detail.value;
+        applyBookmarkBarPosition();
+    }
+
+    if (event.detail.key === SETTINGS_BOOKMARK_OPEN_NEW_TAB) {
+        bookmarkOpenMode = event.detail.value;
+    }
+
+    if (event.detail.key === SETTINGS_BOOKMARK_SHOW_ICONS_ONLY) {
+        bookmarkLabelVisibility = event.detail.value;
+        applyBookmarkLabelVisibility();
+    }
+});
+
+initAppSettings().then(() => {
+    const position = getAppSetting(SETTINGS_BOOKMARK_BAR_POSITION);
+    const openMode = getAppSetting(SETTINGS_BOOKMARK_OPEN_NEW_TAB);
+    const labelVisibility = getAppSetting(SETTINGS_BOOKMARK_SHOW_ICONS_ONLY);
+
+    if (position === BOOKMARK_BAR_POSITION_LEFT || position === BOOKMARK_BAR_POSITION_RIGHT) {
+        bookmarkBarPosition = position;
+    }
+
+    if (typeof openMode === "boolean") {
+        bookmarkOpenMode = openMode;
+    }
+
+    if (typeof labelVisibility === "boolean") {
+        bookmarkLabelVisibility = labelVisibility;
+    }
+
+    applyBookmarkBarPosition();
+    applyBookmarkLabelVisibility();
+});
+
+function applyBookmarkBarPosition() {
+    if (!bookmark_container) {
+        return;
+    }
+
+    const isLeft = bookmarkBarPosition === BOOKMARK_BAR_POSITION_LEFT;
+    bookmark_container.classList.toggle("bookmark-position-left", isLeft);
+}
+
+function applyBookmarkLabelVisibility() {
+    const iconsOnly = bookmarkLabelVisibility === true;
+    if (bookmark_container) {
+        bookmark_container.classList.toggle("bookmark-icons-only", iconsOnly);
+    }
+    if (more_bookmark_popup) {
+        more_bookmark_popup.classList.toggle("bookmark-icons-only", iconsOnly);
+    }
+}
 
 add_bookmark_btn.addEventListener("click", () => {
     bookmark_popup_element.classList.add("overlay_show");
@@ -294,7 +367,8 @@ function create_bookmark_element(bookmark_details, edit_field) {
         }
 
         b_wrapper_div.addEventListener("click", () => {
-            window.open(bookmark_details.bookmark_url, '_parent');
+            const target = bookmarkOpenMode === true ? "_blank" : "_self";
+            window.open(bookmark_details.bookmark_url, target);
         })
 
         return b_div;

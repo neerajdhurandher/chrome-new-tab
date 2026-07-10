@@ -1,14 +1,23 @@
 import {
     SETTINGS_TIME_FORMAT,
     SETTINGS_WEATHER_UNIT,
+    SETTINGS_BOOKMARK_BAR_POSITION,
+    SETTINGS_BOOKMARK_OPEN_NEW_TAB,
+    SETTINGS_BOOKMARK_SHOW_ICONS_ONLY,
     TIME_FORMAT_12H,
-    WEATHER_UNIT_C
+    WEATHER_UNIT_C,
+    BOOKMARK_BAR_POSITION_RIGHT,
+    BOOKMARK_OPEN_NEW_TAB_DEFAULT,
+    BOOKMARK_SHOW_ICONS_ONLY_DEFAULT
 } from "./constants.js";
 import { retrieveDataFromLocalStorage, storeDataInLocalStorage } from "./chrome-storage-api.js";
 
 const DEFAULT_SETTINGS = {
     [SETTINGS_TIME_FORMAT]: TIME_FORMAT_12H,
-    [SETTINGS_WEATHER_UNIT]: WEATHER_UNIT_C
+    [SETTINGS_WEATHER_UNIT]: WEATHER_UNIT_C,
+    [SETTINGS_BOOKMARK_BAR_POSITION]: BOOKMARK_BAR_POSITION_RIGHT,
+    [SETTINGS_BOOKMARK_OPEN_NEW_TAB]: BOOKMARK_OPEN_NEW_TAB_DEFAULT,
+    [SETTINGS_BOOKMARK_SHOW_ICONS_ONLY]: BOOKMARK_SHOW_ICONS_ONLY_DEFAULT
 };
 
 const settingsCache = { ...DEFAULT_SETTINGS };
@@ -30,6 +39,17 @@ async function getStoredSetting(key) {
 async function ensureSetting(key) {
     const storedValue = await getStoredSetting(key);
     if (storedValue !== undefined) {
+        if (key === SETTINGS_BOOKMARK_OPEN_NEW_TAB || key === SETTINGS_BOOKMARK_SHOW_ICONS_ONLY) {
+            if (storedValue === "enabled" || storedValue === "disabled") {
+                const normalizedValue = storedValue === "enabled";
+                settingsCache[key] = normalizedValue;
+                await storeDataInLocalStorage(key, normalizedValue);
+                return normalizedValue;
+            }
+            settingsCache[key] = Boolean(storedValue);
+            return settingsCache[key];
+        }
+
         settingsCache[key] = storedValue;
         return storedValue;
     }
@@ -47,7 +67,10 @@ export async function initAppSettings() {
 
     await Promise.all([
         ensureSetting(SETTINGS_TIME_FORMAT),
-        ensureSetting(SETTINGS_WEATHER_UNIT)
+        ensureSetting(SETTINGS_WEATHER_UNIT),
+        ensureSetting(SETTINGS_BOOKMARK_BAR_POSITION),
+        ensureSetting(SETTINGS_BOOKMARK_OPEN_NEW_TAB),
+        ensureSetting(SETTINGS_BOOKMARK_SHOW_ICONS_ONLY)
     ]);
 
     settingsInitialized = true;

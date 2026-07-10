@@ -1,10 +1,17 @@
 import {
     SETTINGS_TIME_FORMAT,
     SETTINGS_WEATHER_UNIT,
+    SETTINGS_BOOKMARK_BAR_POSITION,
+    SETTINGS_BOOKMARK_OPEN_NEW_TAB,
+    SETTINGS_BOOKMARK_SHOW_ICONS_ONLY,
     TIME_FORMAT_12H,
     TIME_FORMAT_24H,
     WEATHER_UNIT_C,
-    WEATHER_UNIT_F
+    WEATHER_UNIT_F,
+    BOOKMARK_BAR_POSITION_LEFT,
+    BOOKMARK_BAR_POSITION_RIGHT,
+    BOOKMARK_OPEN_NEW_TAB_DEFAULT,
+    BOOKMARK_SHOW_ICONS_ONLY_DEFAULT
 } from "./constants.js";
 import { initAppSettings, getAppSetting, setAppSetting } from "./app-settings.js";
 
@@ -14,15 +21,22 @@ const settingsCloseButton = document.getElementById("settings-close-btn");
 const settingsMenuItems = document.querySelectorAll(".settings-menu-item");
 const settingsViews = document.querySelectorAll(".settings-panel-view");
 const segmentToggleOptions = document.querySelectorAll(".segment-toggle-option");
+const settingsToggleInputs = document.querySelectorAll(".settings-toggle-input");
 
 const SETTINGS_KEY_MAP = {
     time_format: SETTINGS_TIME_FORMAT,
-    weather_unit: SETTINGS_WEATHER_UNIT
+    weather_unit: SETTINGS_WEATHER_UNIT,
+    bookmark_bar_position: SETTINGS_BOOKMARK_BAR_POSITION,
+    bookmark_open_new_tab: SETTINGS_BOOKMARK_OPEN_NEW_TAB,
+    bookmark_show_icons_only: SETTINGS_BOOKMARK_SHOW_ICONS_ONLY
 };
 
 const VALID_SETTINGS = {
     [SETTINGS_TIME_FORMAT]: [TIME_FORMAT_12H, TIME_FORMAT_24H],
-    [SETTINGS_WEATHER_UNIT]: [WEATHER_UNIT_C, WEATHER_UNIT_F]
+    [SETTINGS_WEATHER_UNIT]: [WEATHER_UNIT_C, WEATHER_UNIT_F],
+    [SETTINGS_BOOKMARK_BAR_POSITION]: [BOOKMARK_BAR_POSITION_LEFT, BOOKMARK_BAR_POSITION_RIGHT],
+    [SETTINGS_BOOKMARK_OPEN_NEW_TAB]: [true, false],
+    [SETTINGS_BOOKMARK_SHOW_ICONS_ONLY]: [true, false]
 };
 
 function openSettings() {
@@ -65,9 +79,22 @@ function updateToggleGroupUI(settingKey, settingValue) {
     });
 }
 
-function syncGeneralToggleUI() {
+function syncSettingsToggleUI() {
     updateToggleGroupUI("time_format", getAppSetting(SETTINGS_TIME_FORMAT));
     updateToggleGroupUI("weather_unit", getAppSetting(SETTINGS_WEATHER_UNIT));
+    updateToggleGroupUI("bookmark_bar_position", getAppSetting(SETTINGS_BOOKMARK_BAR_POSITION));
+    settingsToggleInputs.forEach((input) => {
+        const settingKey = input.dataset.settingKey;
+        if (settingKey === "bookmark_open_new_tab") {
+            const value = getAppSetting(SETTINGS_BOOKMARK_OPEN_NEW_TAB);
+            input.checked = typeof value === "boolean" ? value : BOOKMARK_OPEN_NEW_TAB_DEFAULT;
+        }
+
+        if (settingKey === "bookmark_show_icons_only") {
+            const value = getAppSetting(SETTINGS_BOOKMARK_SHOW_ICONS_ONLY);
+            input.checked = typeof value === "boolean" ? value : BOOKMARK_SHOW_ICONS_ONLY_DEFAULT;
+        }
+    });
 }
 
 function emitSettingChanged(settingKey, settingValue) {
@@ -92,7 +119,7 @@ async function applyGeneralSetting(settingKey, settingValue) {
 
 async function initializeSettingsUI() {
     await initAppSettings();
-    syncGeneralToggleUI();
+    syncSettingsToggleUI();
 }
 
 if (settingsOpenButton && settingsPopup && settingsCloseButton) {
@@ -128,6 +155,21 @@ if (settingsOpenButton && settingsPopup && settingsCloseButton) {
     segmentToggleOptions.forEach((option) => {
         option.addEventListener("click", async () => {
             await applyGeneralSetting(option.dataset.settingKey, option.dataset.settingValue);
+        });
+    });
+
+    settingsToggleInputs.forEach((input) => {
+        input.addEventListener("change", async () => {
+            const settingKey = input.dataset.settingKey;
+            if (settingKey === "bookmark_open_new_tab") {
+                const settingValue = input.checked;
+                await applyGeneralSetting(settingKey, settingValue);
+            }
+
+            if (settingKey === "bookmark_show_icons_only") {
+                const settingValue = input.checked;
+                await applyGeneralSetting(settingKey, settingValue);
+            }
         });
     });
 

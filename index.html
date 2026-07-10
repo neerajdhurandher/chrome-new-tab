@@ -207,7 +207,36 @@
                     </div>
                     <div class="settings-panel-view" data-view="bookmarks">
                         <h3>Bookmarks</h3>
-                        <p>Options coming soon.</p>
+                        <div class="settings-card">
+                            <h4>Bookmark Preferences</h4>
+
+                            <div class="setting-row">
+                                <span class="setting-row-label">Bookmark bar position</span>
+                                <div class="segment-toggle" role="group" aria-label="Bookmark bar position">
+                                    <button class="segment-toggle-option" type="button" data-setting-key="bookmark_bar_position"
+                                        data-setting-value="left">Left</button>
+                                    <span class="segment-separator">|</span>
+                                    <button class="segment-toggle-option active" type="button" data-setting-key="bookmark_bar_position"
+                                        data-setting-value="right">Right</button>
+                                </div>
+                            </div>
+
+                            <div class="setting-row">
+                                <span class="setting-row-label">Open bookmark in new tab</span>
+                                <label class="settings-toggle" aria-label="Open bookmark in new tab">
+                                    <input class="settings-toggle-input" type="checkbox" data-setting-key="bookmark_open_new_tab">
+                                    <span class="settings-toggle-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-row">
+                                <span class="setting-row-label">Show icons only</span>
+                                <label class="settings-toggle" aria-label="Show icons only">
+                                    <input class="settings-toggle-input" type="checkbox" data-setting-key="bookmark_show_icons_only">
+                                    <span class="settings-toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                     <div class="settings-panel-view" data-view="search">
                         <h3>Search</h3>
