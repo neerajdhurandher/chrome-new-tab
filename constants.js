@@ -22,6 +22,8 @@ export let BOOKMARK_LOGO = "bookmark_logo"
 export let NETWORK_STATUS = "network_status"
 export let GET_SEARCH_SUGGESTIONs = "get_search_suggestions"
 export let GET_URL_DATA = "get_url_data"
+export let SETTINGS_TIME_FORMAT = "settings_time_format"
+export let SETTINGS_WEATHER_UNIT = "settings_weather_unit"
 
 // values
 export let WELCOME_TEXT = "Hey, Welcome"
@@ -59,3 +61,7 @@ export const WEATHER_LOADING_MESSAGE = "getting your location weather data..."
 export const WEATHER_LOADING_ERROR_MESSAGE = "sorry, couldn't load weather data"
 
 export const INCORRECT_WEATHER_DATA_MESSAGE = "Weather info may be inaccurate; trouble fetching current data";
+export const TIME_FORMAT_12H = "12h";
+export const TIME_FORMAT_24H = "24h";
+export const WEATHER_UNIT_C = "c";
+export const WEATHER_UNIT_F = "f";

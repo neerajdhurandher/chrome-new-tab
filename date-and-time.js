@@ -1,9 +1,34 @@
 
+import {
+    SETTINGS_TIME_FORMAT,
+    TIME_FORMAT_12H,
+    TIME_FORMAT_24H
+} from "./constants.js";
+import { initAppSettings, getAppSetting } from "./app-settings.js";
+
 // time code section
 var date_time = undefined;
 var current_hour = undefined;
 var current_min = undefined;
 var last_minute = undefined
+let currentTimeFormat = TIME_FORMAT_12H;
+
+document.addEventListener("app-setting-changed", (event) => {
+    if (event.detail && event.detail.key === SETTINGS_TIME_FORMAT) {
+        currentTimeFormat = event.detail.value;
+        last_minute = undefined;
+        set_time();
+    }
+});
+
+initAppSettings().then(() => {
+    const format = getAppSetting(SETTINGS_TIME_FORMAT);
+    if (format === TIME_FORMAT_24H || format === TIME_FORMAT_12H) {
+        currentTimeFormat = format;
+        last_minute = undefined;
+        set_time();
+    }
+});
 
 /**
  * Updates the current time on the webpage every minute.
@@ -15,18 +40,24 @@ export function set_time() {
     current_hour = date_time.getHours();
     current_min = date_time.getMinutes();
 
-    let time = date_time.toLocaleTimeString("en-US", { hour12: true })
-
-    if (time.charAt(1) == ":") {
-        time = "0" + time
+    let formattedTime = "";
+    if (currentTimeFormat === TIME_FORMAT_24H) {
+        formattedTime = date_time.toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false
+        });
+    } else {
+        formattedTime = date_time.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true
+        });
     }
-    let hours = time.slice(0, 2)
-    let minutes = time.slice(3, 5)
-    let am_pm = time.slice(9, 11)
 
-    if (last_minute == undefined || minutes - last_minute > 0)
-        document.querySelector(".current_time").innerText = hours + ":" + minutes + " " + am_pm;
-    last_minute = minutes
+    if (last_minute == undefined || current_min !== last_minute)
+        document.querySelector(".current_time").innerText = formattedTime;
+    last_minute = current_min
 }
 
 /**

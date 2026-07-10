@@ -784,6 +784,10 @@ input {
     z-index: 2;
 }
 
+.settings-overlay.overlay_show {
+    z-index: 4;
+}
+
 .popup {
     width: 30%;
     position: relative;
@@ -890,17 +894,192 @@ input {
     animation: spinner 4s linear infinite;
 }
 
-.feedback {
-    a {
-        color: #2196F3;
-    }
-
-    position: absolute;
-    margin: auto;
-    bottom: 3%;
-    right: 5%;
+.settings-open-btn {
+    position: fixed;
+    bottom: 2%;
     left: 1%;
+    width: 42px;
+    height: 42px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    background: rgba(16, 16, 16, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 3;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
 
+.settings-open-btn img {
+    width: 20px;
+    height: 20px;
+}
+
+.settings-open-btn:hover {
+    transform: translateY(-1px);
+    background: rgba(26, 26, 26, 0.85);
+    border-color: rgba(255, 255, 255, 0.65);
+}
+
+.settings-open-btn:focus-visible {
+    outline: 3px solid #ffee56;
+    outline-offset: 2px;
+}
+
+.settings-popup {
+    position: fixed;
+    left: 1%;
+    bottom: 8%;
+    width: min(92vw, 760px);
+    min-height: 420px;
+    max-height: 78vh;
+    margin: 0;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: linear-gradient(135deg, rgba(20, 22, 25, 0.95), rgba(34, 38, 44, 0.9));
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+}
+
+.settings-close-btn {
+    top: 10px;
+    right: 14px;
+    z-index: 2;
+}
+
+.settings-content {
+    display: flex;
+    min-height: 420px;
+}
+
+.settings-menu {
+    width: 220px;
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 22px 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: rgba(8, 10, 12, 0.55);
+}
+
+.settings-menu h2 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    color: #f5f5f5;
+}
+
+.settings-menu-item {
+    border: 0;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.72);
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.settings-menu-item:hover,
+.settings-menu-item:focus-visible {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+    outline: none;
+}
+
+.settings-menu-item.active {
+    color: #101010;
+    background: #ffee56;
+}
+
+.settings-panel {
+    flex: 1;
+    padding: 30px 28px;
+}
+
+.settings-panel-view {
+    display: none;
+}
+
+.settings-panel-view.active {
+    display: block;
+}
+
+.settings-panel-view h3 {
+    font-size: 2rem;
+    color: #f7f7f7;
+    margin-bottom: 8px;
+}
+
+.settings-panel-view p {
+    font-size: 1.05rem;
+    color: rgba(255, 255, 255, 0.74);
+}
+
+.settings-card {
+    margin-top: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px 14px;
+}
+
+.settings-card h4 {
+    font-size: 1.25rem;
+    color: #f5f5f5;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-top: 16px;
+}
+
+.setting-row-label {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #f0f0f0;
+}
+
+.segment-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.segment-toggle-option {
+    border: 0;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.segment-toggle-option:hover,
+.segment-toggle-option:focus-visible {
+    color: rgba(255, 255, 255, 0.85);
+    outline: none;
+}
+
+.segment-toggle-option.active {
+    color: #ffffff;
+}
+
+.segment-separator {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.1rem;
+    user-select: none;
 }
 
 .neeraj-logo {
@@ -965,6 +1144,53 @@ input {
 
     .popup {
         width: 70%;
+    }
+
+    .settings-open-btn {
+        width: 38px;
+        height: 38px;
+    }
+
+    .settings-open-btn img {
+        width: 18px;
+        height: 18px;
+    }
+
+    .settings-content {
+        flex-direction: column;
+    }
+
+    .settings-menu {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        padding-right: 44px;
+    }
+
+    .settings-panel {
+        padding: 20px 18px 24px;
+    }
+
+    .settings-panel-view h3 {
+        font-size: 1.6rem;
+    }
+
+    .settings-card h4 {
+        font-size: 1.1rem;
+    }
+
+    .setting-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .setting-row-label {
+        font-size: 0.98rem;
+    }
+
+    .segment-toggle-option {
+        font-size: 0.9rem;
     }
 }
 
