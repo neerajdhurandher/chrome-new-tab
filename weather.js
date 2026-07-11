@@ -1,5 +1,19 @@
-import { FETCH_LOCATION_LIST, FETCH_LOCATION_WEATHER, RETRIEVE_DATA, LOCATION_WEATHER_DATA, REFRESH_WEATHER_INTERVAL, WEATHER_LOADING_MESSAGE, WEATHER_LOADING_ERROR_MESSAGE, LOCATION_INPUT_DEBOUNCE_INTERVAL, INCORRECT_WEATHER_DATA_MESSAGE } from "./constants.js";
+import {
+    FETCH_LOCATION_LIST,
+    FETCH_LOCATION_WEATHER,
+    RETRIEVE_DATA,
+    LOCATION_WEATHER_DATA,
+    REFRESH_WEATHER_INTERVAL,
+    WEATHER_LOADING_MESSAGE,
+    WEATHER_LOADING_ERROR_MESSAGE,
+    LOCATION_INPUT_DEBOUNCE_INTERVAL,
+    INCORRECT_WEATHER_DATA_MESSAGE,
+    SETTINGS_WEATHER_UNIT,
+    WEATHER_UNIT_C,
+    WEATHER_UNIT_F
+} from "./constants.js";
 import { callChromeStorageApi } from "./chrome-storage-api.js";
+import { initAppSettings, getAppSetting } from "./app-settings.js";
 
 let weather_input_div = document.querySelector(".weather-input-div");
 let city_input_element = document.getElementById("city-input");
@@ -13,6 +27,30 @@ let weather_error_info_div = document.querySelector(".weather-error-info");
 let weather_error_info_icon = document.getElementById("weather-error-info-icon");
 let weather_additional_data_div_popup = false;
 let location_weather_data_global = null;
+let currentWeatherUnit = WEATHER_UNIT_C;
+
+document.addEventListener("app-setting-changed", (event) => {
+    if (event.detail && event.detail.key === SETTINGS_WEATHER_UNIT) {
+        currentWeatherUnit = event.detail.value;
+        if (location_weather_data_global) {
+            updateWeatherDisplay(location_weather_data_global);
+            if (weather_additional_data_div_popup) {
+                display_weather_Additional_info(location_weather_data_global);
+                display_weather_Additional_info(location_weather_data_global);
+            }
+        }
+    }
+});
+
+initAppSettings().then(() => {
+    const unit = getAppSetting(SETTINGS_WEATHER_UNIT);
+    if (unit === WEATHER_UNIT_C || unit === WEATHER_UNIT_F) {
+        currentWeatherUnit = unit;
+        if (location_weather_data_global) {
+            updateWeatherDisplay(location_weather_data_global);
+        }
+    }
+});
 
 let previousInputTime = 0;
 
@@ -246,7 +284,7 @@ function set_city_weather_data(response) {
 
     weather_details_div.style.display = "flex";
     document.querySelector(".location-name").innerHTML = location_weather_data.location.name;
-    document.querySelector(".weather-value").innerHTML = location_weather_data.current.temp_c + "°C";
+    updateWeatherDisplay(location_weather_data);
     document.querySelector(".weather-icon").src = "https:" + location_weather_data.current.condition.icon;
 
     let stored_date = response.response_message.data.location_weather_data.last_updated;
@@ -258,6 +296,18 @@ function set_city_weather_data(response) {
     }
 
     return;
+}
+
+function updateWeatherDisplay(location_weather_data) {
+    if (!location_weather_data || !location_weather_data.current) {
+        return;
+    }
+
+    const temperature = currentWeatherUnit === WEATHER_UNIT_F
+        ? Math.round(location_weather_data.current.temp_f) + "°F"
+        : Math.round(location_weather_data.current.temp_c) + "°C";
+
+    document.querySelector(".weather-value").innerHTML = temperature;
 }
 
 /** Displays additional weather information in a popup.
@@ -285,7 +335,10 @@ function display_weather_Additional_info(location_weather_data) {
 
     setText("wad-region", loc.region ?? "—");
     setText("wad-country", loc.country ?? "—");
-    setText("wad-feels-like", cur.feelslike_c != null ? Math.round(cur.feelslike_c) + "°C" : "—");
+    const feelsLike = currentWeatherUnit === WEATHER_UNIT_F
+        ? (cur.feelslike_f != null ? Math.round(cur.feelslike_f) + "°F" : "—")
+        : (cur.feelslike_c != null ? Math.round(cur.feelslike_c) + "°C" : "—");
+    setText("wad-feels-like", feelsLike);
     setText("wad-humidity", cur.humidity != null ? cur.humidity + "%" : "—");
     const wind = cur.wind_kph != null ? cur.wind_kph + " kph" : (cur.wind_mph != null ? cur.wind_mph + " mph" : "—");
     setText("wad-wind", wind);

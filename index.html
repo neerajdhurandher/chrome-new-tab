@@ -159,6 +159,151 @@
         </div>
     </div>
 
+    <button id="settings-open-btn" class="settings-open-btn" type="button" aria-label="Open settings"
+        title="Settings">
+        <img src="./imgs/settings-icon.svg" alt="settings icon">
+    </button>
+
+    <div id="settings-popup" class="overlay settings-overlay">
+        <div class="popup settings-popup" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+            <a id="settings-close-btn" class="close settings-close-btn" aria-label="Close settings">&times;</a>
+            <div class="settings-content">
+                <aside class="settings-menu" aria-label="Settings menu">
+                    <h2 id="settings-title">Settings</h2>
+                    <button class="settings-menu-item active" type="button" data-section="general">General</button>
+                    <button class="settings-menu-item" type="button" data-section="bookmarks">Bookmarks</button>
+                    <button class="settings-menu-item" type="button" data-section="search">Search</button>
+                    <button class="settings-menu-item" type="button" data-section="help">Help</button>
+                </aside>
+
+                <section class="settings-panel">
+                    <div class="settings-panel-view active" data-view="general">
+                        <h3>General</h3>
+                        <div class="settings-card">
+                            <h4>Formats &amp; Units</h4>
+
+                            <div class="setting-row">
+                                <span class="setting-row-label">Time format</span>
+                                <div class="segment-toggle" role="group" aria-label="Time format">
+                                    <button class="segment-toggle-option active" type="button" data-setting-key="time_format"
+                                        data-setting-value="12h">12-hour</button>
+                                    <span class="segment-separator">|</span>
+                                    <button class="segment-toggle-option" type="button" data-setting-key="time_format"
+                                        data-setting-value="24h">24-hour</button>
+                                </div>
+                            </div>
+
+                            <div class="setting-row">
+                                <span class="setting-row-label">Weather units</span>
+                                <div class="segment-toggle" role="group" aria-label="Weather units">
+                                    <button class="segment-toggle-option active" type="button" data-setting-key="weather_unit"
+                                        data-setting-value="c">Metric (°C)</button>
+                                    <span class="segment-separator">|</span>
+                                    <button class="segment-toggle-option" type="button" data-setting-key="weather_unit"
+                                        data-setting-value="f">Imperial (°F)</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings-panel-view" data-view="bookmarks">
+                        <h3>Bookmarks</h3>
+                        <div class="settings-card">
+                            <h4>Bookmark Preferences</h4>
+
+                            <div class="setting-row">
+                                <span class="setting-row-label">Bookmark bar position</span>
+                                <div class="segment-toggle" role="group" aria-label="Bookmark bar position">
+                                    <button class="segment-toggle-option" type="button" data-setting-key="bookmark_bar_position"
+                                        data-setting-value="left">Left</button>
+                                    <span class="segment-separator">|</span>
+                                    <button class="segment-toggle-option active" type="button" data-setting-key="bookmark_bar_position"
+                                        data-setting-value="right">Right</button>
+                                </div>
+                            </div>
+
+                            <div class="setting-row">
+                                <span class="setting-row-label">Open bookmark in new tab</span>
+                                <label class="settings-toggle" aria-label="Open bookmark in new tab">
+                                    <input class="settings-toggle-input" type="checkbox" data-setting-key="bookmark_open_new_tab">
+                                    <span class="settings-toggle-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-row">
+                                <span class="setting-row-label">Show icons only</span>
+                                <label class="settings-toggle" aria-label="Show icons only">
+                                    <input class="settings-toggle-input" type="checkbox" data-setting-key="bookmark_show_icons_only">
+                                    <span class="settings-toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings-panel-view" data-view="search">
+                        <h3>Search</h3>
+                        <div class="settings-card">
+                            <h4>Search Preferences</h4>
+
+                            <div class="setting-row">
+                                <span class="setting-row-label">Open search in new tab</span>
+                                <label class="settings-toggle" aria-label="Open search in new tab">
+                                    <input class="settings-toggle-input" type="checkbox" data-setting-key="search_open_new_tab">
+                                    <span class="settings-toggle-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-row">
+                                <span class="setting-row-label">Secondary search bar</span>
+                                <select class="settings-select-input" data-setting-key="secondary_search_provider"
+                                    aria-label="Secondary search provider">
+                                    <option value="youtube">YouTube</option>
+                                    <option value="chatgpt">ChatGPT</option>
+                                    <option value="gemini">Gemini</option>
+                                    <option value="claude">Claude</option>
+                                    <option value="copilot">Copilot</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings-panel-view" data-view="help">
+                        <h3>Help</h3>
+                        <div class="settings-card help-card">
+                            <h4>Resources</h4>
+
+                            <div class="help-link-list">
+                                <a class="help-link-item" href="https://neerajdhurandher.me/neeraj-new-tab-website" target="_blank"
+                                    rel="noopener noreferrer">How to use</a>
+                                <a class="help-link-item" href="https://neerajdhurandher.me/neeraj-new-tab-website/faqs" target="_blank"
+                                    rel="noopener noreferrer">FAQs</a>
+                                <a class="help-link-item" href="https://forms.gle/6X8YtLKpUKtKihkt6" target="_blank"
+                                    rel="noopener noreferrer">Feedback</a>
+                            </div>
+
+                            <div class="help-section">
+                                <h5>Keyboard Shortcuts</h5>
+                                <ul class="help-shortcuts-list">
+                                    <li><span>Ctrl/Cmd + Shift + B</span> Add bookmark</li>
+                                    <li><span>Ctrl/Cmd + Shift + M</span> Show all bookmarks</li>
+                                    <li><span>Ctrl/Cmd + Shift + S</span> Open settings popup</li>
+                                    <li><span>Ctrl/Cmd + Shift + G</span> Focus web search bar</li>
+                                    <li><span>Ctrl/Cmd + Shift + Y</span> Focus secondary search bar</li>
+                                    <li><span>Esc</span> Close popup</li>
+                                </ul>
+                            </div>
+
+                            <div class="help-section">
+                                <h5>About us</h5>
+                                <p class="help-about-line"><strong>Author:</strong> <span id="help-author">Neeraj Dhurandher</span></p>
+                                <p class="help-about-line"><strong>Current version:</strong> <span id="help-version">1.5.0</span></p>
+                                <a id="help-whats-new-link" class="help-link-item inline" href="./update.html" target="_blank"
+                                    rel="noopener noreferrer">What's new</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
 
     <div class="neeraj-logo">
         <a href="https://neerajdhurandher.me" target="_blank">
@@ -166,13 +311,11 @@
         </a>
     </div>
 
-    <div class="feedback">
-        <a href="https://forms.gle/6X8YtLKpUKtKihkt6" target="_blank">Feedback</a>
-    </div>
-
 </body>
 <script type="module" src="script.js"></script>
 <script type="module" src="search.js"></script>
 <script type="module" src="bookmark.js"></script>
+<script type="module" src="settings.js"></script>
+<script type="module" src="shortcuts.js"></script>
 
 </html>
