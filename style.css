@@ -849,7 +849,7 @@ input {
 }
 
 .simple-input-box:focus {
-    border-color: #000000;
+    border-color: #ffee56;
 }
 
 .simple-input-box.input-error {

@@ -124,6 +124,17 @@ more_bookmark_close_btn.addEventListener("click", () => {
     close_more_bookmark_popup();
 })
 
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && bookmark_popup_element.classList.contains("overlay_show")) {
+        close_popup();
+        return;
+    }
+
+    if (event.key === "Escape" && more_bookmark_popup.classList.contains("overlay_show")) {
+        close_more_bookmark_popup();
+    }
+});
+
 bookmark_down_arrow_btn.addEventListener("click", () => {
     bookmark_list_element.style.display = "flex";
     bookmark_down_arrow_btn.style.display = "none";
@@ -152,6 +163,14 @@ bookmark_container.addEventListener("mouseout", () => {
 
 bookmark_edit_button.addEventListener("click", () => {
     show_all_bookmarks(bookmark_list, true);
+});
+
+document.addEventListener("shortcut-add-bookmark", () => {
+    add_edit_bookmark({}, false);
+});
+
+document.addEventListener("shortcut-show-all-bookmarks", () => {
+    show_all_bookmarks(bookmark_list, false);
 });
 
 
@@ -720,5 +739,7 @@ function close_popup() {
 function close_more_bookmark_popup() {
     more_bookmark_popup.classList.remove("overlay_show")
     let more_bookmark_popup_container = document.querySelector(".more-bookmark-popup-container")
-    more_bookmark_popup_container.removeChild(more_bookmark_popup_container.children[1])
+    if (more_bookmark_popup_container && more_bookmark_popup_container.children.length > 1) {
+        more_bookmark_popup_container.removeChild(more_bookmark_popup_container.children[1])
+    }
 }
