@@ -240,11 +240,61 @@
                     </div>
                     <div class="settings-panel-view" data-view="search">
                         <h3>Search</h3>
-                        <p>Options coming soon.</p>
+                        <div class="settings-card">
+                            <h4>Search Preferences</h4>
+
+                            <div class="setting-row">
+                                <span class="setting-row-label">Open search in new tab</span>
+                                <label class="settings-toggle" aria-label="Open search in new tab">
+                                    <input class="settings-toggle-input" type="checkbox" data-setting-key="search_open_new_tab">
+                                    <span class="settings-toggle-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-row">
+                                <span class="setting-row-label">Secondary search bar</span>
+                                <select class="settings-select-input" data-setting-key="secondary_search_provider"
+                                    aria-label="Secondary search provider">
+                                    <option value="youtube">YouTube</option>
+                                    <option value="chatgpt">ChatGPT</option>
+                                    <option value="gemini">Gemini</option>
+                                    <option value="claude">Claude</option>
+                                    <option value="copilot">Copilot</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="settings-panel-view" data-view="help">
                         <h3>Help</h3>
-                        <p>Options coming soon.</p>
+                        <div class="settings-card help-card">
+                            <h4>Resources</h4>
+
+                            <div class="help-link-list">
+                                <a class="help-link-item" href="https://neerajdhurandher.me/neeraj-new-tab-website" target="_blank"
+                                    rel="noopener noreferrer">How to use</a>
+                                <a class="help-link-item" href="https://neerajdhurandher.me/neeraj-new-tab-website/faqs" target="_blank"
+                                    rel="noopener noreferrer">FAQs</a>
+                                <a class="help-link-item" href="https://forms.gle/6X8YtLKpUKtKihkt6" target="_blank"
+                                    rel="noopener noreferrer">Feedback</a>
+                            </div>
+
+                            <div class="help-section">
+                                <h5>Keyboard Shortcuts</h5>
+                                <ul class="help-shortcuts-list">
+                                    <li><span>Enter</span> Run search from active search bar</li>
+                                    <li><span>Up / Down</span> Navigate Google suggestions</li>
+                                    <li><span>Esc</span> Close settings popup</li>
+                                </ul>
+                            </div>
+
+                            <div class="help-section">
+                                <h5>About us</h5>
+                                <p class="help-about-line"><strong>Author:</strong> <span id="help-author">Neeraj Dhurandher</span></p>
+                                <p class="help-about-line"><strong>Current version:</strong> <span id="help-version">1.4.0</span></p>
+                                <a id="help-whats-new-link" class="help-link-item inline" href="./update.html" target="_blank"
+                                    rel="noopener noreferrer">What's new</a>
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>

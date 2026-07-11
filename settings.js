@@ -4,6 +4,8 @@ import {
     SETTINGS_BOOKMARK_BAR_POSITION,
     SETTINGS_BOOKMARK_OPEN_NEW_TAB,
     SETTINGS_BOOKMARK_SHOW_ICONS_ONLY,
+    SETTINGS_SEARCH_OPEN_NEW_TAB,
+    SETTINGS_SECONDARY_SEARCH_PROVIDER,
     TIME_FORMAT_12H,
     TIME_FORMAT_24H,
     WEATHER_UNIT_C,
@@ -11,7 +13,13 @@ import {
     BOOKMARK_BAR_POSITION_LEFT,
     BOOKMARK_BAR_POSITION_RIGHT,
     BOOKMARK_OPEN_NEW_TAB_DEFAULT,
-    BOOKMARK_SHOW_ICONS_ONLY_DEFAULT
+    BOOKMARK_SHOW_ICONS_ONLY_DEFAULT,
+    SEARCH_OPEN_NEW_TAB_DEFAULT,
+    SECONDARY_SEARCH_PROVIDER_YOUTUBE,
+    SECONDARY_SEARCH_PROVIDER_CHATGPT,
+    SECONDARY_SEARCH_PROVIDER_GEMINI,
+    SECONDARY_SEARCH_PROVIDER_CLAUDE,
+    SECONDARY_SEARCH_PROVIDER_COPILOT
 } from "./constants.js";
 import { initAppSettings, getAppSetting, setAppSetting } from "./app-settings.js";
 
@@ -22,13 +30,19 @@ const settingsMenuItems = document.querySelectorAll(".settings-menu-item");
 const settingsViews = document.querySelectorAll(".settings-panel-view");
 const segmentToggleOptions = document.querySelectorAll(".segment-toggle-option");
 const settingsToggleInputs = document.querySelectorAll(".settings-toggle-input");
+const settingsSelectInputs = document.querySelectorAll(".settings-select-input");
+const helpAuthorElement = document.getElementById("help-author");
+const helpVersionElement = document.getElementById("help-version");
+const helpWhatsNewLink = document.getElementById("help-whats-new-link");
 
 const SETTINGS_KEY_MAP = {
     time_format: SETTINGS_TIME_FORMAT,
     weather_unit: SETTINGS_WEATHER_UNIT,
     bookmark_bar_position: SETTINGS_BOOKMARK_BAR_POSITION,
     bookmark_open_new_tab: SETTINGS_BOOKMARK_OPEN_NEW_TAB,
-    bookmark_show_icons_only: SETTINGS_BOOKMARK_SHOW_ICONS_ONLY
+    bookmark_show_icons_only: SETTINGS_BOOKMARK_SHOW_ICONS_ONLY,
+    search_open_new_tab: SETTINGS_SEARCH_OPEN_NEW_TAB,
+    secondary_search_provider: SETTINGS_SECONDARY_SEARCH_PROVIDER
 };
 
 const VALID_SETTINGS = {
@@ -36,7 +50,15 @@ const VALID_SETTINGS = {
     [SETTINGS_WEATHER_UNIT]: [WEATHER_UNIT_C, WEATHER_UNIT_F],
     [SETTINGS_BOOKMARK_BAR_POSITION]: [BOOKMARK_BAR_POSITION_LEFT, BOOKMARK_BAR_POSITION_RIGHT],
     [SETTINGS_BOOKMARK_OPEN_NEW_TAB]: [true, false],
-    [SETTINGS_BOOKMARK_SHOW_ICONS_ONLY]: [true, false]
+    [SETTINGS_BOOKMARK_SHOW_ICONS_ONLY]: [true, false],
+    [SETTINGS_SEARCH_OPEN_NEW_TAB]: [true, false],
+    [SETTINGS_SECONDARY_SEARCH_PROVIDER]: [
+        SECONDARY_SEARCH_PROVIDER_YOUTUBE,
+        SECONDARY_SEARCH_PROVIDER_CHATGPT,
+        SECONDARY_SEARCH_PROVIDER_GEMINI,
+        SECONDARY_SEARCH_PROVIDER_CLAUDE,
+        SECONDARY_SEARCH_PROVIDER_COPILOT
+    ]
 };
 
 function openSettings() {
@@ -94,6 +116,20 @@ function syncSettingsToggleUI() {
             const value = getAppSetting(SETTINGS_BOOKMARK_SHOW_ICONS_ONLY);
             input.checked = typeof value === "boolean" ? value : BOOKMARK_SHOW_ICONS_ONLY_DEFAULT;
         }
+
+        if (settingKey === "search_open_new_tab") {
+            const value = getAppSetting(SETTINGS_SEARCH_OPEN_NEW_TAB);
+            input.checked = typeof value === "boolean" ? value : SEARCH_OPEN_NEW_TAB_DEFAULT;
+        }
+    });
+
+    settingsSelectInputs.forEach((input) => {
+        const settingKey = input.dataset.settingKey;
+        if (settingKey === "secondary_search_provider") {
+            const value = getAppSetting(SETTINGS_SECONDARY_SEARCH_PROVIDER);
+            const validValues = VALID_SETTINGS[SETTINGS_SECONDARY_SEARCH_PROVIDER];
+            input.value = validValues.includes(value) ? value : SECONDARY_SEARCH_PROVIDER_YOUTUBE;
+        }
     });
 }
 
@@ -120,6 +156,22 @@ async function applyGeneralSetting(settingKey, settingValue) {
 async function initializeSettingsUI() {
     await initAppSettings();
     syncSettingsToggleUI();
+    populateHelpInfo();
+}
+
+function populateHelpInfo() {
+    const manifest = chrome.runtime.getManifest();
+    if (helpAuthorElement && manifest.author) {
+        helpAuthorElement.textContent = manifest.author;
+    }
+
+    if (helpVersionElement && manifest.version) {
+        helpVersionElement.textContent = manifest.version;
+    }
+
+    if (helpWhatsNewLink) {
+        helpWhatsNewLink.href = chrome.runtime.getURL("update.html");
+    }
 }
 
 if (settingsOpenButton && settingsPopup && settingsCloseButton) {
@@ -170,6 +222,17 @@ if (settingsOpenButton && settingsPopup && settingsCloseButton) {
                 const settingValue = input.checked;
                 await applyGeneralSetting(settingKey, settingValue);
             }
+
+            if (settingKey === "search_open_new_tab") {
+                const settingValue = input.checked;
+                await applyGeneralSetting(settingKey, settingValue);
+            }
+        });
+    });
+
+    settingsSelectInputs.forEach((input) => {
+        input.addEventListener("change", async () => {
+            await applyGeneralSetting(input.dataset.settingKey, input.value);
         });
     });
 

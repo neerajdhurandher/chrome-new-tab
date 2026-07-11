@@ -27,6 +27,8 @@ export let SETTINGS_WEATHER_UNIT = "settings_weather_unit"
 export let SETTINGS_BOOKMARK_BAR_POSITION = "settings_bookmark_bar_position"
 export let SETTINGS_BOOKMARK_OPEN_NEW_TAB = "settings_bookmark_open_new_tab"
 export let SETTINGS_BOOKMARK_SHOW_ICONS_ONLY = "settings_bookmark_show_icons_only"
+export let SETTINGS_SEARCH_OPEN_NEW_TAB = "settings_search_open_new_tab"
+export let SETTINGS_SECONDARY_SEARCH_PROVIDER = "settings_secondary_search_provider"
 
 // values
 export let WELCOME_TEXT = "Hey, Welcome"
@@ -56,6 +58,10 @@ export let RED_COLOR = "#e31212"
 // URLs
 export const YOUTUBE_SEARCH_LINK = "https://www.youtube.com/results?search_query="
 export const GOOGLE_SEARCH_LINK = "https://www.google.com/search?q=";
+export const CHATGPT_SEARCH_LINK = "https://chatgpt.com/?q=";
+export const GEMINI_SEARCH_LINK = "https://gemini.google.com/app?q=";
+export const CLAUDE_SEARCH_LINK = "https://claude.ai/new?q=";
+export const COPILOT_SEARCH_LINK = "https://copilot.microsoft.com/?q=";
 
 // default quote
 export const DEFAULT_QUOTE = "Today is your opportunity to build the tomorrow you want.";
@@ -72,3 +78,9 @@ export const BOOKMARK_BAR_POSITION_LEFT = "left";
 export const BOOKMARK_BAR_POSITION_RIGHT = "right";
 export const BOOKMARK_OPEN_NEW_TAB_DEFAULT = true;
 export const BOOKMARK_SHOW_ICONS_ONLY_DEFAULT = false;
+export const SEARCH_OPEN_NEW_TAB_DEFAULT = false;
+export const SECONDARY_SEARCH_PROVIDER_YOUTUBE = "youtube";
+export const SECONDARY_SEARCH_PROVIDER_CHATGPT = "chatgpt";
+export const SECONDARY_SEARCH_PROVIDER_GEMINI = "gemini";
+export const SECONDARY_SEARCH_PROVIDER_CLAUDE = "claude";
+export const SECONDARY_SEARCH_PROVIDER_COPILOT = "copilot";

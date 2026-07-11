@@ -10,13 +10,16 @@ import { initAppSettings, getAppSetting } from "./app-settings.js";
 var date_time = undefined;
 var current_hour = undefined;
 var current_min = undefined;
+var current_sec = undefined;
 var last_minute = undefined
+var last_second = undefined
 let currentTimeFormat = TIME_FORMAT_12H;
 
 document.addEventListener("app-setting-changed", (event) => {
     if (event.detail && event.detail.key === SETTINGS_TIME_FORMAT) {
         currentTimeFormat = event.detail.value;
         last_minute = undefined;
+        last_second = undefined;
         set_time();
     }
 });
@@ -26,6 +29,7 @@ initAppSettings().then(() => {
     if (format === TIME_FORMAT_24H || format === TIME_FORMAT_12H) {
         currentTimeFormat = format;
         last_minute = undefined;
+        last_second = undefined;
         set_time();
     }
 });
@@ -39,12 +43,14 @@ export function set_time() {
     date_time = new Date();
     current_hour = date_time.getHours();
     current_min = date_time.getMinutes();
+    current_sec = date_time.getSeconds();
 
     let formattedTime = "";
     if (currentTimeFormat === TIME_FORMAT_24H) {
         formattedTime = date_time.toLocaleTimeString("en-GB", {
             hour: "2-digit",
             minute: "2-digit",
+            second: "2-digit",
             hour12: false
         });
     } else {
@@ -55,9 +61,16 @@ export function set_time() {
         });
     }
 
-    if (last_minute == undefined || current_min !== last_minute)
+    if (currentTimeFormat === TIME_FORMAT_24H) {
+        if (last_second == undefined || current_sec !== last_second) {
+            document.querySelector(".current_time").innerText = formattedTime;
+        }
+    } else if (last_minute == undefined || current_min !== last_minute) {
         document.querySelector(".current_time").innerText = formattedTime;
+    }
+
     last_minute = current_min
+    last_second = current_sec
 }
 
 /**

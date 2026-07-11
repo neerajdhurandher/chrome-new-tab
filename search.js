@@ -1,4 +1,21 @@
-import { GET_SEARCH_SUGGESTIONs, GOOGLE_SEARCH_LINK, YOUTUBE_SEARCH_LINK } from "./constants.js"
+import {
+    GET_SEARCH_SUGGESTIONs,
+    GOOGLE_SEARCH_LINK,
+    YOUTUBE_SEARCH_LINK,
+    CHATGPT_SEARCH_LINK,
+    GEMINI_SEARCH_LINK,
+    CLAUDE_SEARCH_LINK,
+    COPILOT_SEARCH_LINK,
+    SETTINGS_SEARCH_OPEN_NEW_TAB,
+    SETTINGS_SECONDARY_SEARCH_PROVIDER,
+    SEARCH_OPEN_NEW_TAB_DEFAULT,
+    SECONDARY_SEARCH_PROVIDER_YOUTUBE,
+    SECONDARY_SEARCH_PROVIDER_CHATGPT,
+    SECONDARY_SEARCH_PROVIDER_GEMINI,
+    SECONDARY_SEARCH_PROVIDER_CLAUDE,
+    SECONDARY_SEARCH_PROVIDER_COPILOT
+} from "./constants.js"
+import { initAppSettings, getAppSetting } from "./app-settings.js";
 
 import { callChromeStorageApi } from "./chrome-storage-api.js";
 
@@ -14,6 +31,73 @@ let suggestionItems = suggestions_div_element.getElementsByClassName('suggestion
 let suggestions_data = [];
 let last_input = '';
 let current_focus = -1;
+let openSearchInNewTab = SEARCH_OPEN_NEW_TAB_DEFAULT;
+let secondarySearchProvider = SECONDARY_SEARCH_PROVIDER_YOUTUBE;
+
+const SECONDARY_SEARCH_CONFIG = {
+    [SECONDARY_SEARCH_PROVIDER_YOUTUBE]: {
+        title: "YouTube",
+        placeholder: "youtube search",
+        icon: "./imgs/youtube-icon.svg",
+        searchLink: YOUTUBE_SEARCH_LINK
+    },
+    [SECONDARY_SEARCH_PROVIDER_CHATGPT]: {
+        title: "ChatGPT",
+        placeholder: "chatgpt search",
+        icon: "./imgs/ChatGPT-Logo.svg.webp",
+        searchLink: CHATGPT_SEARCH_LINK
+    },
+    [SECONDARY_SEARCH_PROVIDER_GEMINI]: {
+        title: "Gemini",
+        placeholder: "gemini search",
+        icon: "./imgs/Google_Gemini_icon.svg.webp",
+        searchLink: GEMINI_SEARCH_LINK
+    },
+    [SECONDARY_SEARCH_PROVIDER_CLAUDE]: {
+        title: "Claude",
+        placeholder: "claude search",
+        icon: "./imgs/Claude_AI_symbol.svg.webp",
+        searchLink: CLAUDE_SEARCH_LINK
+    },
+    [SECONDARY_SEARCH_PROVIDER_COPILOT]: {
+        title: "Copilot",
+        placeholder: "copilot search",
+        icon: "./imgs/copilot-icon.svg",
+        searchLink: COPILOT_SEARCH_LINK
+    }
+};
+
+const SECONDARY_PROVIDER_VALUES = Object.keys(SECONDARY_SEARCH_CONFIG);
+
+initAppSettings().then(() => {
+    const searchTabMode = getAppSetting(SETTINGS_SEARCH_OPEN_NEW_TAB);
+    const secondaryProvider = getAppSetting(SETTINGS_SECONDARY_SEARCH_PROVIDER);
+
+    if (typeof searchTabMode === "boolean") {
+        openSearchInNewTab = searchTabMode;
+    }
+
+    if (SECONDARY_PROVIDER_VALUES.includes(secondaryProvider)) {
+        secondarySearchProvider = secondaryProvider;
+    }
+
+    applySecondarySearchProviderUI();
+});
+
+document.addEventListener("app-setting-changed", (event) => {
+    if (!event.detail) {
+        return;
+    }
+
+    if (event.detail.key === SETTINGS_SEARCH_OPEN_NEW_TAB) {
+        openSearchInNewTab = event.detail.value === true;
+    }
+
+    if (event.detail.key === SETTINGS_SECONDARY_SEARCH_PROVIDER && SECONDARY_PROVIDER_VALUES.includes(event.detail.value)) {
+        secondarySearchProvider = event.detail.value;
+        applySecondarySearchProviderUI();
+    }
+});
 
 document.getElementById("youtube-search-btn").addEventListener('click', () => {
     got_for_youtube_search();
@@ -106,10 +190,11 @@ function got_for_google_search() {
 }
 
 /**
- * Triggers a YouTube search using the value from the YouTube search input field.
+ * Triggers a YouTube / secondary app search using the value from the YouTube search input field.
  */
 function got_for_youtube_search() {
-    got_for_search("youtube-search-input", YOUTUBE_SEARCH_LINK)
+    const providerConfig = SECONDARY_SEARCH_CONFIG[secondarySearchProvider] || SECONDARY_SEARCH_CONFIG[SECONDARY_SEARCH_PROVIDER_YOUTUBE];
+    got_for_search("youtube-search-input", providerConfig.searchLink)
 }
 
 /**
@@ -123,10 +208,10 @@ function got_for_search(input_element_id, main_link) {
     search_query = search_query.trim();
     if (search_query != "") {
         if (main_link == GOOGLE_SEARCH_LINK) {
-            // using chrome search api
-            chrome_search_api(search_query);
+            chrome_search_api(search_query, openSearchInNewTab);
         } else {
-            window.open(main_link + search_query, "_parent");
+            const target = openSearchInNewTab ? "_blank" : "_self";
+            window.open(main_link + encodeURIComponent(search_query), target);
         }
         document.getElementById(input_element_id).value = "";
         current_focus = -1;
@@ -137,10 +222,10 @@ function got_for_search(input_element_id, main_link) {
  * Executes a search in the current tab using the Chrome Search API.
  * @param {string} search_query - The search query string.
  */
-function chrome_search_api(search_query) {
+function chrome_search_api(search_query, newTab = false) {
     chrome.search.query({
         text: search_query,
-        disposition: "CURRENT_TAB"
+        disposition: newTab ? "NEW_TAB" : "CURRENT_TAB"
     });
 }
 
@@ -154,9 +239,24 @@ function open_url(url) {
     if (url == undefined || validate_url(url) == false) {
         return;
     }
-    window.open(url, "_parent");
+    window.open(url, openSearchInNewTab ? "_blank" : "_self");
     google_search_input_ele.value = "";
     youtube_search_input_ele.value = "";
+}
+
+function applySecondarySearchProviderUI() {
+    const providerConfig = SECONDARY_SEARCH_CONFIG[secondarySearchProvider] || SECONDARY_SEARCH_CONFIG[SECONDARY_SEARCH_PROVIDER_YOUTUBE];
+    const secondaryInput = document.getElementById("youtube-search-input");
+    const secondaryLogo = document.querySelector("#youtube-search-box-id .img-logo");
+
+    if (secondaryInput) {
+        secondaryInput.placeholder = providerConfig.placeholder;
+    }
+
+    if (secondaryLogo) {
+        secondaryLogo.src = providerConfig.icon;
+        secondaryLogo.alt = providerConfig.title + " icon";
+    }
 }
 
 /**
