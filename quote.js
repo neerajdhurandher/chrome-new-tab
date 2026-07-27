@@ -1,5 +1,6 @@
-import { QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, REFRESH_QUOTE_INTERVAL } from "./constants.js";
+import { QUOTE_DATA, DEFAULT_QUOTE, DEFAULT_QUOTE_AUTHOR, QUOTE, AUTHOR, REFRESH_QUOTE_INTERVAL, SETTINGS_QUOTE_AUTHOR_VISIBILITY, SETTINGS_SHOW_QUOTE, SHOW_QUOTE_DEFAULT, QUOTE_AUTHOR_VISIBILITY_ALWAYS, QUOTE_AUTHOR_VISIBILITY_HOVER } from "./constants.js";
 import { retrieveDataFromLocalStorage, storeDataInLocalStorage } from "./chrome-storage-api.js";
+import { getAppSetting, initAppSettings } from "./app-settings.js";
 import { get_motivation_quote } from "./api_call.js"
 
 /**
@@ -11,6 +12,8 @@ import { get_motivation_quote } from "./api_call.js"
  * @returns {Promise<void>}
  */
 export async function manage_quote() {
+
+    await initAppSettings();
 
     let quote_details = await get_quote_from_local_storage();
 
@@ -50,6 +53,20 @@ export async function manage_quote() {
     // update new quote on the webpage
     set_quote(quote_details.quote, quote_details.author);
 }
+
+document.addEventListener("app-setting-changed", (event) => {
+    if (!event.detail?.key) {
+        return;
+    }
+
+    if (event.detail.key === SETTINGS_QUOTE_AUTHOR_VISIBILITY) {
+        applyQuoteAuthorVisibility(event.detail.value);
+    }
+
+    if (event.detail.key === SETTINGS_SHOW_QUOTE) {
+        applyQuoteVisibility(event.detail.value);
+    }
+});
 
 /**
  * Retrieves quote details from local storage.
@@ -153,7 +170,18 @@ function set_quote(quote, author) {
         quote = DEFAULT_QUOTE;
         author = DEFAULT_QUOTE_AUTHOR;
     }
+
+    applyQuoteVisibility(getAppSetting(SETTINGS_SHOW_QUOTE) ?? SHOW_QUOTE_DEFAULT);
+    applyQuoteAuthorVisibility(getAppSetting(SETTINGS_QUOTE_AUTHOR_VISIBILITY) || QUOTE_AUTHOR_VISIBILITY_ALWAYS);
     document.querySelector(".quote_p").innerHTML = quote;
     document.querySelector(".quote_author_p").innerHTML = "-by " + author;
+}
+
+function applyQuoteAuthorVisibility(authorVisibility) {
+    document.documentElement.classList.toggle("quote-author-hover-only", authorVisibility === QUOTE_AUTHOR_VISIBILITY_HOVER);
+}
+
+function applyQuoteVisibility(showQuote) {
+    document.documentElement.classList.toggle("quote-hidden", showQuote !== true);
 }
 

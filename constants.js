@@ -29,6 +29,8 @@ export let SETTINGS_BOOKMARK_OPEN_NEW_TAB = "settings_bookmark_open_new_tab"
 export let SETTINGS_BOOKMARK_SHOW_ICONS_ONLY = "settings_bookmark_show_icons_only"
 export let SETTINGS_SEARCH_OPEN_NEW_TAB = "settings_search_open_new_tab"
 export let SETTINGS_SECONDARY_SEARCH_PROVIDER = "settings_secondary_search_provider"
+export let SETTINGS_QUOTE_AUTHOR_VISIBILITY = "settings_quote_author_visibility"
+export let SETTINGS_SHOW_QUOTE = "settings_show_quote"
 
 // values
 export let WELCOME_TEXT = "Hey, Welcome"
@@ -78,7 +80,12 @@ export const BOOKMARK_BAR_POSITION_LEFT = "left";
 export const BOOKMARK_BAR_POSITION_RIGHT = "right";
 export const BOOKMARK_OPEN_NEW_TAB_DEFAULT = true;
 export const BOOKMARK_SHOW_ICONS_ONLY_DEFAULT = false;
+export const USER_NAME_MAX_LENGTH = 8;
 export const SEARCH_OPEN_NEW_TAB_DEFAULT = false;
+export const SHOW_QUOTE_DEFAULT = true;
+export const QUOTE_AUTHOR_VISIBILITY_ALWAYS = "always";
+export const QUOTE_AUTHOR_VISIBILITY_HOVER = "hover";
+export const QUOTE_AUTHOR_VISIBILITY_DEFAULT = QUOTE_AUTHOR_VISIBILITY_ALWAYS;
 export const SECONDARY_SEARCH_PROVIDER_YOUTUBE = "youtube";
 export const SECONDARY_SEARCH_PROVIDER_CHATGPT = "chatgpt";
 export const SECONDARY_SEARCH_PROVIDER_GEMINI = "gemini";

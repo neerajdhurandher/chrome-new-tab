@@ -6,6 +6,8 @@ import {
     SETTINGS_BOOKMARK_SHOW_ICONS_ONLY,
     SETTINGS_SEARCH_OPEN_NEW_TAB,
     SETTINGS_SECONDARY_SEARCH_PROVIDER,
+    SETTINGS_QUOTE_AUTHOR_VISIBILITY,
+    SETTINGS_SHOW_QUOTE,
     TIME_FORMAT_12H,
     TIME_FORMAT_24H,
     WEATHER_UNIT_C,
@@ -15,11 +17,15 @@ import {
     BOOKMARK_OPEN_NEW_TAB_DEFAULT,
     BOOKMARK_SHOW_ICONS_ONLY_DEFAULT,
     SEARCH_OPEN_NEW_TAB_DEFAULT,
+    SHOW_QUOTE_DEFAULT,
+    QUOTE_AUTHOR_VISIBILITY_ALWAYS,
+    QUOTE_AUTHOR_VISIBILITY_HOVER,
     SECONDARY_SEARCH_PROVIDER_YOUTUBE,
     SECONDARY_SEARCH_PROVIDER_CHATGPT,
     SECONDARY_SEARCH_PROVIDER_GEMINI,
     SECONDARY_SEARCH_PROVIDER_CLAUDE,
-    SECONDARY_SEARCH_PROVIDER_COPILOT
+    SECONDARY_SEARCH_PROVIDER_COPILOT,
+    USER_NAME_MAX_LENGTH
 } from "./constants.js";
 import { initAppSettings, getAppSetting, setAppSetting } from "./app-settings.js";
 
@@ -31,6 +37,9 @@ const settingsViews = document.querySelectorAll(".settings-panel-view");
 const segmentToggleOptions = document.querySelectorAll(".segment-toggle-option");
 const settingsToggleInputs = document.querySelectorAll(".settings-toggle-input");
 const settingsSelectInputs = document.querySelectorAll(".settings-select-input");
+const settingsNameInput = document.getElementById("settings-name-input");
+const settingsNameSaveBtn = document.getElementById("settings-name-save-btn");
+const settingsNameError = document.getElementById("settings-name-error");
 const helpAuthorElement = document.getElementById("help-author");
 const helpVersionElement = document.getElementById("help-version");
 const helpWhatsNewLink = document.getElementById("help-whats-new-link");
@@ -42,7 +51,9 @@ const SETTINGS_KEY_MAP = {
     bookmark_open_new_tab: SETTINGS_BOOKMARK_OPEN_NEW_TAB,
     bookmark_show_icons_only: SETTINGS_BOOKMARK_SHOW_ICONS_ONLY,
     search_open_new_tab: SETTINGS_SEARCH_OPEN_NEW_TAB,
-    secondary_search_provider: SETTINGS_SECONDARY_SEARCH_PROVIDER
+    secondary_search_provider: SETTINGS_SECONDARY_SEARCH_PROVIDER,
+    quote_author_visibility: SETTINGS_QUOTE_AUTHOR_VISIBILITY,
+    show_quote: SETTINGS_SHOW_QUOTE
 };
 
 const VALID_SETTINGS = {
@@ -52,12 +63,17 @@ const VALID_SETTINGS = {
     [SETTINGS_BOOKMARK_OPEN_NEW_TAB]: [true, false],
     [SETTINGS_BOOKMARK_SHOW_ICONS_ONLY]: [true, false],
     [SETTINGS_SEARCH_OPEN_NEW_TAB]: [true, false],
+    [SETTINGS_SHOW_QUOTE]: [true, false],
     [SETTINGS_SECONDARY_SEARCH_PROVIDER]: [
         SECONDARY_SEARCH_PROVIDER_YOUTUBE,
         SECONDARY_SEARCH_PROVIDER_CHATGPT,
         SECONDARY_SEARCH_PROVIDER_GEMINI,
         SECONDARY_SEARCH_PROVIDER_CLAUDE,
         SECONDARY_SEARCH_PROVIDER_COPILOT
+    ],
+    [SETTINGS_QUOTE_AUTHOR_VISIBILITY]: [
+        QUOTE_AUTHOR_VISIBILITY_ALWAYS,
+        QUOTE_AUTHOR_VISIBILITY_HOVER
     ]
 };
 
@@ -105,6 +121,7 @@ function syncSettingsToggleUI() {
     updateToggleGroupUI("time_format", getAppSetting(SETTINGS_TIME_FORMAT));
     updateToggleGroupUI("weather_unit", getAppSetting(SETTINGS_WEATHER_UNIT));
     updateToggleGroupUI("bookmark_bar_position", getAppSetting(SETTINGS_BOOKMARK_BAR_POSITION));
+    updateToggleGroupUI("quote_author_visibility", getAppSetting(SETTINGS_QUOTE_AUTHOR_VISIBILITY));
     settingsToggleInputs.forEach((input) => {
         const settingKey = input.dataset.settingKey;
         if (settingKey === "bookmark_open_new_tab") {
@@ -120,6 +137,11 @@ function syncSettingsToggleUI() {
         if (settingKey === "search_open_new_tab") {
             const value = getAppSetting(SETTINGS_SEARCH_OPEN_NEW_TAB);
             input.checked = typeof value === "boolean" ? value : SEARCH_OPEN_NEW_TAB_DEFAULT;
+        }
+
+        if (settingKey === "show_quote") {
+            const value = getAppSetting(SETTINGS_SHOW_QUOTE);
+            input.checked = typeof value === "boolean" ? value : SHOW_QUOTE_DEFAULT;
         }
     });
 
@@ -157,6 +179,54 @@ async function initializeSettingsUI() {
     await initAppSettings();
     syncSettingsToggleUI();
     populateHelpInfo();
+    await loadSavedName();
+}
+
+async function loadSavedName() {
+    if (!settingsNameInput) {
+        return;
+    }
+
+    try {
+        const response = await chrome.runtime.sendMessage({ action: "retrieve_data", key: "user_name" });
+        if (response?.response_message?.data?.user_name) {
+            settingsNameInput.value = response.response_message.data.user_name;
+        }
+    } catch (error) {
+        // name not set yet, leave placeholder
+    }
+}
+
+async function saveSettingsName() {
+    if (!settingsNameInput) {
+        return;
+    }
+
+    const rawValue = settingsNameInput.value.trim();
+    if (rawValue.length === 0 || rawValue.length > USER_NAME_MAX_LENGTH) {
+        settingsNameInput.classList.add("input-error");
+        setTimeout(() => settingsNameInput.classList.remove("input-error"), 1000);
+        if (settingsNameError) {
+            settingsNameError.textContent = rawValue.length > USER_NAME_MAX_LENGTH
+                ? `Name must be ${USER_NAME_MAX_LENGTH} characters or less.`
+                : "Name cannot be empty.";
+        }
+        return;
+    }
+    if (settingsNameError) {
+        settingsNameError.textContent = "";
+    }
+
+    try {
+        await chrome.runtime.sendMessage({ action: "store_data", key: "user_name", value: rawValue });
+        document.dispatchEvent(new CustomEvent("app-setting-changed", {
+            detail: { key: "user_name", value: rawValue }
+        }));
+        settingsNameInput.classList.add("settings-name-saved");
+        setTimeout(() => settingsNameInput.classList.remove("settings-name-saved"), 1200);
+    } catch (error) {
+        console.error("Failed to save name:", error);
+    }
 }
 
 function populateHelpInfo() {
@@ -227,6 +297,11 @@ if (settingsOpenButton && settingsPopup && settingsCloseButton) {
                 const settingValue = input.checked;
                 await applyGeneralSetting(settingKey, settingValue);
             }
+
+            if (settingKey === "show_quote") {
+                const settingValue = input.checked;
+                await applyGeneralSetting(settingKey, settingValue);
+            }
         });
     });
 
@@ -235,6 +310,49 @@ if (settingsOpenButton && settingsPopup && settingsCloseButton) {
             await applyGeneralSetting(input.dataset.settingKey, input.value);
         });
     });
+
+    if (settingsNameSaveBtn) {
+        settingsNameSaveBtn.addEventListener("click", () => {
+            saveSettingsName();
+        });
+    }
+
+    if (settingsNameInput) {
+        settingsNameInput.maxLength = USER_NAME_MAX_LENGTH;
+        settingsNameInput.placeholder = `max ${USER_NAME_MAX_LENGTH} chars`;
+        let settingsNameErrorTimer = null;
+
+        function showSettingsNameError(message) {
+            if (!settingsNameError) {
+                return;
+            }
+            settingsNameError.textContent = message;
+            clearTimeout(settingsNameErrorTimer);
+            settingsNameErrorTimer = setTimeout(() => {
+                settingsNameError.textContent = "";
+            }, 2000);
+        }
+
+        settingsNameInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                saveSettingsName();
+                return;
+            }
+
+            const isModifier = event.ctrlKey || event.metaKey || event.altKey;
+            const isPrintable = event.key.length === 1 && !isModifier;
+            if (isPrintable && settingsNameInput.value.length >= USER_NAME_MAX_LENGTH) {
+                showSettingsNameError(`Max ${USER_NAME_MAX_LENGTH} characters allowed.`);
+            }
+        });
+
+        settingsNameInput.addEventListener("input", () => {
+            if (settingsNameInput.value.length <= USER_NAME_MAX_LENGTH && settingsNameError) {
+                settingsNameError.textContent = "";
+            }
+        });
+    }
 
     initializeSettingsUI();
 }

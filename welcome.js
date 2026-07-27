@@ -69,13 +69,38 @@ async function close_welcome_tab() {
 let name_input_element = document.getElementById("name-input-id")
 let next_btn_element = document.getElementById("next_btn_id")
 
-name_input_element.addEventListener("keyup", async function (event) {
-    var name_input_value = name_input_element.value.trim()
+const name_error_element = document.getElementById("name-input-error");
+let name_error_timer = null;
 
-    if (name_input_value.length > 2) {
-        next_btn_element.style.backgroundColor = "#0388f5"
-    } else {
-        next_btn_element.style.backgroundColor = "#706b6b"
+function showNameError(message) {
+    name_error_element.textContent = message;
+    clearTimeout(name_error_timer);
+    name_error_timer = setTimeout(() => {
+        name_error_element.textContent = "";
+    }, 2000);
+}
+
+name_input_element.addEventListener("keydown", function (event) {
+    const isModifier = event.ctrlKey || event.metaKey || event.altKey;
+    const isPrintable = event.key.length === 1 && !isModifier;
+    if (isPrintable && name_input_element.value.length >= 8) {
+        showNameError("Max 8 characters allowed.");
+    }
+});
+
+name_input_element.addEventListener("input", function () {
+    const name_input_value = name_input_element.value;
+
+    if (name_input_value.length <= 8) {
+        next_btn_element.style.backgroundColor = name_input_value.trim().length > 2 ? "#0388f5" : "#706b6b";
+    }
+});
+
+name_input_element.addEventListener("keyup", async function (event) {
+    const name_input_value = name_input_element.value.trim();
+
+    if (name_input_value.length > 8) {
+        return;
     }
 
     if (event.keyCode != 13) {
@@ -83,11 +108,17 @@ name_input_element.addEventListener("keyup", async function (event) {
     }
 
     event.preventDefault();
-    await save_user_name(name_input_value)
+    await save_user_name(name_input_value);
 });
 
 next_btn_element.addEventListener('click', async () => {
-    await save_user_name(name_input_element.value)
+    const trimmed = name_input_element.value.trim();
+    if (trimmed.length > 8) {
+        name_error_element.textContent = "Name must be 8 characters or less.";
+        name_input_element.classList.add("input-name-over-limit");
+        return;
+    }
+    await save_user_name(trimmed);
 })
 
 type_writer(WELCOME_TEXT, welcome_element, true)

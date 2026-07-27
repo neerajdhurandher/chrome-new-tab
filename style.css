@@ -119,14 +119,46 @@ input:checked+.slider:before {
 
 .quote-container {
     position: absolute;
-    margin: auto;
     bottom: 3%;
-    right: 12%;
-    left: 12%;
-    padding: 1%;
-    background-color: rgba(135, 135, 135, 0.133);
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: min(76vw, 860px);
+    padding: 10px 24px;
+    background-color: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(26px);
+    -webkit-backdrop-filter: blur(26px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     z-index: 2;
     border-radius: 10px;
+    cursor: default;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.quote-hidden .quote-container {
+    display: none;
+}
+
+.quote-author-hover-only .quote_author_p {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-8px);
+    margin-top: 0;
+}
+
+.quote-author-hover-only .quote-container:hover .quote_p {
+    transform: translateY(-4px);
+}
+
+.quote-author-hover-only .quote-container:hover .quote_author_p {
+    max-height: 2em;
+    opacity: 1;
+    transform: translateY(0);
+    margin-top: 3px;
 }
 
 .quote-container>* {
@@ -138,10 +170,25 @@ input:checked+.slider:before {
 
 .quote_p {
     font-size: 1.1rem;
+    transition: transform 0.35s ease;
 }
 
 .quote_author_p {
     font-size: 1rem;
+    max-height: 2em;
+    overflow: hidden;
+    opacity: 1;
+    transform: translateY(0);
+    transition: max-height 0.35s ease, opacity 0.3s ease, transform 0.35s ease;
+    margin-top: 3px;
+}
+
+.quote-container:hover .quote_p {
+    transform: translateY(-4px);
+}
+
+.quote-container:hover .quote_author_p {
+    transform: translateY(0);
 }
 
 
@@ -569,6 +616,14 @@ input {
     background-color: transparent;
 }
 
+.name-input-error {
+    display: block;
+    font-size: 0.85rem;
+    color: #e31212;
+    margin-top: 4px;
+    min-height: 1em;
+}
+
 .next_btn {
     background-color: #706b6b;
     width: 10em;
@@ -576,7 +631,10 @@ input {
     margin-top: 5%;
     border-radius: 10px;
     float: right;
-    padding-left: 5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
 }
 
 .next_btn:hover {
@@ -1144,6 +1202,60 @@ input {
     outline-offset: 2px;
 }
 
+.settings-name-field {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.settings-name-input-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.settings-name-error {
+    font-size: 0.78rem;
+    color: #e31212;
+    min-height: 1em;
+}
+
+.settings-name-input {
+    width: 130px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.25);
+    color: #f5f5f5;
+    font-size: 0.92rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.settings-name-input:focus {
+    border-color: rgba(255, 255, 255, 0.65);
+}
+
+.settings-name-input.settings-name-saved {
+    border-color: #1ae94d;
+}
+
+.settings-name-save-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    background: #ffee56;
+    color: #101010;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.settings-name-save-btn:hover {
+    background: #fff17e;
+}
+
 .settings-select-input {
     min-width: 180px;
     padding: 6px 10px;
@@ -1226,26 +1338,34 @@ input {
     margin-bottom: 6px;
 }
 
+.help-about-section {
+    position: relative;
+}
+
+.help-about-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+}
+
 .neeraj-logo {
     display: flex;
-    justify-content: end;
+    align-items: flex-end;
+}
+
+.neeraj-logo a {
+    display: flex;
     align-items: center;
-    position: absolute;
-    float: right;
-    bottom: 2%;
-    right: 1%;
+    justify-content: center;
+}
 
-    a {
-        display: flex;
-        justify-content: end;
-        align-items: center;
-
-        img {
-            height: 14%;
-            width: 14%;
-            cursor: pointer;
-        }
-    }
+.neeraj-logo img {
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    object-fit: contain;
 }
 
 /* Scroll bar */
