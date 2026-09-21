@@ -2,6 +2,12 @@ import { USER_NAME, RETRIEVE_DATA } from "./constants.js"
 import { callChromeStorageApi } from "./chrome-storage-api.js";
 import { storeDataInLocalStorage } from "./chrome-storage-api.js";
 
+document.addEventListener("app-setting-changed", (event) => {
+    if (event.detail && event.detail.key === USER_NAME) {
+        set_greeting();
+    }
+});
+
 
 /**
  * Sets the greeting message on the webpage based on the current time of day.

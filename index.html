@@ -173,12 +173,29 @@
                     <button class="settings-menu-item active" type="button" data-section="general">General</button>
                     <button class="settings-menu-item" type="button" data-section="bookmarks">Bookmarks</button>
                     <button class="settings-menu-item" type="button" data-section="search">Search</button>
+                    <button class="settings-menu-item" type="button" data-section="quote">Quote</button>
                     <button class="settings-menu-item" type="button" data-section="help">Help</button>
                 </aside>
 
                 <section class="settings-panel">
                     <div class="settings-panel-view active" data-view="general">
                         <h3>General</h3>
+                        <div class="settings-card">
+                            <h4>Profile</h4>
+
+                            <div class="setting-row">
+                                <span class="setting-row-label">Your name</span>
+                                <div class="settings-name-field">
+                                    <div class="settings-name-input-wrap">
+                                        <input id="settings-name-input" class="settings-name-input" type="text"
+                                            autocomplete="off">
+                                        <span id="settings-name-error" class="settings-name-error"></span>
+                                    </div>
+                                    <button id="settings-name-save-btn" class="settings-name-save-btn" type="button">Save</button>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="settings-card">
                             <h4>Formats &amp; Units</h4>
 
@@ -264,6 +281,31 @@
                             </div>
                         </div>
                     </div>
+                    <div class="settings-panel-view" data-view="quote">
+                        <h3>Quote</h3>
+                        <div class="settings-card">
+                            <h4>Quote Preferences</h4>
+
+                            <div class="setting-row">
+                                <span class="setting-row-label">Show quote</span>
+                                <label class="settings-toggle" aria-label="Show quote">
+                                    <input class="settings-toggle-input" type="checkbox" data-setting-key="show_quote">
+                                    <span class="settings-toggle-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-row">
+                                <span class="setting-row-label">Show author name</span>
+                                <div class="segment-toggle" role="group" aria-label="Show author name">
+                                    <button class="segment-toggle-option active" type="button" data-setting-key="quote_author_visibility"
+                                        data-setting-value="always">Always</button>
+                                    <span class="segment-separator">|</span>
+                                    <button class="segment-toggle-option" type="button" data-setting-key="quote_author_visibility"
+                                        data-setting-value="hover">Hover</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="settings-panel-view" data-view="help">
                         <h3>Help</h3>
                         <div class="settings-card help-card">
@@ -290,25 +332,26 @@
                                 </ul>
                             </div>
 
-                            <div class="help-section">
+                            <div class="help-section help-about-section">
                                 <h5>About us</h5>
                                 <p class="help-about-line"><strong>Author:</strong> <span id="help-author">Neeraj Dhurandher</span></p>
                                 <p class="help-about-line"><strong>Current version:</strong> <span id="help-version">1.5.0</span></p>
-                                <a id="help-whats-new-link" class="help-link-item inline" href="./update.html" target="_blank"
-                                    rel="noopener noreferrer">What's new</a>
+                                <div class="help-about-footer">
+                                    <a id="help-whats-new-link" class="help-link-item inline" href="./update.html" target="_blank"
+                                        rel="noopener noreferrer">What's new</a>
+
+                                    <div class="neeraj-logo">
+                                        <a href="https://neerajdhurandher.me" target="_blank">
+                                            <img src="./neeraj-logo.png" alt="logo">
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </section>
             </div>
         </div>
-    </div>
-
-
-    <div class="neeraj-logo">
-        <a href="https://neerajdhurandher.me" target="_blank">
-            <img src="./neeraj-logo.png" alt="logo">
-        </a>
     </div>
 
 </body>
